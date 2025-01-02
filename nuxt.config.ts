@@ -16,10 +16,15 @@ export default defineNuxtConfig({
     'shadcn-nuxt',
     'unplugin-icons/nuxt',
     '@nuxtjs/color-mode',
+    '@pinia/nuxt',
   ],
 
   shadcn: {
     componentDir: './app/components/ui',
+  },
+
+  pinia: {
+    storesDirs: ['./app/stores/**'],
   },
 
   devServer: {
