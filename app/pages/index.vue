@@ -8,18 +8,23 @@ const store = useConnectionStore()
 const { connections } = storeToRefs(store)
 
 const normalizations = computed(() => {
-  return connections.value.map(({ id, url }) => ({ id, url: new URL(url) }))
+  return connections.value.map(({ id, url }) => ({ id, origin: url, url: new URL(url) }))
 })
 
 async function onConnectByURL() {
   const id = await connect()
   router.push({ path: `/${id}` })
 }
+
+async function onConnectById(id: string, url: string) {
+  await store.connect(url)
+  router.push({ path: `/${id}` })
+}
 </script>
 
 <template>
   <Drawer>
-    <div class="flex flex-col box-border px-10 py-16">
+    <div class="flex flex-col box-border -mt-7 px-10 py-16" :class="{ }">
       <div>
         <div class="flex items-center justify-between mb-10">
           <div class="text-xl font-semibold cursor-default">
@@ -62,7 +67,7 @@ async function onConnectByURL() {
       <Separator v-if="normalizations.length" class="my-8" />
 
       <div class="grid gap-7 grid-cols-2">
-        <Card v-for="c in normalizations" :key="c.id" class="cursor-pointer" @click="router.push({ path: `/${c.id}` })">
+        <Card v-for="c in normalizations" :key="c.id" class="cursor-pointer" @click="onConnectById(c.id, c.origin)">
           <CardHeader>
             <div class="fade flex animate-fade items-center gap-2.5">
               <div class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-200/50 text-zinc-900 dark:bg-zinc-800">

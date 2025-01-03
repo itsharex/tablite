@@ -7,7 +7,8 @@ interface Connection {
 }
 
 interface Cursor {
-  interface: Database
+  instance: Database
+  url: string
 }
 
 export const useConnectionStore = defineStore('connection', () => {
@@ -16,12 +17,14 @@ export const useConnectionStore = defineStore('connection', () => {
 
   async function connect(url: string) {
     const db = await Database.load(unref(url))
-    const id = findOrCreateCnx(url)
-    cursors.value[id] = { interface: db }
+    const id = findCnxOrCreate(url)
+    if (cursors.value[id]?.instance)
+      return id
+    cursors.value[id] = { instance: db, url }
     return id
   }
 
-  function findOrCreateCnx(url: string) {
+  function findCnxOrCreate(url: string) {
     const id = uuid()
     const exists = connections.value.find(e => e.url === url)
     if (exists?.id)

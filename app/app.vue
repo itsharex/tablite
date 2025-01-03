@@ -1,5 +1,5 @@
 <template>
-  <div class="w-screen h-screen relative overflow-auto bg-zinc-50">
+  <div class="relative overflow-auto bg-zinc-50">
     <TitleBar />
 
     <main vaul-drawer-wrapper>
@@ -7,3 +7,10 @@
     </main>
   </div>
 </template>
+
+<style>
+:root {
+  user-select: none;
+  background-color: #fafafa;
+}
+</style>
