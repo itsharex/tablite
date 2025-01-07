@@ -1,5 +1,5 @@
 <template>
-  <div class="relative overflow-auto bg-zinc-50">
+  <div class="relative overflow-hidden overscroll-none bg-zinc-50">
     <TitleBar />
 
     <main vaul-drawer-wrapper>
@@ -12,5 +12,6 @@
 :root {
   user-select: none;
   background-color: #fafafa;
+  overscroll-behavior: none;
 }
 </style>

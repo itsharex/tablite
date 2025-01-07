@@ -1,6 +1,20 @@
-interface Column {
+interface MysqlStructure {
   Field: string
   Type: string
+}
+
+interface Structure {
+  columnName: string
+  dataType: string
+}
+
+type QueryStructureResults = MysqlStructure[]
+
+function normalizeStructure(value: QueryStructureResults): Structure[] {
+  return value.map(item => ({
+    columnName: item.Field,
+    dataType: item.Type,
+  }))
 }
 
 export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
@@ -12,7 +26,7 @@ export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
   const limit = ref(100)
   const offset = ref(0)
   const data = ref<any[]>([])
-  const columns = ref<Column[]>([])
+  const structure = ref<Structure[]>([])
 
   async function execute() {
     if (table.value && cnxId.value) {
@@ -20,10 +34,10 @@ export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
 
       try {
         const results = await Promise.all([
-          cur.value?.instance.select<Column[]>(`DESCRIBE ${table.value};`),
+          cur.value?.instance.select<QueryStructureResults>(`DESCRIBE ${table.value};`),
           cur.value?.instance.select<any[]>(sql, [limit.value, offset.value]),
         ])
-        columns.value = results[0] ?? []
+        structure.value = normalizeStructure(results[0] ?? [])
         data.value = results[1] ?? []
       }
       catch {
@@ -34,7 +48,7 @@ export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
 
   return {
     data,
-    columns,
+    structure,
     execute,
   }
 }
