@@ -23,7 +23,7 @@ export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
   const table = computed(() => unref(name))
   const cnxId = computed(() => unref(id))
   const cur = computed(() => cursors.value[cnxId.value])
-  const limit = ref(100)
+  const limit = ref(50)
   const offset = ref(0)
   const count = ref(0)
   const data = ref<any[]>([])
