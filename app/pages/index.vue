@@ -13,12 +13,12 @@ const normalizations = computed(() => {
 
 async function onConnectByURL() {
   const id = await connect()
-  router.push({ path: `/${id}` })
+  router.push({ path: `/${id}/tables` })
 }
 
 async function onConnectById(id: string, url: string) {
   await store.connect(url)
-  router.push({ path: `/${id}` })
+  router.push({ path: `/${id}/tables` })
 }
 </script>
 
@@ -66,7 +66,7 @@ async function onConnectById(id: string, url: string) {
 
       <Separator v-if="normalizations.length" class="my-8" />
 
-      <div class="grid gap-7 grid-cols-2">
+      <div class="grid gap-7 grid-cols-3">
         <Card v-for="c in normalizations" :key="c.id" class="cursor-pointer" @click="onConnectById(c.id, c.origin)">
           <CardHeader>
             <div class="fade flex animate-fade items-center gap-2.5">
