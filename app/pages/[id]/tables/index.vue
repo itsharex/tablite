@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdjustmentsHorizontal from '~icons/heroicons/adjustments-horizontal'
 import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
 
@@ -48,37 +49,62 @@ async function onPaginationChange(value: number) {
 
     <ResizableHandle />
 
-    <ResizablePanel class="flex flex-col h-full">
-      <div v-show="!isLoading" class="w-full h-0 overflow-auto overscroll-none grid items-start flex-1 gap-px text-xs cursor-default bg-zinc-100 border-zinc-100" :style="{ gridAutoRows: '2rem', gridTemplateColumns: `repeat(${structure.length}, 200px)` }">
-        <div v-for="col in structure" :key="col.columnName" class="sticky top-0 z-10 h-8 px-3 font-semibold flex items-center bg-zinc-50 shadow">
-          {{ col.columnName }}
-        </div>
-        <template v-for="(row, y) in data">
-          <div v-for="(col, x) in structure" :key="`${x}:${y}`" class="h-8 col-span-1 flex items-center hover:bg-zinc-200/50" :class="y % 2 ? 'bg-zinc-50' : 'bg-white'" @dblclick="onSelectCell(x, y)">
-            <div class="truncate px-3">
-              <Badge v-if="['longblob'].includes(col.dataType)" class="origin-left scale-75 text-xs uppercase">
-                {{ col.dataType }}
-              </Badge>
-
-              <span v-else>{{ row[col.columnName] }}</span>
-            </div>
+    <ResizablePanel class="h-full bg-white">
+      <div v-show="selectedTable" class="flex flex-col h-full">
+        <div class="px-4 pt-8 pb-6 flex justify-between items-center">
+          <div class="font-semibold uppercase">
+            {{ selectedTable }}
           </div>
-        </template>
-      </div>
 
-      <Separator />
+          <div class="flex gap-2">
+            <Button size="sm">
+              <AdjustmentsHorizontal />
+              Add filters
+            </Button>
 
-      <div class="flex-shrink-0 px-3 py-2 text-xs flex justify-end items-center gap-1.5 relative z-10">
-        <div class="mx-3">
-          Page {{ page }} of {{ pageTotal }}
+            <Button size="sm">
+              Add Row
+            </Button>
+          </div>
         </div>
 
-        <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === 1" @click="onPaginationChange(page - 1)">
-          <ChevronLeft />
-        </Button>
-        <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal" @click="onPaginationChange(page + 1)">
-          <ChevronRight />
-        </Button>
+        <Separator />
+
+        <div class="w-full h-0 flex-1 flex flex-col bg-zinc-100">
+          <div v-if="isLoading" />
+
+          <div v-show="!isLoading" class="w-full h-0 overflow-auto overscroll-none grid items-start flex-1 gap-px text-xs cursor-default border-zinc-100" :style="{ gridAutoRows: '2rem', gridTemplateColumns: `repeat(${structure.length}, minmax(200px, 1fr))` }">
+            <div v-for="col in structure" :key="col.columnName" class="sticky top-0 z-10 h-8 px-3 font-semibold flex items-center bg-zinc-50 shadow">
+              {{ col.columnName }}
+            </div>
+            <template v-for="(row, y) in data">
+              <div v-for="(col, x) in structure" :key="`${x}:${y}`" class="h-8 col-span-1 flex items-center hover:bg-zinc-200/50" :class="y % 2 ? 'bg-zinc-50' : 'bg-white'" @dblclick="onSelectCell(x, y)">
+                <div class="truncate px-3">
+                  <Badge v-if="['longblob'].includes(col.dataType)" class="origin-left scale-75 text-xs uppercase">
+                    {{ col.dataType }}
+                  </Badge>
+
+                  <span v-else>{{ row[col.columnName] }}</span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <Separator />
+
+        <div class="flex-shrink-0 px-3 py-2 text-xs flex justify-end items-center gap-1.5 relative z-10">
+          <div class="mx-3">
+            Page {{ page }} of {{ pageTotal }}
+          </div>
+
+          <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
+            <ChevronLeft />
+          </Button>
+          <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
+            <ChevronRight />
+          </Button>
+        </div>
       </div>
     </ResizablePanel>
   </ResizablePanelGroup>

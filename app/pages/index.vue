@@ -24,7 +24,7 @@ async function onConnectById(id: string, url: string) {
 
 <template>
   <Drawer>
-    <div class="flex flex-col box-border -mt-7 px-10 py-16" :class="{ }">
+    <div class="flex flex-col box-border py-16 mx-auto max-w-3xl">
       <div>
         <div class="flex items-center justify-between mb-10">
           <div class="text-xl font-semibold cursor-default">
@@ -66,23 +66,21 @@ async function onConnectById(id: string, url: string) {
 
       <Separator v-if="normalizations.length" class="my-8" />
 
-      <div class="grid gap-7 grid-cols-3">
-        <Card v-for="c in normalizations" :key="c.id" class="cursor-pointer" @click="onConnectById(c.id, c.origin)">
-          <CardHeader>
-            <div class="fade flex animate-fade items-center gap-2.5">
-              <div class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-200/50 text-zinc-900 dark:bg-zinc-800">
-                <MySQL class="size-6" />
-              </div>
-              <div>
-                <CardTitle class="text-md">
-                  {{ c.url.host }}
-                </CardTitle>
-                <CardDescription class="text-xs">
-                  MySQL
-                </CardDescription>
-              </div>
+      <div class="grid gap-7 grid-cols-2">
+        <Card v-for="c in normalizations" :key="c.id" class="cursor-pointer p-4" @click="onConnectById(c.id, c.origin)">
+          <div class="fade flex animate-fade items-center gap-2.5">
+            <div class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-600 text-white">
+              <MySQL class="size-6" />
             </div>
-          </CardHeader>
+            <div>
+              <CardTitle class="text-sm text-zinc-600">
+                {{ c.url.host }}
+              </CardTitle>
+              <CardDescription class="text-xs">
+                MySQL
+              </CardDescription>
+            </div>
+          </div>
         </Card>
       </div>
     </div>
@@ -94,7 +92,7 @@ async function onConnectById(id: string, url: string) {
       </DrawerHeader>
 
       <div class="px-4">
-        <div class="grid grid-cols-4 gap-4 ">
+        <div class="grid grid-cols-5 gap-4">
           <CardSpotlight
             class="cursor-pointer p-6 box-border items-center"
             gradient-color="#C9C9C9"
