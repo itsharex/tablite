@@ -12,7 +12,8 @@ interface Position {
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const selectedTable = ref('')
 const selectedCell = ref<Partial<Position>>({})
-const { data, limit, offset, count, structure, isLoading, setup, execute } = useTable(selectedTable, cursor)
+const { data, limit, offset, count, structure, schema, isLoading, setup, execute } = useTable(selectedTable, cursor)
+const mode = ref('data')
 
 const page = computed({
   get() {
@@ -52,9 +53,17 @@ async function onPaginationChange(value: number) {
 
     <ResizablePanel class="h-full bg-white">
       <div v-show="selectedTable" class="flex flex-col h-full">
-        <div class="px-4 pt-8 pb-6 flex justify-between items-center">
-          <div class="font-semibold uppercase mx-4 cursor-default">
-            {{ selectedTable }}
+        <div class="px-4 pt-8 pb-2 flex justify-between items-center">
+          <div class="ml-2 flex-1">
+            <div class="font-semibold uppercase cursor-default">
+              {{ selectedTable }}
+            </div>
+
+            <div class="flex my-px scale-75 origin-left gap-2">
+              <Badge v-for="v in Object.values(schema)" :key="v" variant="outline" class="text-xs cursor-default">
+                {{ v }}
+              </Badge>
+            </div>
           </div>
 
           <div class="flex gap-2">
@@ -81,6 +90,8 @@ async function onPaginationChange(value: number) {
                     {{ col.dataType }}
                   </Badge>
 
+                  <span v-else-if="row[col.columnName] === ''" class="text-zinc-600/50">EMPTY</span>
+
                   <span v-else>{{ row[col.columnName] }}</span>
                 </div>
               </div>
@@ -90,17 +101,30 @@ async function onPaginationChange(value: number) {
 
         <Separator />
 
-        <div class="flex-shrink-0 px-3 py-2 text-xs flex justify-end items-center gap-1.5 relative z-10">
-          <div class="mx-3">
-            Page {{ page }} of {{ pageTotal }}
-          </div>
+        <div class="flex-shrink-0 px-3 py-2 flex justify-between items-center relative z-10">
+          <Tabs v-model="mode">
+            <TabsList>
+              <TabsTrigger value="data" class="px-3 text-xs">
+                Data
+              </TabsTrigger>
+              <TabsTrigger value="structure" class="px-3 text-xs">
+                Structure
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-          <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
-            <ChevronLeft />
-          </Button>
-          <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
-            <ChevronRight />
-          </Button>
+          <div class="text-xs flex justify-end items-center gap-1.5">
+            <div class="mx-3">
+              Page {{ page }} of {{ pageTotal }}
+            </div>
+
+            <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
+              <ChevronLeft />
+            </Button>
+            <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
+              <ChevronRight />
+            </Button>
+          </div>
         </div>
       </div>
     </ResizablePanel>

@@ -10,13 +10,35 @@ interface Structure {
   dataType: string
 }
 
+interface MysqlSchema {
+  TABLE_CATALOG: string
+  TABLE_SCHEMA: string
+  TABLE_NAME: string
+  TABLE_TYPE: string
+  ENGINE: string
+  VERSION: number
+  TABLE_ROWS: number
+  TABLE_COMMENT: string
+  TABLE_COLLATION: string
+}
+
 type QueryStructureResults = MysqlStructure[]
+type QuerySchemaResults = MysqlSchema
 
 function normalizeStructure(value: QueryStructureResults): Structure[] {
   return value.map(item => ({
     columnName: item.Field,
     dataType: item.Type,
   }))
+}
+
+function normalizeSchema(value: QuerySchemaResults) {
+  return {
+    tableCatalog: value.TABLE_CATALOG,
+    tableSchema: value.TABLE_SCHEMA,
+    tableType: value.TABLE_TYPE,
+    tableCollation: value.TABLE_COLLATION,
+  }
 }
 
 export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<Database | undefined> | undefined) {
@@ -27,6 +49,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const count = ref(0)
   const data = ref<any[]>([])
   const structure = ref<Structure[]>([])
+  const schema = ref<Partial<ReturnType<typeof normalizeSchema>>>({})
   const isLoading = ref([false, false])
 
   async function setup() {
@@ -36,9 +59,11 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
         const results = await Promise.all([
           cursor.value?.select<QueryStructureResults>(`DESCRIBE ${table.value};`),
           cursor.value?.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),
+          cursor.value?.select<any>(`SELECT * FROM information_schema.tables WHERE TABLE_NAME = '${table.value}';`),
         ])
         structure.value = normalizeStructure(results[0] ?? [])
         count.value = results[1]?.[0]?.count ?? 0
+        schema.value = normalizeSchema(results[2]?.[0])
       }
     }
     finally {
@@ -63,6 +88,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
 
   return {
     data,
+    schema,
     structure,
     limit,
     offset,

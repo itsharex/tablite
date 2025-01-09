@@ -53,7 +53,7 @@ async function onRun() {
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel :default-size="72" :min-size="25" class="w-full flex flex-col bg-white">
           <div class="flex justify-between items-center px-4 pt-8 pb-6">
-            <input v-model="name" class="focus-visible:outline-none font-semibold mx-4" placeholder="Untitled Query" @click="($event: any) => $event.target.select()">
+            <input v-model="name" class="focus-visible:outline-none font-semibold ml-2" placeholder="Untitled Query" @click="($event: any) => $event.target.select()">
 
             <div class="flex justify-end gap-2">
               <Button variant="secondary" size="sm" :disabled="!name">
