@@ -44,13 +44,13 @@ async function onPaginationChange(value: number) {
 
     <ResizablePanel class="h-full bg-white">
       <div v-show="selectedTable" class="flex flex-col h-full">
-        <div class="px-4 pt-8 pb-2 flex justify-between items-center">
+        <div class="px-4 pt-6 pb-4 flex justify-between items-center">
           <div class="ml-2 flex-1">
             <div class="font-semibold uppercase cursor-default">
               {{ selectedTable }}
             </div>
 
-            <div class="flex my-px scale-75 origin-left gap-2">
+            <div class="flex my-px scale-75 origin-left gap-2 h-[22px]">
               <Badge v-for="v in Object.values(schema)" :key="v" variant="outline" class="text-xs cursor-default">
                 {{ v }}
               </Badge>
@@ -77,10 +77,10 @@ async function onPaginationChange(value: number) {
         <div class="flex-shrink-0 px-3 py-2 flex justify-between items-center relative z-10">
           <Tabs v-model="mode">
             <TabsList>
-              <TabsTrigger value="data" class="px-3 text-xs">
+              <TabsTrigger value="data" class="px-3 py-1 text-xs font-normal">
                 Data
               </TabsTrigger>
-              <TabsTrigger value="structure" class="px-3 text-xs">
+              <TabsTrigger value="structure" class="px-3 py-1 text-xs font-normal">
                 Structure
               </TabsTrigger>
             </TabsList>
