@@ -5,6 +5,10 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
 import PlaySolid from '~icons/heroicons/play-solid'
 
+definePageMeta({
+  keepalive: true,
+})
+
 let editor: monaco.editor.IStandaloneCodeEditor
 
 const domRef = ref()

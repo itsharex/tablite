@@ -4,6 +4,10 @@ import AdjustmentsHorizontal from '~icons/heroicons/adjustments-horizontal'
 import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
 
+definePageMeta({
+  keepalive: true,
+})
+
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const selectedTable = ref('')
 const { data, limit, offset, count, structure, schema, isLoading, setup, execute } = useTable(selectedTable, cursor)

@@ -3,6 +3,10 @@ import type Database from '@tauri-apps/plugin-sql'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
 
+definePageMeta({
+  keepalive: true,
+})
+
 const route = useRoute()
 const router = useRouter()
 const id = useRouteParams<string>('id')
