@@ -14,6 +14,15 @@ let editor: monaco.editor.IStandaloneCodeEditor
 const domRef = ref()
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const { name, code, data, error, isSelect, isLoading, execute } = useQuery(cursor)
+const { timestamp, pause, resume } = useTimestamp({ controls: true, immediate: false })
+const startedAt = ref(0)
+
+const timeCost = computed(() => {
+  const duration = timestamp.value - startedAt.value
+  if (duration < 1000)
+    return `${duration}ms`
+  return `${(duration / 1000).toFixed(2)}s`
+})
 
 const columns = computed(() => {
   if (!Array.isArray(data.value))
@@ -46,8 +55,12 @@ onMounted(async () => {
 })
 
 async function onRun() {
+  startedAt.value = new Date().getTime()
   code.value = editor.getValue()
+
+  resume()
   await execute()
+  pause()
 }
 </script>
 
@@ -111,6 +124,8 @@ async function onRun() {
                 <PlaySolid v-else class="size-4" />
 
                 <span>Run</span>
+
+                <span v-if="startedAt">{{ timeCost }}</span>
               </Button>
             </div>
           </div>
