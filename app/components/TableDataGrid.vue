@@ -11,7 +11,7 @@ function isBlob(value: any) {
 
 <template>
   <div class="w-full h-0 overflow-auto z-10 overscroll-none grid items-start flex-1 gap-px text-xs cursor-default border-zinc-100" :style="{ gridAutoRows: '2rem', gridTemplateColumns: `repeat(${columns.length}, minmax(200px, 1fr))` }">
-    <div v-for="col in columns" :key="col" class="sticky top-0 h-8 px-3 font-semibold flex items-center bg-zinc-50 shadow">
+    <div v-for="col in columns" :key="col" class="sticky top-0 z-10 h-8 px-3 font-semibold flex items-center bg-zinc-50 shadow">
       {{ col }}
     </div>
 
