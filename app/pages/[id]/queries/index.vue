@@ -78,7 +78,7 @@ async function onRun() {
               Create a Query
             </div>
             <div class="text-pretty text-xs font-light mx-auto text-zinc-800/50">
-              Let's get started with something fun
+              Let's get started with something awesome
             </div>
           </div>
 
