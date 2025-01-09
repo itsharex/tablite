@@ -34,13 +34,15 @@ function onSelect(table: string) {
       <div class="px-4 pt-8 flex gap-2.5 items-center cursor-default justify-between">
         <span class="text-xl font-semibold">Tables</span>
 
-        <Button variant="ghost" size="icon" :disabled="isLoading" @click="reconnect">
-          <ArrowPath :class="{ 'animate-spin': isLoading }" />
-        </Button>
+        <div class="h-0">
+          <Button variant="ghost" size="icon" class="-translate-y-1/2" :disabled="isLoading" @click="reconnect">
+            <ArrowPath :class="{ 'animate-spin': isLoading }" />
+          </Button>
+        </div>
       </div>
 
       <div class="px-4 mt-6 pb-4 transition-all duration-150" :class="{ shadow: y > 6 }">
-        <Input v-model="search" class="h-8 text-sm relative z-10" placeholder="Search Tables" />
+        <Input v-model="search" class="h-8 text-sm relative z-10" placeholder="Search tables" />
       </div>
 
       <div ref="domRef" class="h-full relative overflow-y-auto pb-4">
