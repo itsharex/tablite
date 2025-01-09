@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type Database from '@tauri-apps/plugin-sql'
 import AdjustmentsHorizontal from '~icons/heroicons/adjustments-horizontal'
 import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
@@ -8,10 +9,10 @@ interface Position {
   y: number
 }
 
-const id = useRouteParams<string>('id')
+const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const selectedTable = ref('')
 const selectedCell = ref<Partial<Position>>({})
-const { data, limit, offset, count, structure, isLoading, setup, execute } = useTable(selectedTable, id)
+const { data, limit, offset, count, structure, isLoading, setup, execute } = useTable(selectedTable, cursor)
 
 const page = computed({
   get() {
@@ -44,7 +45,7 @@ async function onPaginationChange(value: number) {
 <template>
   <ResizablePanelGroup direction="horizontal" class="flex-1 h-full">
     <ResizablePanel :default-size="24" :min-size="10" :max-size="50">
-      <DatabaseTableSelector v-model:value="selectedTable" :cnx-id="id" :loading="isLoading" @after-select="onSelectTable" />
+      <TableSelector v-model:value="selectedTable" :cursor="cursor" :loading="isLoading" @after-select="onSelectTable" />
     </ResizablePanel>
 
     <ResizableHandle />
@@ -52,7 +53,7 @@ async function onPaginationChange(value: number) {
     <ResizablePanel class="h-full bg-white">
       <div v-show="selectedTable" class="flex flex-col h-full">
         <div class="px-4 pt-8 pb-6 flex justify-between items-center">
-          <div class="font-semibold uppercase">
+          <div class="font-semibold uppercase mx-4 cursor-default">
             {{ selectedTable }}
           </div>
 
@@ -60,10 +61,6 @@ async function onPaginationChange(value: number) {
             <Button size="sm">
               <AdjustmentsHorizontal />
               Add filters
-            </Button>
-
-            <Button size="sm">
-              Add Row
             </Button>
           </div>
         </div>
@@ -78,9 +75,9 @@ async function onPaginationChange(value: number) {
               {{ col.columnName }}
             </div>
             <template v-for="(row, y) in data">
-              <div v-for="(col, x) in structure" :key="`${x}:${y}`" class="h-8 col-span-1 flex items-center hover:bg-zinc-200/50" :class="y % 2 ? 'bg-zinc-50' : 'bg-white'" @dblclick="onSelectCell(x, y)">
+              <div v-for="(col, x) in structure" :key="`${x}:${y}`" class="h-8 col-span-1 flex items-center text-zinc-800 hover:bg-zinc-200/50" :class="y % 2 ? 'bg-zinc-50' : 'bg-white'" @dblclick="onSelectCell(x, y)">
                 <div class="truncate px-3">
-                  <Badge v-if="['longblob'].includes(col.dataType)" class="origin-left scale-75 text-xs uppercase">
+                  <Badge v-if="['longblob'].includes(col.dataType)" size="sm" class="origin-left scale-75 text-xs uppercase">
                     {{ col.dataType }}
                   </Badge>
 

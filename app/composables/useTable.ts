@@ -1,3 +1,5 @@
+import type Database from '@tauri-apps/plugin-sql'
+
 interface MysqlStructure {
   Field: string
   Type: string
@@ -17,12 +19,9 @@ function normalizeStructure(value: QueryStructureResults): Structure[] {
   }))
 }
 
-export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
-  const store = useConnectionStore()
-  const { cursors } = storeToRefs(store)
-  const table = computed(() => unref(name))
-  const cnxId = computed(() => unref(id))
-  const cur = computed(() => cursors.value[cnxId.value])
+export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<Database | undefined> | undefined) {
+  const table = computed(() => unref(tableName))
+  const cursor = computed(() => unref(cursorInstance))
   const limit = ref(50)
   const offset = ref(0)
   const count = ref(0)
@@ -32,11 +31,11 @@ export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
 
   async function setup() {
     try {
-      if (table.value && cnxId.value) {
+      if (table.value && cursor.value) {
         isLoading.value[0] = true
         const results = await Promise.all([
-          cur.value?.instance.select<QueryStructureResults>(`DESCRIBE ${table.value};`),
-          cur.value?.instance.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),
+          cursor.value?.select<QueryStructureResults>(`DESCRIBE ${table.value};`),
+          cursor.value?.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),
         ])
         structure.value = normalizeStructure(results[0] ?? [])
         count.value = results[1]?.[0]?.count ?? 0
@@ -48,10 +47,10 @@ export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
   }
 
   async function execute() {
-    if (table.value && cnxId.value) {
+    if (table.value && cursor.value) {
       try {
         isLoading.value[1] = true
-        data.value = await cur.value?.instance.select<any[]>(`SELECT * FROM \`${table.value}\` LIMIT ? OFFSET ?;`, [limit.value, offset.value]) ?? []
+        data.value = await cursor.value?.select<any[]>(`SELECT * FROM \`${table.value}\` LIMIT ? OFFSET ?;`, [limit.value, offset.value]) ?? []
       }
       catch {
         data.value = []
@@ -74,40 +73,16 @@ export function useTable(name: MaybeRef<string>, id: MaybeRef<string>) {
   }
 }
 
-export function useTables(value: MaybeRef<string>) {
-  const store = useConnectionStore()
-  const { cursors, connections } = storeToRefs(store)
-  const cnxId = computed(() => unref(value))
-  const cur = computed(() => cursors.value[cnxId.value])
+export function useTables(cursorInstance: MaybeRef<Database | undefined> | undefined) {
+  const cursor = computed(() => unref(cursorInstance))
   const tables = ref<string[]>([])
   const isLoading = ref(false)
-
-  const backend = computed(() => {
-    if (cur.value?.url.startsWith('mysql'))
-      return 'mysql'
-    if (cur.value?.url.startsWith('postgres'))
-      return 'postgres'
-    return 'mysql'
-  })
-
-  async function findCurOrCreate() {
-    if (cur.value?.instance)
-      return cur.value.instance
-    const cnx = connections.value.find(e => e.id === cnxId.value)
-    if (!cnx?.url)
-      return
-    await store.connect(cnx.url)
-    return cur.value?.instance
-  }
+  const isReady = computed(() => !!cursor.value)
 
   async function execute() {
     try {
-      isLoading.value = true
-      const instance = await findCurOrCreate()
-      if (!instance)
-        return
-      const sql = Sql.SHOW_TABLES![backend.value]!
-      const data: Record<string, string>[] = await instance.select(sql)
+      const sql = Sql.SHOW_TABLES!.mysql
+      const data: Record<string, string>[] = await cursor.value?.select(sql) ?? []
       tables.value = data.map(item => Object.values(item)[0] as string)
     }
     finally {
@@ -115,8 +90,9 @@ export function useTables(value: MaybeRef<string>) {
     }
   }
 
-  watchImmediate(connections, () => {
-    execute()
+  watchImmediate(isReady, (value) => {
+    if (value)
+      execute()
   })
 
   return {

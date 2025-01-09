@@ -1,34 +1,22 @@
-export function useQuery(id: MaybeRef<string>) {
+import type Database from '@tauri-apps/plugin-sql'
+
+export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefined) {
   const name = ref('')
   const code = ref('')
-  const store = useConnectionStore()
-  const { cursors, connections } = storeToRefs(store)
-  const cnxId = computed(() => unref(id))
-  const cur = computed(() => cursors.value[cnxId.value])
+  const cursor = computed(() => unref(cursorInstance))
   const data = ref<any>()
   const error = ref()
   const isLoading = ref(false)
-
-  async function findCurOrCreate() {
-    if (cur.value?.instance)
-      return cur.value.instance
-    const cnx = connections.value.find(e => e.id === cnxId.value)
-    if (!cnx?.url)
-      return
-    await store.connect(cnx.url)
-    return cur.value?.instance
-  }
 
   async function execute() {
     if (!code.value)
       return
 
     try {
-      isLoading.value = true
-      const instance = await findCurOrCreate()
-      if (!instance)
+      if (!cursor.value)
         return
-      data.value = await instance.execute(code.value)
+      isLoading.value = true
+      data.value = await cursor.value.execute(code.value)
     }
     catch (e) {
       error.value = e

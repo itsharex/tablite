@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type Database from '@tauri-apps/plugin-sql'
 import ArrowPath from '~icons/heroicons/arrow-path'
 import TableCells from '~icons/heroicons/table-cells'
 
 const props = defineProps<{
   value: string
-  cnxId: string
+  cursor?: Database
   loading: boolean
 }>()
 
@@ -12,8 +13,8 @@ const emit = defineEmits(['update:value', 'afterSelect'])
 
 const value = useVModel(props, 'value', emit)
 
-const { cnxId } = toRefs(props)
-const { tables, isLoading, execute: reconnect } = useTables(cnxId)
+const { cursor } = toRefs(props)
+const { tables, isLoading, execute: reconnect } = useTables(cursor)
 const search = ref('')
 
 const filtered = computed(() => tables.value.filter(e => e.includes(search.value)))
@@ -36,13 +37,13 @@ function onSelect(table: string) {
       </div>
 
       <div class="px-4 mt-6">
-        <Input v-model="search" class="h-8 text-sm relative z-10" size="sm" placeholder="Search Tables" />
+        <Input v-model="search" class="h-8 text-sm relative z-10" placeholder="Search Tables" />
       </div>
 
       <div class="h-full relative overflow-y-auto pb-4">
         <div class="sticky top-0 h-4 bg-gradient-to-b from-zinc-50 to-transparent" />
 
-        <div v-for="table in filtered" :key="table" class="flex items-center text-sm gap-1.5 min-h-8 px-4 cursor-default text-zinc-600" :class="[value === table ? 'bg-zinc-200' : 'hover:bg-zinc-200/50']" @click="onSelect(table)">
+        <div v-for="table in filtered" :key="table" class="flex items-center text-sm gap-1.5 min-h-8 px-4 cursor-default text-zinc-600" :class="[value === table ? 'text-zinc-800 bg-zinc-200' : 'hover:bg-zinc-200/50']" @click="onSelect(table)">
           <TableCells class="flex-shrink-0" />
           <div class="flex-1 truncate">
             {{ table }}
