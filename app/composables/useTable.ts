@@ -5,7 +5,7 @@ interface MysqlStructure {
   Type: string
 }
 
-interface Structure {
+export interface Structure {
   columnName: string
   dataType: string
 }
