@@ -54,11 +54,12 @@ async function onPaginationChange(value: number) {
               {{ selectedTable }}
             </div>
 
-            <div class="flex my-px scale-75 origin-left gap-2 h-[22px]">
+            <div v-if="!isLoading" class="flex my-px scale-75 origin-left gap-2 h-[22px]">
               <Badge v-for="v in Object.values(schema)" :key="v" variant="outline" class="text-xs cursor-default">
                 {{ v }}
               </Badge>
             </div>
+            <Skeleton v-else class="h-4 my-1 w-16 rounded-full" />
           </div>
 
           <div class="flex gap-2">
@@ -95,10 +96,10 @@ async function onPaginationChange(value: number) {
               Page {{ page }} of {{ pageTotal }}
             </div>
 
-            <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
+            <Button size="icon" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
               <ChevronLeft />
             </Button>
-            <Button variant="outline" size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
+            <Button size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
               <ChevronRight />
             </Button>
           </div>

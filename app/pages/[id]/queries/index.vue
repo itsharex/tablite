@@ -2,6 +2,8 @@
 import type Database from '@tauri-apps/plugin-sql'
 import * as monaco from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import ArrowDownTray from '~icons/heroicons/arrow-down-tray'
+import CheckCircle from '~icons/heroicons/check-circle'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
 import PlaySolid from '~icons/heroicons/play-solid'
 
@@ -13,16 +15,9 @@ let editor: monaco.editor.IStandaloneCodeEditor
 
 const domRef = ref()
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
-const { name, code, data, error, isSelect, isLoading, execute } = useQuery(cursor)
-const { timestamp, pause, resume } = useTimestamp({ controls: true, immediate: false })
-const startedAt = ref(0)
-
-const timeCost = computed(() => {
-  const duration = timestamp.value - startedAt.value
-  if (duration < 1000)
-    return `${duration}ms`
-  return `${(duration / 1000).toFixed(2)}s`
-})
+const { name, code, data, error, timeToExecute, isSelect, isLoading, execute } = useQuery(cursor)
+const results = ref({ time: 0, status: 'OK', size: 0 })
+const transitionTimeToExecute = useTransition(timeToExecute)
 
 const columns = computed(() => {
   if (!Array.isArray(data.value))
@@ -55,12 +50,10 @@ onMounted(async () => {
 })
 
 async function onRun() {
-  startedAt.value = new Date().getTime()
   code.value = editor.getValue()
-
-  resume()
+  const start = performance.now()
   await execute()
-  pause()
+  results.value.time = performance.now() - start
 }
 </script>
 
@@ -106,7 +99,7 @@ async function onRun() {
 
     <ResizablePanel>
       <ResizablePanelGroup direction="vertical">
-        <ResizablePanel :default-size="60" :min-size="25" class="w-full flex flex-col bg-white">
+        <ResizablePanel :default-size="50" :min-size="25" class="w-full flex flex-col bg-white">
           <div class="flex justify-between items-center px-4 pt-8 pb-6">
             <input v-model="name" class="focus-visible:outline-none font-semibold ml-2" placeholder="Untitled Query" @click="($event: any) => $event.target.select()">
 
@@ -124,8 +117,6 @@ async function onRun() {
                 <PlaySolid v-else class="size-4" />
 
                 <span>Run</span>
-
-                <span v-if="startedAt">{{ timeCost }}</span>
               </Button>
             </div>
           </div>
@@ -141,8 +132,24 @@ async function onRun() {
             <span>Your results will display here.</span>
           </div>
 
-          <div v-if="isSelect && !error" class="h-0 flex flex-1 flex-col bg-zinc-100">
-            <TableDataGrid :columns="columns" :data-source="data" />
+          <div v-if="isSelect && !error" class="flex flex-1 flex-col bg-white">
+            <div class="h-0 flex flex-1 flex-col bg-zinc-100">
+              <TableDataGrid :columns="columns" :data-source="data" />
+            </div>
+
+            <Separator />
+
+            <span class="flex-shrink-0 px-3 py-2 text-xs flex items-center justify-between">
+              <span class="flex items-center gap-1">
+                <CheckCircle class="size-4" />
+                {{ transitionTimeToExecute.toFixed(0) }} ms
+              </span>
+
+              <span>
+                {{ data.length }} row return
+              </span>
+
+            </span>
           </div>
 
           <div v-if="error" class="w-full flex-1 flex items-center">
