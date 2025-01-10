@@ -196,9 +196,8 @@ async function onRun() {
               </span>
 
               <span>
-                {{ data.length }} row return
+                {{ data?.length }} row return
               </span>
-
             </span>
           </div>
 

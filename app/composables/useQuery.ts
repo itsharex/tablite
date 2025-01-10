@@ -14,15 +14,16 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
   const data = ref<any>()
   const error = ref()
   const isLoading = ref(false)
+  const limit = ref(50)
 
-  const sql = computed(() => code.value.trim().split(';').filter(Boolean).at(-1))
+  const sql = computed(() => code.value.split(';').map(e => e.trim()).filter(Boolean).at(-1))
   const isSelect = computed(() => startsWithIgnoreCase(sql.value, 'SELECT'))
   const operation = computed(() => isSelect.value ? 'select' : 'execute')
 
   function queryLimiter(sql: string) {
     if (sql.toUpperCase().includes('LIMIT'))
       return sql
-    return [sql, 'LIMIT', 50].join(' ')
+    return [sql, 'LIMIT', limit.value].join(' ')
   }
 
   async function execute() {
@@ -51,6 +52,7 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
     code,
     data,
     error,
+    limit,
     timeToExecute,
     isSelect,
     isLoading,
