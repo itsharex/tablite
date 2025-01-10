@@ -2,6 +2,7 @@
 import type Database from '@tauri-apps/plugin-sql'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
+import Squares2x2 from '~icons/heroicons/squares-2x2-solid'
 
 definePageMeta({
   keepalive: true,
@@ -42,9 +43,17 @@ provide('__TABLITE:CURSOR', instance)
 
 <template>
   <div class="h-screen -mt-7 flex">
-    <div class="w-[70px] flex flex-col gap-1 flex-shrink-0 border-r py-12 bg-zinc-800 border-r-zinc-200">
-      <div v-for="tab in tabs" :key="tab.key" class="flex items-center cursor-pointer justify-center size-[44px] mx-auto rounded-md" :class="[route.name === tab.key ? 'text-white bg-white/15' : 'text-white/50 hover:text-white/75']" @click="router.replace({ name: tab.key })">
-        <component :is="tab.icon" class="flex-shrink-0 size-5" />
+    <div class="w-[70px] flex flex-col justify-between items-center flex-shrink-0 border-r pt-12 pb-4 bg-zinc-800 border-r-zinc-200">
+      <div class="flex flex-col items-center gap-2 flex-1">
+        <div v-for="tab in tabs" :key="tab.key" class="flex items-center cursor-pointer justify-center size-11 mx-auto rounded-md" :class="[route.name === tab.key ? 'text-white bg-white/15' : 'text-white/50 hover:text-white/75']" @click="router.replace({ name: tab.key })">
+          <component :is="tab.icon" class="flex-shrink-0 size-5" />
+        </div>
+      </div>
+
+      <div class="flex-shrink-0">
+        <div class="flex items-center cursor-pointer justify-center size-11 mx-auto text-white/50 hover:text-white/75" @click="router.replace({ name: 'index' })">
+          <Squares2x2 class="size-5" />
+        </div>
       </div>
     </div>
 

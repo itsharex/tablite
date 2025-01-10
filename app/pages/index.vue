@@ -13,12 +13,12 @@ const normalizations = computed(() => {
 
 async function onConnectByURL() {
   const id = await connect()
-  router.push({ path: `/${id}/tables` })
+  router.replace({ path: `/${id}/tables` })
 }
 
 async function onConnectById(id: string, url: string) {
   await store.connect(url)
-  router.push({ path: `/${id}/tables` })
+  router.replace({ path: `/${id}/tables` })
 }
 </script>
 
