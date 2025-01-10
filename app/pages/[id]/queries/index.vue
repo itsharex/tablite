@@ -2,7 +2,6 @@
 import type Database from '@tauri-apps/plugin-sql'
 import * as monaco from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import ArrowDownTray from '~icons/heroicons/arrow-down-tray'
 import CheckCircle from '~icons/heroicons/check-circle'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
 import PlaySolid from '~icons/heroicons/play-solid'
@@ -18,6 +17,7 @@ const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const { name, code, data, error, timeToExecute, isSelect, isLoading, execute } = useQuery(cursor)
 const results = ref({ time: 0, status: 'OK', size: 0 })
 const transitionTimeToExecute = useTransition(timeToExecute)
+const useTablesReturn = useTables(cursor, { immediate: false })
 
 const columns = computed(() => {
   if (!Array.isArray(data.value))
@@ -27,16 +27,66 @@ const columns = computed(() => {
 })
 
 function setup() {
+  if (editor)
+    return
+
   (globalThis as any).MonacoEnvironment = {
     getWorker() {
       return new EditorWorker()
     },
   }
+
+  monaco.languages.registerCompletionItemProvider('sql', {
+    async provideCompletionItems(model, position) {
+      const textUntilPosition = model.getValueInRange({
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: position.lineNumber,
+        endColumn: position.column,
+      }).trim()
+
+      const word = model.getWordUntilPosition(position)
+
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn,
+      }
+
+      const PREV_TOKEN = textUntilPosition.split(' ').at(-2)?.toUpperCase() ?? ''
+
+      if (['FROM', 'TABLE', 'JOIN', 'INTO', 'DESCRIBE', 'ON', 'UPDATE'].includes(PREV_TOKEN)) {
+        if (!useTablesReturn.tables.value.length)
+          await useTablesReturn.execute()
+
+        return {
+          suggestions: useTablesReturn.tables.value.map(keyword => ({
+            label: keyword,
+            kind: monaco.languages.CompletionItemKind.Variable,
+            insertText: `\`${keyword}\``,
+            range,
+          })),
+        }
+      }
+
+      return {
+        suggestions: Sql.KEYWORDS.map(keyword => ({
+          label: keyword,
+          kind: monaco.languages.CompletionItemKind.Keyword,
+          insertText: `${keyword} `,
+          range,
+        })),
+      }
+    },
+  })
 }
 
 setup()
 
 onMounted(async () => {
+  if (editor)
+    return
   await nextTick()
   editor = monaco.editor.create(domRef.value, {
     value: '',

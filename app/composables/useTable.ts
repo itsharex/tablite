@@ -99,7 +99,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   }
 }
 
-export function useTables(cursorInstance: MaybeRef<Database | undefined> | undefined) {
+export function useTables(cursorInstance: MaybeRef<Database | undefined> | undefined, options: { immediate?: boolean } = { immediate: true }) {
   const cursor = computed(() => unref(cursorInstance))
   const tables = ref<string[]>([])
   const isLoading = ref(false)
@@ -107,6 +107,7 @@ export function useTables(cursorInstance: MaybeRef<Database | undefined> | undef
 
   async function execute() {
     try {
+      isLoading.value = true
       const sql = Sql.SHOW_TABLES!.mysql
       const data: Record<string, string>[] = await cursor.value?.select(sql) ?? []
       tables.value = data.map(item => Object.values(item)[0] as string)
@@ -116,10 +117,12 @@ export function useTables(cursorInstance: MaybeRef<Database | undefined> | undef
     }
   }
 
-  watchImmediate(isReady, (value) => {
-    if (value)
-      execute()
-  })
+  if (options.immediate) {
+    watchImmediate(isReady, (value) => {
+      if (value)
+        execute()
+    })
+  }
 
   return {
     tables,
