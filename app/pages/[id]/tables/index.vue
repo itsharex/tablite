@@ -74,7 +74,7 @@ async function onPaginationChange(value: number) {
 
         <div class="w-full h-0 flex-1 flex flex-col bg-zinc-100">
           <Skeleton v-if="isLoading" class="w-full h-0 flex-1" />
-          <TableDataGrid v-show="!isLoading" :columns="columns" :data-source="data" />
+          <TableGrid v-show="!isLoading" :columns="columns" :data-source="data" />
         </div>
 
         <Separator />

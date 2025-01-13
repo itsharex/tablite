@@ -4,6 +4,7 @@ import type { Query } from '~/composables/useQuery'
 import * as monaco from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import CheckCircle from '~icons/heroicons/check-circle'
+import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
 import PlaySolid from '~icons/heroicons/play-solid'
 import Plus from '~icons/heroicons/plus'
@@ -102,6 +103,7 @@ onMounted(async () => {
     value: '',
     language: 'sql',
     automaticLayout: true,
+    contextmenu: false,
 
     minimap: {
       enabled: false,
@@ -136,6 +138,13 @@ function onSave() {
     query.createdAt = performance.now()
     query.updatedAt = performance.now()
   }
+}
+
+function onRemove(index: number) {
+  queries.value.splice(index, 1)
+  selectedQueryIndex.value = -1
+  code.value = ''
+  editor.setValue(code.value)
 }
 </script>
 
@@ -186,6 +195,16 @@ function onSave() {
           <div class="flex-1 truncate">
             {{ query.title }}
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <EllipsisHorizontal />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem @click="onRemove(index)">
+                Remove
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </ResizablePanel>
@@ -229,7 +248,7 @@ function onSave() {
 
           <div v-if="isSelect && !error" class="flex flex-1 flex-col bg-white">
             <div class="h-0 flex flex-1 flex-col bg-zinc-100">
-              <TableDataGrid :columns="columns" :data-source="data" />
+              <TableGrid :columns="columns" :data-source="data" />
             </div>
 
             <Separator />
