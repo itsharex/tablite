@@ -23,9 +23,15 @@ const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const id = useRouteParams<string>('id')
 const queries = useTauriStorage<Query[]>('queries', [], `${unref(id)}/data.json`)
 const selectedQueryIndex = ref(-1)
-const selectedQuery = computed<Query>(() => queries.value[selectedQueryIndex.value] ?? { title: '', content: '' })
+
+const selectedQuery = computed<Query>(() => {
+  const defaults = { title: '', content: '' }
+  if (selectedQueryIndex.value > -1)
+    return queries.value?.[selectedQueryIndex.value] ?? defaults
+  return defaults
+})
+
 const { title, code, data, error, timeToExecute, isSelect, isLoading, execute } = useQuery(cursor, selectedQuery)
-const results = ref({ time: 0, status: 'OK', size: 0 })
 const transitionTimeToExecute = useTransition(timeToExecute)
 const useTablesReturn = useTables(cursor, { immediate: false })
 const search = ref('')
@@ -115,9 +121,7 @@ onMounted(async () => {
 
 async function onRun() {
   code.value = editor.getValue()
-  const start = performance.now()
   await execute()
-  results.value.time = performance.now() - start
 }
 
 async function onSelect(index: number) {
@@ -258,7 +262,7 @@ function onRemove(index: number) {
 
           <div v-if="isSelect && !error" class="flex flex-1 flex-col bg-white">
             <div class="h-0 flex flex-1 flex-col bg-zinc-100">
-              <TableGrid :columns="columns" :data-source="data" />
+              <TableGrid :columns="columns" :data-source="data ?? []" />
             </div>
 
             <Separator />

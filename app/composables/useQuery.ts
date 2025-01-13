@@ -36,7 +36,7 @@ function parseQueryContent(value?: string) {
 
 export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefined, initialValue: MaybeRef<Query>) {
   const title = ref(unref(initialValue)?.title ?? '')
-  const code = ref(parseQueryContent(unref(initialValue)?.content))
+  const code = ref(parseQueryContent(unref(initialValue).content))
   const cursor = computed(() => unref(cursorInstance))
   const timeToExecute = ref(0)
   const data = ref<any>()
@@ -45,8 +45,9 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
   const limit = ref(50)
 
   watch(initialValue, (value) => {
-    title.value = unref(value)?.title ?? ''
-    code.value = parseQueryContent(unref(initialValue)?.content)
+    const v = unref(value)
+    title.value = v.title ?? ''
+    code.value = parseQueryContent(v.content)
   })
 
   const sql = computed(() => code.value.split(';').map(e => e.trim()).filter(Boolean).at(-1))
