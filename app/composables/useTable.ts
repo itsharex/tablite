@@ -49,7 +49,7 @@ function normalizeSchema(value: QuerySchemaResults) {
 export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<Database | undefined> | undefined) {
   const table = computed(() => unref(tableName))
   const cursor = computed(() => unref(cursorInstance))
-  const limit = ref(50)
+  const limit = ref(150)
   const offset = ref(0)
   const count = ref(0)
   const data = ref<any[]>([])
