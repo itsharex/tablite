@@ -7,10 +7,19 @@ export interface Query {
   updatedAt?: number
 }
 
-function startsWithIgnoreCase(source: string | undefined, value: string) {
+function startsWithIgnoreCase(source: string | undefined, value: string | string[]) {
   if (!source)
     return false
-  return source.toUpperCase().startsWith(value.toUpperCase())
+
+  const targets = Array.isArray(value) ? value : [value]
+  const src = source.toUpperCase()
+  for (const v of targets) {
+    const r = src.startsWith(v)
+    if (r)
+      return true
+  }
+
+  return false
 }
 
 function parseQueryContent(value?: string) {
@@ -41,13 +50,16 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
   })
 
   const sql = computed(() => code.value.split(';').map(e => e.trim()).filter(Boolean).at(-1))
-  const isSelect = computed(() => startsWithIgnoreCase(sql.value, 'SELECT'))
+  const isSelect = computed(() => startsWithIgnoreCase(sql.value, ['SELECT', 'DESCRIBE']))
   const operation = computed(() => isSelect.value ? 'select' : 'execute')
 
   function queryLimiter(sql: string) {
-    if (sql.toUpperCase().includes('LIMIT'))
-      return sql
-    return [sql, 'LIMIT', limit.value].join(' ')
+    if (sql.toUpperCase().includes('SELECT')) {
+      if (sql.toUpperCase().includes('LIMIT'))
+        return sql
+      return [sql, 'LIMIT', limit.value].join(' ')
+    }
+    return sql
   }
 
   async function execute() {

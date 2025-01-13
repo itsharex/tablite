@@ -84,7 +84,7 @@ function setup() {
       }
 
       return {
-        suggestions: Sql.KEYWORDS.map(keyword => ({
+        suggestions: SQL_KEYWORDS.map(keyword => ({
           label: keyword,
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: `${keyword} `,
@@ -203,13 +203,13 @@ function onRemove(index: number) {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem class="text-xs" @click="onSelect(index)">
-                <PencilSquare class="size-4" />
+                <PencilSquare />
                 <span>Edit</span>
                 <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
               </DropdownMenuItem>
 
               <DropdownMenuItem class="text-xs" @click="onRemove(index)">
-                <Trash class="size-4" />
+                <Trash />
                 <span>Delete</span>
                 <DropdownMenuShortcut>⌫</DropdownMenuShortcut>
               </DropdownMenuItem>

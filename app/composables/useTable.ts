@@ -22,8 +22,13 @@ interface MysqlSchema {
   TABLE_COLLATION: string
 }
 
+interface MysqlStatistics {
+  COLUMN_NAME: string
+}
+
 type QueryStructureResults = MysqlStructure[]
 type QuerySchemaResults = MysqlSchema
+type QueryStatisticsResults = MysqlStatistics[]
 
 function normalizeStructure(value: QueryStructureResults): Structure[] {
   return value.map(item => ({
@@ -51,19 +56,23 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const structure = ref<Structure[]>([])
   const schema = ref<Partial<ReturnType<typeof normalizeSchema>>>({})
   const isLoading = ref([false, false])
+  const primaryKey = ref<string[]>([])
 
   async function setup() {
     try {
       if (table.value && cursor.value) {
         isLoading.value[0] = true
+        const database = new URL(cursor.value.path).pathname.split('/').filter(Boolean)[0]
         const results = await Promise.all([
           cursor.value?.select<QueryStructureResults>(`DESCRIBE ${table.value};`),
           cursor.value?.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),
           cursor.value?.select<any>(`SELECT * FROM information_schema.tables WHERE TABLE_NAME = '${table.value}';`),
+          cursor.value?.select<QueryStatisticsResults>(`SELECT * FROM information_schema.statistics WHERE table_schema = '${database}' AND table_name = '${table.value}' ORDER BY seq_in_index ASC;`),
         ])
         structure.value = normalizeStructure(results[0] ?? [])
         count.value = results[1]?.[0]?.count ?? 0
         schema.value = normalizeSchema(results[2]?.[0])
+        primaryKey.value = results[3].map(({ COLUMN_NAME }) => COLUMN_NAME) ?? []
       }
     }
     finally {
@@ -93,6 +102,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
     limit,
     offset,
     count,
+    primaryKey,
     isLoading: computed(() => isLoading.value.some(Boolean)),
     setup,
     execute,

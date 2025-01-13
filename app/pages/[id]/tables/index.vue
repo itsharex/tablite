@@ -10,7 +10,7 @@ definePageMeta({
 
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const selectedTable = ref('')
-const { data, limit, offset, count, structure, schema, isLoading, setup, execute } = useTable(selectedTable, cursor)
+const { data, limit, offset, count, structure, schema, primaryKey, isLoading, setup, execute } = useTable(selectedTable, cursor)
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 
@@ -74,7 +74,7 @@ async function onPaginationChange(value: number) {
 
         <div class="w-full h-0 flex-1 flex flex-col bg-zinc-100">
           <Skeleton v-if="isLoading" class="w-full h-0 flex-1" />
-          <TableGrid v-show="!isLoading" :columns="columns" :data-source="data" />
+          <TableGrid v-show="!isLoading" :columns="columns" :data-source="data" :primary-key="primaryKey" />
         </div>
 
         <Separator />
