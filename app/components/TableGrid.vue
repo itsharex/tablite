@@ -102,7 +102,7 @@ function isBlob(value: any) {
 
         <tbody
           :style="{ height: `${totalSize}px` }"
-          class="grid gap-px relative"
+          class="grid relative"
         >
           <tr
             v-for="vRow in virtualRows"
