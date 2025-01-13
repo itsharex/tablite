@@ -6,9 +6,11 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import CheckCircle from '~icons/heroicons/check-circle'
 import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
+import PencilSquare from '~icons/heroicons/pencil-square'
 import PlaySolid from '~icons/heroicons/play-solid'
 import Plus from '~icons/heroicons/plus'
 import Tag from '~icons/heroicons/tag'
+import Trash from '~icons/heroicons/trash'
 
 definePageMeta({
   keepalive: true,
@@ -196,12 +198,20 @@ function onRemove(index: number) {
             {{ query.title }}
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger @click.stop>
               <EllipsisHorizontal />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem @click="onRemove(index)">
-                Remove
+              <DropdownMenuItem class="text-xs" @click="onSelect(index)">
+                <PencilSquare class="size-4" />
+                <span>Edit</span>
+                <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem class="text-xs" @click="onRemove(index)">
+                <Trash class="size-4" />
+                <span>Delete</span>
+                <DropdownMenuShortcut>⌫</DropdownMenuShortcut>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
