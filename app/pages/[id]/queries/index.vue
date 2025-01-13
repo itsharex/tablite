@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type Database from '@tauri-apps/plugin-sql'
+import type { Query } from '~/composables/useQuery'
 import * as monaco from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import CheckCircle from '~icons/heroicons/check-circle'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
 import PlaySolid from '~icons/heroicons/play-solid'
+import Tag from '~icons/heroicons/tag'
 
 definePageMeta({
   keepalive: true,
@@ -14,7 +16,11 @@ let editor: monaco.editor.IStandaloneCodeEditor
 
 const domRef = ref()
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
-const { name, code, data, error, timeToExecute, isSelect, isLoading, execute } = useQuery(cursor)
+const id = useRouteParams<string>('id')
+const queries = useTauriStorage<Query[]>('queries', [], `${unref(id)}/data.json`)
+const selectedQueryIndex = ref(-1)
+const selectedQuery = computed<Query>(() => queries.value[selectedQueryIndex.value] ?? { title: '', content: '' })
+const { title, code, data, error, timeToExecute, isSelect, isLoading, execute } = useQuery(cursor, selectedQuery)
 const results = ref({ time: 0, status: 'OK', size: 0 })
 const transitionTimeToExecute = useTransition(timeToExecute)
 const useTablesReturn = useTables(cursor, { immediate: false })
@@ -105,6 +111,27 @@ async function onRun() {
   await execute()
   results.value.time = performance.now() - start
 }
+
+async function onSelect(index: number) {
+  selectedQueryIndex.value = index
+  await nextTick()
+  editor.setValue(code.value)
+}
+
+function onSave() {
+  const index = selectedQueryIndex.value
+  const query: Query = { title: title.value, content: btoa(code.value) }
+  if (index > -1) {
+    query.updatedAt = performance.now()
+    queries.value[index] = query
+  }
+  else {
+    queries.value.push(query)
+    selectedQueryIndex.value = queries.value.length - 1
+    query.createdAt = performance.now()
+    query.updatedAt = performance.now()
+  }
+}
 </script>
 
 <template>
@@ -119,7 +146,7 @@ async function onRun() {
           <Input class="h-8 text-sm relative z-10" placeholder="Search queries" />
         </div>
 
-        <div class="p-6 flex flex-col gap-5 rounded-lg shadow mx-4 bg-white cursor-default">
+        <div v-if="!queries.length" class="p-6 flex flex-col gap-5 rounded-lg shadow mx-4 bg-white cursor-default">
           <div class="relative h-20 w-16 mx-auto">
             <span class="absolute left-0 top-0 z-10 flex h-20 w-16 items-center justify-center rounded-2xl bg-neutral-800 text-white/90 shadow transition-transform duration-300 ease-bounce group-hover:translate-x-2 group-hover:rotate-12 dark:bg-white dark:text-black/80">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256">
@@ -142,6 +169,13 @@ async function onRun() {
             Create
           </Button>
         </div>
+
+        <div v-for="(query, index) in queries" :key="query.title" class="flex items-center text-sm gap-1.5 min-h-8 px-4 cursor-default text-zinc-600" :class="[selectedQueryIndex === index ? 'text-zinc-800 bg-zinc-200' : 'hover:bg-zinc-200/50']" @click="onSelect(index)">
+          <Tag class="flex-shrink-0" />
+          <div class="flex-1 truncate">
+            {{ query.title }}
+          </div>
+        </div>
       </div>
     </ResizablePanel>
 
@@ -151,10 +185,10 @@ async function onRun() {
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel :default-size="50" :min-size="25" class="w-full flex flex-col bg-white">
           <div class="flex justify-between items-center px-4 pt-8 pb-6">
-            <input v-model="name" class="focus-visible:outline-none font-semibold ml-2" placeholder="Untitled Query" @click="($event: any) => $event.target.select()">
+            <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" placeholder="Untitled Query" @click="($event: any) => $event.target.select()">
 
-            <div class="flex justify-end gap-2">
-              <Button variant="secondary" size="sm" :disabled="!name">
+            <div class="flex-shrink-0 flex justify-end gap-2">
+              <Button variant="secondary" size="sm" :disabled="!title" @click="onSave">
                 Save
               </Button>
 
@@ -196,7 +230,7 @@ async function onRun() {
               </span>
 
               <span>
-                {{ data?.length }} row return
+                {{ data?.length ?? 0 }} row return
               </span>
             </span>
           </div>

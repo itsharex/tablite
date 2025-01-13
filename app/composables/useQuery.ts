@@ -1,20 +1,44 @@
 import type Database from '@tauri-apps/plugin-sql'
 
+export interface Query {
+  title: string
+  content: string
+  createdAt?: number
+  updatedAt?: number
+}
+
 function startsWithIgnoreCase(source: string | undefined, value: string) {
   if (!source)
     return false
   return source.toUpperCase().startsWith(value.toUpperCase())
 }
 
-export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefined) {
-  const name = ref('')
-  const code = ref('')
+function parseQueryContent(value?: string) {
+  if (!value)
+    return ''
+
+  try {
+    return atob(value)
+  }
+  catch {
+    return ''
+  }
+}
+
+export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefined, initialValue: MaybeRef<Query>) {
+  const title = ref(unref(initialValue)?.title ?? '')
+  const code = ref(parseQueryContent(unref(initialValue)?.content))
   const cursor = computed(() => unref(cursorInstance))
   const timeToExecute = ref(0)
   const data = ref<any>()
   const error = ref()
   const isLoading = ref(false)
   const limit = ref(50)
+
+  watch(initialValue, (value) => {
+    title.value = unref(value)?.title ?? ''
+    code.value = parseQueryContent(unref(initialValue)?.content)
+  })
 
   const sql = computed(() => code.value.split(';').map(e => e.trim()).filter(Boolean).at(-1))
   const isSelect = computed(() => startsWithIgnoreCase(sql.value, 'SELECT'))
@@ -48,7 +72,7 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
   }
 
   return {
-    name,
+    title,
     code,
     data,
     error,
