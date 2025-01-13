@@ -40,6 +40,8 @@ const abort = watchImmediate(connections, async (cnxs) => {
 })
 
 provide('__TABLITE:CURSOR', instance)
+
+preloadRouteComponents({ name: 'id-queries' })
 </script>
 
 <template>
