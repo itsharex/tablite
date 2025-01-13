@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import PaperAirplane from '~icons/heroicons/paper-airplane'
 
@@ -8,15 +9,16 @@ const store = useConnectionStore()
 const { connections } = storeToRefs(store)
 
 const normalizations = computed(() => {
-  return connections.value.map(({ id, url }) => ({ id, origin: url, url: new URL(url) }))
+  return connections.value.map(({ url }) => ({ origin: url, url: new URL(url) }))
 })
 
 async function onConnectByURL() {
-  const id = await connect()
-  router.replace({ path: `/${id}/tables` })
+  const hash = await connect()
+  router.replace({ path: `/${hash}/tables` })
 }
 
-async function onConnectById(id: string, url: string) {
+async function onConnectByHash(url: string) {
+  const id = hash(url)
   await store.connect(url)
   router.replace({ path: `/${id}/tables` })
 }
@@ -67,7 +69,7 @@ async function onConnectById(id: string, url: string) {
       <Separator v-if="normalizations.length" class="my-8" />
 
       <div class="grid gap-7 grid-cols-2">
-        <Card v-for="c in normalizations" :key="c.id" class="cursor-pointer p-4" @click="onConnectById(c.id, c.origin)">
+        <Card v-for="c in normalizations" :key="c.origin" class="cursor-pointer p-4" @click="onConnectByHash(c.origin)">
           <div class="fade flex animate-fade items-center gap-2.5">
             <div class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-600 text-white">
               <MySQL class="size-6" />

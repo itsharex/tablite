@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type Database from '@tauri-apps/plugin-sql'
+import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
 import Squares2x2 from '~icons/heroicons/squares-2x2-solid'
@@ -24,7 +25,7 @@ const tabs = [
 async function findCursorOrCreate() {
   if (cursor.value?.instance)
     return cursor.value.instance
-  const cnx = connections.value.find(e => e.id === id.value)
+  const cnx = connections.value.find(e => hash(e.url) === id.value)
   if (!cnx?.url)
     return
   await store.connect(cnx.url)
