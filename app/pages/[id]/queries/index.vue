@@ -6,6 +6,7 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import CheckCircle from '~icons/heroicons/check-circle'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
 import PlaySolid from '~icons/heroicons/play-solid'
+import Plus from '~icons/heroicons/plus'
 import Tag from '~icons/heroicons/tag'
 
 definePageMeta({
@@ -24,6 +25,9 @@ const { title, code, data, error, timeToExecute, isSelect, isLoading, execute } 
 const results = ref({ time: 0, status: 'OK', size: 0 })
 const transitionTimeToExecute = useTransition(timeToExecute)
 const useTablesReturn = useTables(cursor, { immediate: false })
+const search = ref('')
+
+const filtered = computed(() => queries.value.filter(({ title }) => title.includes(search.value)))
 
 const columns = computed(() => {
   if (!Array.isArray(data.value))
@@ -120,6 +124,7 @@ async function onSelect(index: number) {
 
 function onSave() {
   const index = selectedQueryIndex.value
+  code.value = editor.getValue()
   const query: Query = { title: title.value, content: btoa(code.value) }
   if (index > -1) {
     query.updatedAt = performance.now()
@@ -140,10 +145,16 @@ function onSave() {
       <div>
         <div class="px-4 pt-8 flex gap-2.5 items-center cursor-default justify-between">
           <span class="text-xl font-semibold">Queries</span>
+
+          <div class="h-0">
+            <Button variant="ghost" size="icon" class="-translate-y-1/2" @click="onSelect(-1)">
+              <Plus />
+            </Button>
+          </div>
         </div>
 
         <div class="px-4 mt-6 pb-4 transition-all duration-150">
-          <Input class="h-8 text-sm relative z-10" placeholder="Search queries" />
+          <Input v-model="search" class="h-8 text-sm relative z-10" placeholder="Search queries" />
         </div>
 
         <div v-if="!queries.length" class="p-6 flex flex-col gap-5 rounded-lg shadow mx-4 bg-white cursor-default">
@@ -170,7 +181,7 @@ function onSave() {
           </Button>
         </div>
 
-        <div v-for="(query, index) in queries" :key="query.title" class="flex items-center text-sm gap-1.5 min-h-8 px-4 cursor-default text-zinc-600" :class="[selectedQueryIndex === index ? 'text-zinc-800 bg-zinc-200' : 'hover:bg-zinc-200/50']" @click="onSelect(index)">
+        <div v-for="(query, index) in filtered" :key="query.title" class="flex items-center text-sm gap-1.5 min-h-8 px-4 cursor-default text-zinc-600" :class="[selectedQueryIndex === index ? 'text-zinc-800 bg-zinc-200' : 'hover:bg-zinc-200/50']" @click="onSelect(index)">
           <Tag class="flex-shrink-0" />
           <div class="flex-1 truncate">
             {{ query.title }}
