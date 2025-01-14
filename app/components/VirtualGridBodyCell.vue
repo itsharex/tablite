@@ -3,10 +3,10 @@ import { Badge } from '~/components/ui/badge'
 
 const props = defineProps<{
   value: any
-  dataType: string
+  dataType?: string
 }>()
 
-const isBlob = computed(() => props.dataType.includes('blob') || Array.isArray(props.value))
+const isBlob = computed(() => props.dataType?.includes('blob') || Array.isArray(props.value))
 const isEmpty = computed(() => ['', undefined, null].includes(props.value))
 
 const BlobCell = <Badge class="origin-left scale-75 text-xs">BLOB</Badge>
