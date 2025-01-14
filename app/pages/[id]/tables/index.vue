@@ -74,7 +74,7 @@ async function onPaginationChange(value: number) {
 
         <div class="w-full h-0 flex-1 flex flex-col bg-zinc-100">
           <Skeleton v-if="isLoading" class="w-full h-0 flex-1" />
-          <VirtualGrid v-show="!isLoading" :columns="columns" :data-source="data" :primary-keys="primaryKeys" />
+          <VirtualGrid v-else :columns="columns" :data-source="data" :primary-keys="primaryKeys" />
         </div>
 
         <Separator />

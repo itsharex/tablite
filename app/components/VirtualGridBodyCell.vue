@@ -4,6 +4,7 @@ import { Badge } from '~/components/ui/badge'
 const props = defineProps<{
   value: any
   dataType?: string
+  editable?: boolean
 }>()
 
 const isBlob = computed(() => props.dataType?.includes('blob') || Array.isArray(props.value))

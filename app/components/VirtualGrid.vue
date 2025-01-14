@@ -14,6 +14,7 @@ const props = defineProps<{
   columns: string[] | Column[]
   dataSource: Record<string, any>[]
   primaryKeys?: string[]
+  editable?: boolean
 }>()
 
 const table = ref<Table<Record<string, any>>>()
@@ -29,7 +30,7 @@ const columns = computed(() => props.columns.map((c) => {
     accessorKey: key,
     size: 200,
     header: () => <VirtualGridHeaderCell value={key} primaryKeys={props.primaryKeys} />,
-    cell: (inf: any) => <VirtualGridBodyCell value={inf.getValue()} dataType={dataType} />,
+    cell: (inf: any) => <VirtualGridBodyCell value={inf.getValue()} dataType={dataType} editable={props.editable} />,
   }
 }))
 
@@ -77,8 +78,8 @@ watchImmediate(props, async (props) => {
           </template>
         </div>
 
-        <div class="relative -mt-px" :style="{ height: `${totalSize}px` }">
-          <div v-for="vRow in virtualRows" :key="rows[vRow.index]!.id" :data-index="vRow.index" class="flex absolute w-full gap-px h-8 box-border border-t border-zinc-100" :style="{ transform: `translateY(${vRow.start}px)` }">
+        <div class="relative" :style="{ height: `${totalSize}px` }">
+          <div v-for="vRow in virtualRows" :key="rows[vRow.index]!.id" :data-index="vRow.index" class="flex absolute w-full gap-px h-8 box-border border-b last:border-none border-zinc-100" :style="{ transform: `translateY(${vRow.start}px)` }">
             <div
               v-for="cell in rows[vRow.index]!.getVisibleCells()"
               :key="cell.id"
