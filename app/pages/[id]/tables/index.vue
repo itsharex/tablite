@@ -12,7 +12,7 @@ const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const selectedTable = ref('')
 const { data, limit, offset, count, structure, schema, primaryKeys, isLoading, setup, execute } = useTable(selectedTable, cursor)
 const mode = ref('data')
-const columns = computed(() => structure.value.map(({ columnName }) => columnName))
+const columns = computed(() => structure.value.map(({ columnName, dataType }) => ({ name: columnName, dataType })))
 
 const page = computed({
   get() {

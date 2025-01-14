@@ -3,17 +3,22 @@ import { Badge } from '~/components/ui/badge'
 
 const props = defineProps<{
   value: any
+  dataType: string
 }>()
 
-const isBlob = computed(() => Array.isArray(props.value))
+const isBlob = computed(() => props.dataType.includes('blob') || Array.isArray(props.value))
 const isEmpty = computed(() => ['', undefined, null].includes(props.value))
+
+const BlobCell = <Badge class="origin-left scale-75 text-xs">BLOB</Badge>
+const EmptyCell = <span class="text-zinc-600/50">EMPTY</span>
+const DefaultCell = <span class="truncate">{props.value}</span>
 
 const component = computed(() => {
   if (isBlob.value)
-    return (<Badge v-if="isBlob(row[col])" class="origin-left scale-75 text-xs">BLOB</Badge>)
+    return BlobCell
   if (isEmpty.value)
-    return <span class="text-zinc-600/50">EMPTY</span>
-  return <span class="truncate">{props.value}</span>
+    return EmptyCell
+  return DefaultCell
 })
 </script>
 

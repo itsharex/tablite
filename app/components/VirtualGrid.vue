@@ -5,8 +5,13 @@ import { useVirtualizer } from '@tanstack/vue-virtual'
 import VirtualGridBodyCell from './VirtualGridBodyCell.vue'
 import VirtualGridHeaderCell from './VirtualGridHeaderCell.vue'
 
+interface Column {
+  name: string
+  dataType: string
+}
+
 const props = defineProps<{
-  columns: string[]
+  columns: string[] | Column[]
   dataSource: Record<string, any>[]
   primaryKeys?: string[]
 }>()
@@ -16,12 +21,17 @@ const totalSize = ref(0)
 
 const rows = computed(() => table.value?.getRowModel().rows ?? [])
 
-const columns = computed(() => props.columns.map(v => ({
-  accessorKey: v,
-  size: 200,
-  header: () => <VirtualGridHeaderCell value={v} primaryKeys={props.primaryKeys} />,
-  cell: (inf: any) => <VirtualGridBodyCell value={inf.getValue()} />,
-})))
+const columns = computed(() => props.columns.map((c) => {
+  const key = typeof c === 'string' ? c : c.name
+  const dataType = typeof c === 'string' ? 'varchar' : c.dataType
+
+  return {
+    accessorKey: key,
+    size: 200,
+    header: () => <VirtualGridHeaderCell value={key} primaryKeys={props.primaryKeys} />,
+    cell: (inf: any) => <VirtualGridBodyCell value={inf.getValue()} dataType={dataType} />,
+  }
+}))
 
 const domRef = ref<HTMLDivElement | null>(null)
 
