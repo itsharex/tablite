@@ -5,7 +5,10 @@ const props = defineProps<{
   value: any
   dataType?: string
   editable?: boolean
+  isSelected?: boolean
 }>()
+
+const emit = defineEmits(['click'])
 
 const isBlob = computed(() => props.dataType?.includes('blob') || Array.isArray(props.value))
 const isEmpty = computed(() => ['', undefined, null].includes(props.value))
@@ -24,5 +27,8 @@ const component = computed(() => {
 </script>
 
 <template>
-  <component :is="component" />
+  <div class="w-full h-full flex items-center px-3 box-border relative" @click="emit('click')">
+    <component :is="component" class="z-[1]" />
+    <div v-if="isSelected" v-motion-fade class="absolute inset-0 border-2 border-zinc-600" />
+  </div>
 </template>

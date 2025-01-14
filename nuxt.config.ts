@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     'unplugin-icons/nuxt',
     '@nuxtjs/color-mode',
     '@pinia/nuxt',
+    '@vueuse/motion/nuxt',
   ],
 
   shadcn: {

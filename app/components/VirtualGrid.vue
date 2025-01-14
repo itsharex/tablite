@@ -10,6 +10,11 @@ interface Column {
   dataType: string
 }
 
+interface Position {
+  rowIndex: number
+  columnKey?: string
+}
+
 const props = defineProps<{
   columns: string[] | Column[]
   dataSource: Record<string, any>[]
@@ -21,6 +26,7 @@ const table = ref<Table<Record<string, any>>>()
 const totalSize = ref(0)
 
 const rows = computed(() => table.value?.getRowModel().rows ?? [])
+const selected = ref<Position>({ rowIndex: -1 })
 
 const columns = computed(() => props.columns.map((c) => {
   const key = typeof c === 'string' ? c : c.name
@@ -30,7 +36,7 @@ const columns = computed(() => props.columns.map((c) => {
     accessorKey: key,
     size: 200,
     header: () => <VirtualGridHeaderCell value={key} primaryKeys={props.primaryKeys} />,
-    cell: (inf: any) => <VirtualGridBodyCell value={inf.getValue()} dataType={dataType} editable={props.editable} />,
+    cell: (inf: any) => <VirtualGridBodyCell value={inf.getValue()} dataType={dataType} editable={props.editable} isSelected={selected.value.columnKey === key && selected.value.rowIndex === inf.row.index} onClick={() => onSelectCell(inf.row.index, key)} />,
   }
 }))
 
@@ -56,9 +62,14 @@ watchImmediate(props, async (props) => {
     debugTable: false,
   })
 
+  selected.value = { rowIndex: -1 }
   await nextTick()
   totalSize.value = rowVirtualizer.value.getTotalSize()
 })
+
+function onSelectCell(rowIndex: number, columnKey: string) {
+  selected.value = { rowIndex, columnKey }
+}
 </script>
 
 <template>
@@ -84,7 +95,7 @@ watchImmediate(props, async (props) => {
               v-for="cell in rows[vRow.index]!.getVisibleCells()"
               :key="cell.id"
               :style="{ width: `${cell.column.getSize()}px` }"
-              class="flex flex-shrink-0 w-0 justify-start px-3 h-full items-center cursor-default text-zinc-800 hover:bg-zinc-200/50"
+              class="flex flex-shrink-0 w-0 justify-start h-full items-center cursor-default text-zinc-800 hover:bg-zinc-200/50"
               :class="[vRow.index % 2 ? 'bg-zinc-50' : 'bg-white']"
             >
               <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
