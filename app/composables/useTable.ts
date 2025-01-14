@@ -56,7 +56,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const structure = ref<Structure[]>([])
   const schema = ref<Partial<ReturnType<typeof normalizeSchema>>>({})
   const isLoading = ref([false, false])
-  const primaryKey = ref<string[]>([])
+  const primaryKeys = ref<string[]>([])
 
   async function setup() {
     try {
@@ -72,7 +72,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
         structure.value = normalizeStructure(results[0] ?? [])
         count.value = results[1]?.[0]?.count ?? 0
         schema.value = normalizeSchema(results[2]?.[0])
-        primaryKey.value = results[3].map(({ COLUMN_NAME }) => COLUMN_NAME) ?? []
+        primaryKeys.value = results[3].map(({ COLUMN_NAME }) => COLUMN_NAME) ?? []
       }
     }
     finally {
@@ -102,7 +102,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
     limit,
     offset,
     count,
-    primaryKey,
+    primaryKeys,
     isLoading: computed(() => isLoading.value.some(Boolean)),
     setup,
     execute,
