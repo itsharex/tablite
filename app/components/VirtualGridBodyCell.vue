@@ -27,8 +27,8 @@ const component = computed(() => {
 </script>
 
 <template>
-  <div class="w-full h-full flex items-center px-3 box-border relative" :class="{ 'select-text': isSelected }" @click="emit('click')">
-    <component :is="component" class="z-[1]" :class="{ 'cursor-text': isSelected }" />
+  <div class="w-full h-full flex items-center px-3 box-border relative" @click="emit('click')">
+    <component :is="component" class="z-[1]" :class="{ 'select-text cursor-text': isSelected }" />
     <div v-if="isSelected" v-motion-fade class="absolute inset-0 border-2 border-zinc-600" />
   </div>
 </template>
