@@ -27,7 +27,7 @@ const pageTotal = computed(() => Math.floor(count.value / limit.value) + 1)
 
 async function onSelectTable() {
   page.value = 1
-  await Promise.all([setup(), execute()])
+  await Promise.allSettled([setup(), execute()])
 }
 
 async function onPaginationChange(value: number) {
@@ -55,7 +55,7 @@ async function onPaginationChange(value: number) {
             </div>
 
             <div v-if="!isLoading" class="flex my-px scale-75 origin-left gap-2 h-[22px]">
-              <Badge v-for="v in Object.values(schema)" :key="v" variant="outline" class="text-xs cursor-default">
+              <Badge v-for="v in Object.values(schema).filter(Boolean)" :key="v" variant="outline" class="text-xs cursor-default">
                 {{ v }}
               </Badge>
             </div>

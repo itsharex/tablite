@@ -5,6 +5,11 @@ interface MysqlStructure {
   Type: string
 }
 
+interface SqliteStructure {
+  name: string
+  type: string
+}
+
 export interface Structure {
   columnName: string
   dataType: string
@@ -22,18 +27,18 @@ interface MysqlSchema {
   TABLE_COLLATION: string
 }
 
-interface MysqlStatistics {
-  COLUMN_NAME: string
-}
-
-type QueryStructureResults = MysqlStructure[]
+type QueryStructureResults = MysqlStructure[] | SqliteStructure[]
 type QuerySchemaResults = MysqlSchema
-type QueryStatisticsResults = MysqlStatistics[]
+
+type QueryStatisticsResults = {
+  is_unique: 'TRUE' | 'FALSE'
+  column_name: string
+}[]
 
 function normalizeStructure(value: QueryStructureResults): Structure[] {
-  return value.map(item => ({
-    columnName: item.Field,
-    dataType: item.Type,
+  return value.map((item: any) => ({
+    columnName: item.Field ?? item.name,
+    dataType: item.Type ?? item.type,
   }))
 }
 
@@ -44,6 +49,10 @@ function normalizeSchema(value: QuerySchemaResults) {
     tableType: value.TABLE_TYPE,
     tableCollation: value.TABLE_COLLATION,
   }
+}
+
+function useCursorBackend(cursor: ComputedRef<Database | undefined>) {
+  return computed(() => cursor.value?.path.split(':')[0] ?? 'mysql')
 }
 
 export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<Database | undefined> | undefined) {
@@ -57,22 +66,29 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const schema = ref<Partial<ReturnType<typeof normalizeSchema>>>({})
   const isLoading = ref([false, false])
   const primaryKeys = ref<string[]>([])
+  const backend = useCursorBackend(cursor)
+
+  async function queryTableSchema(value: string) {
+    if (backend.value === 'mysql')
+      return cursor.value?.select<any>(`SELECT * FROM information_schema.tables WHERE TABLE_NAME = '${value}';`)
+    return [{ TABLE_TYPE: backend.value }]
+  }
 
   async function setup() {
     try {
       if (table.value && cursor.value) {
         isLoading.value[0] = true
-        const database = new URL(cursor.value.path).pathname.split('/').filter(Boolean)[0]
+        const database = new URL(cursor.value.path).pathname.split('/').filter(Boolean)[0] ?? ''
         const results = await Promise.all([
-          cursor.value?.select<QueryStructureResults>(`DESCRIBE ${table.value};`),
+          cursor.value?.select<QueryStructureResults>(Sql.DESCRIBE_TABLE(table.value)[backend.value]!),
           cursor.value?.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),
-          cursor.value?.select<any>(`SELECT * FROM information_schema.tables WHERE TABLE_NAME = '${table.value}';`),
-          cursor.value?.select<QueryStatisticsResults>(`SELECT * FROM information_schema.statistics WHERE table_schema = '${database}' AND table_name = '${table.value}' ORDER BY seq_in_index ASC;`),
+          queryTableSchema(table.value),
+          cursor.value?.select<QueryStatisticsResults>(Sql.QUERY_UNIQUE_COLUMNS(database, table.value)[backend.value]!),
         ])
         structure.value = normalizeStructure(results[0] ?? [])
         count.value = results[1]?.[0]?.count ?? 0
         schema.value = normalizeSchema(results[2]?.[0])
-        primaryKeys.value = results[3].map(({ COLUMN_NAME }) => COLUMN_NAME) ?? []
+        primaryKeys.value = results[3].filter(({ is_unique }) => is_unique === 'TRUE').map(({ column_name }) => column_name) ?? []
       }
     }
     finally {
@@ -114,13 +130,18 @@ export function useTables(cursorInstance: MaybeRef<Database | undefined> | undef
   const tables = ref<string[]>([])
   const isLoading = ref(false)
   const isReady = computed(() => !!cursor.value)
+  const backend = useCursorBackend(cursor)
 
   async function execute() {
     try {
       isLoading.value = true
-      const sql = Sql.SHOW_TABLES!.mysql
+      const sql = Sql.SHOW_TABLES()[backend.value]!
       const data: Record<string, string>[] = await cursor.value?.select(sql) ?? []
-      tables.value = data.map(item => Object.values(item)[0] as string)
+
+      if (backend.value === 'mysql')
+        tables.value = data.map(item => Object.values(item)[0] as string)
+      if (backend.value === 'sqlite')
+        tables.value = data.map(({ tbl_name }) => tbl_name as string)
     }
     finally {
       isLoading.value = false

@@ -9,7 +9,16 @@ const store = useConnectionStore()
 const { connections } = storeToRefs(store)
 
 const normalizations = computed(() => {
-  return connections.value.map(({ url }) => ({ origin: url, url: new URL(url) }))
+  return connections.value.map(({ url: origin }) => {
+    const [backend, path] = origin.split('://')
+
+    if (backend === 'mysql')
+      return { origin, backend, url: new URL(origin) }
+    if (backend === 'sqlite')
+      return { origin, backend, url: { host: path } }
+
+    return { origin, backend, url: {} }
+  })
 })
 
 async function onConnectByURL() {
@@ -71,17 +80,19 @@ async function onConnectByHash(url: string) {
       <div class="grid gap-7 grid-cols-2">
         <Card v-for="c in normalizations" :key="c.origin" class="cursor-pointer p-4" @click="onConnectByHash(c.origin)">
           <div class="fade flex animate-fade items-center gap-2.5">
-            <div class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-800 text-white">
+            <div class="flex size-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-800 text-white">
               <MySQL class="size-6" />
             </div>
-            <div>
+            <div class="w-0 flex-1">
               <CardTitle class="text-sm text-zinc-600">
-                {{ c.url.host }}
+                <div class=" truncate">
+                  {{ c.url.host }}
+                </div>
               </CardTitle>
               <CardDescription class="mt-px">
                 <div class="scale-75 origin-top-left uppercase">
                   <Badge variant="outline">
-                    {{ c.url.protocol.split(':')[0] }}
+                    {{ c.backend }}
                   </Badge>
                 </div>
               </CardDescription>

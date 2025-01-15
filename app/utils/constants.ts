@@ -1,4 +1,4 @@
-function defineQuery(mysql: string = '', postgres: string = '', sqlite: string = '') {
+function defineQuery(mysql: string = '', postgres: string = '', sqlite: string = ''): Record<string, string> {
   return {
     mysql,
     postgres,
@@ -7,8 +7,10 @@ function defineQuery(mysql: string = '', postgres: string = '', sqlite: string =
 }
 
 export const Sql = {
-  PLACEHOLDER: defineQuery('?', '$1', '$1'),
-  SHOW_TABLES: defineQuery('SHOW TABLES;', 'SHOW TABLES;', 'SHOW TABLES;'),
+  PLACEHOLDER: () => defineQuery('?', '$1', '$1'),
+  SHOW_TABLES: () => defineQuery('SHOW TABLES;', 'SHOW TABLES;', 'SELECT * FROM sqlite_master WHERE type = \'table\';'),
+  DESCRIBE_TABLE: (value: string) => defineQuery(`DESCRIBE ${value};`, 'SHOW TABLES;', `PRAGMA table_info(${value});`),
+  QUERY_UNIQUE_COLUMNS: (database: string, table: string) => defineQuery(`SELECT CASE non_unique WHEN 0 THEN'TRUE'ELSE'FALSE'END AS is_unique,column_name as column_name FROM information_schema.statistics WHERE table_schema = '${database}' AND table_name = '${table}' ORDER BY seq_in_index ASC;`, 'SHOW TABLES;', `SELECT CASE il."unique" WHEN 1 THEN 'TRUE' ELSE 'FALSE' END AS is_unique, ii.name AS 'column_name' FROM sqlite_master AS m, pragma_index_list (m.name) AS il, pragma_index_info (il.name) AS ii WHERE m.name = "${table}";`),
 }
 
 export const SQL_KEYWORDS = [

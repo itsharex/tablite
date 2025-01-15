@@ -51,7 +51,7 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
   })
 
   const sql = computed(() => code.value.split(';').map(e => e.trim()).filter(Boolean).at(-1))
-  const isSelect = computed(() => startsWithIgnoreCase(sql.value, ['SELECT', 'DESCRIBE']))
+  const isSelect = computed(() => startsWithIgnoreCase(sql.value, ['SELECT', 'DESCRIBE', 'PRAGMA']))
   const operation = computed(() => isSelect.value ? 'select' : 'execute')
 
   function queryLimiter(sql: string) {
