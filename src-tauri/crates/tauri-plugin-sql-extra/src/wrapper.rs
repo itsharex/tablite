@@ -27,10 +27,7 @@ impl DbPool {
         }
     }
 
-    pub(crate) async fn execute(
-        &self,
-        query: &str,
-    ) -> Result<(), Error>  {
+    pub(crate) async fn execute(&self, query: &str) -> Result<(), Error> {
         Ok(match self {
             DbPool::Sqlite(pool) => {
                 pool.execute(query).await?;
