@@ -189,5 +189,5 @@ async function onConnectByHash(url: string) {
     </DrawerContent>
   </Drawer>
 
-  <Toaster class="cursor-default" />
+  <Toaster />
 </template>
