@@ -1,16 +1,19 @@
 mod commands;
+pub mod decode;
 mod error;
+mod wrapper;
 
 pub use error::Error;
+pub use wrapper::DbPool;
 
-use sqlx::AnyPool;
+use sqlx::any;
 use std::collections::HashMap;
 use tauri::plugin::{Builder, TauriPlugin};
 use tauri::{Manager, RunEvent, Runtime};
 use tokio::sync::RwLock;
 
 #[derive(Default)]
-pub struct DbInstances(pub RwLock<HashMap<String, AnyPool>>);
+pub struct DbInstances(pub RwLock<HashMap<String, DbPool>>);
 
 fn run_async_command<F: std::future::Future>(cmd: F) -> F::Output {
     if tokio::runtime::Handle::try_current().is_ok() {
@@ -32,6 +35,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             run_async_command(async move {
                 let instances = DbInstances::default();
                 let lock = instances.0.write().await;
+                any::install_default_drivers();
                 drop(lock);
 
                 app.manage(instances);

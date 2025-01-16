@@ -1,4 +1,3 @@
-import Database from '@tauri-apps/plugin-sql'
 import { hash } from 'ohash'
 
 interface Connection {

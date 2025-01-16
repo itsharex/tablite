@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type Database from '@tauri-apps/plugin-sql'
 import type { Query } from '~/composables/useQuery'
 import * as monaco from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'

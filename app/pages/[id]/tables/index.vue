@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type Database from '@tauri-apps/plugin-sql'
 import AdjustmentsHorizontal from '~icons/heroicons/adjustments-horizontal'
 import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'

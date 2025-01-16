@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type Database from '@tauri-apps/plugin-sql'
 import ArrowPath from '~icons/heroicons/arrow-path'
 import TableCells from '~icons/heroicons/table-cells'
 

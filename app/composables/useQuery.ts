@@ -1,5 +1,3 @@
-import type Database from '@tauri-apps/plugin-sql'
-
 export interface Query {
   title: string
   content: string

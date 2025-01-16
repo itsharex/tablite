@@ -1,5 +1,3 @@
-import type Database from '@tauri-apps/plugin-sql'
-
 interface MysqlStructure {
   Field: string
   Type: string
@@ -100,7 +98,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
     if (table.value && cursor.value) {
       try {
         isLoading.value[1] = true
-        data.value = await cursor.value?.select<any[]>(`SELECT * FROM \`${table.value}\` LIMIT ? OFFSET ?;`, [limit.value, offset.value]) ?? []
+        data.value = await cursor.value?.select<any[]>(`SELECT * FROM \`${table.value}\` LIMIT ${limit.value} OFFSET ${offset.value};`) ?? []
       }
       catch {
         data.value = []

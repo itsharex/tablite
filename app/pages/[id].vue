@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type Database from '@tauri-apps/plugin-sql'
 import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
