@@ -1,13 +1,16 @@
-pub mod commands;
+mod commands;
+mod error;
 
-use sqlx::{Any, Pool};
+pub use error::Error;
+
+use sqlx::AnyPool;
 use std::collections::HashMap;
 use tauri::plugin::{Builder, TauriPlugin};
 use tauri::{Manager, RunEvent, Runtime};
 use tokio::sync::RwLock;
 
 #[derive(Default)]
-pub struct DbInstances(pub RwLock<HashMap<String, Pool<Any>>>);
+pub struct DbInstances(pub RwLock<HashMap<String, AnyPool>>);
 
 fn run_async_command<F: std::future::Future>(cmd: F) -> F::Output {
     if tokio::runtime::Handle::try_current().is_ok() {

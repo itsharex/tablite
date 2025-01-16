@@ -10,8 +10,8 @@
     "core:window:default",
     "core:window:allow-start-dragging",
     "sql:default",
-    "sql-extra:default",
     "sql:allow-execute",
-    "store:default"
+    "store:default",
+    "sql-extra:default"
   ]
 }

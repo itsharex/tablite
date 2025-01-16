@@ -97,32 +97,6 @@ Denies the load command without any pre-configured scope.
 <tr>
 <td>
 
-`sql-extra:allow-ping`
-
-</td>
-<td>
-
-Enables the ping command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
-`sql-extra:deny-ping`
-
-</td>
-<td>
-
-Denies the ping command without any pre-configured scope.
-
-</td>
-</tr>
-
-<tr>
-<td>
-
 `sql-extra:allow-select`
 
 </td>
