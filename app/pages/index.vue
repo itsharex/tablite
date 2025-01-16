@@ -4,7 +4,7 @@ import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import PaperAirplane from '~icons/heroicons/paper-airplane'
 
-let dismiss: () => void
+let dismiss: undefined | (() => void)
 
 const router = useRouter()
 const { url, isInvalidate, connect } = useConnection()
@@ -39,7 +39,8 @@ async function onConnectByHash(url: string) {
   try {
     const id = hash(url)
     await store.connect(url)
-    dismiss()
+    dismiss?.()
+    dismiss = undefined
     router.replace({ path: `/${id}/tables` })
   }
   catch (error) {
