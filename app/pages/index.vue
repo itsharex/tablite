@@ -81,7 +81,7 @@ async function onConnectByHash(url: string) {
         <Card v-for="c in normalizations" :key="c.origin" class="cursor-pointer p-4" @click="onConnectByHash(c.origin)">
           <div class="fade flex animate-fade items-center gap-2.5">
             <div class="flex size-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-800 text-white">
-              <DatabaseLogo :value="c.backend" class="size-6" />
+              <DbLogo :value="c.backend" class="size-6" />
             </div>
             <div class="w-0 flex-1">
               <CardTitle class="text-sm text-zinc-600">
