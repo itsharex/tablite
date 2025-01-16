@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import { useToast } from '@/components/ui/toast/use-toast'
 import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import PaperAirplane from '~icons/heroicons/paper-airplane'
+
+let dismiss: () => void
 
 const router = useRouter()
 const { url, isInvalidate, connect } = useConnection()
 const store = useConnectionStore()
 const { connections, isLoading } = storeToRefs(store)
 const isCnxLoading = ref<Record<string, boolean>>({})
+const { toast } = useToast()
 
 const normalizations = computed(() => {
   return connections.value.map(({ url: origin }) => {
@@ -35,7 +39,20 @@ async function onConnectByHash(url: string) {
   try {
     const id = hash(url)
     await store.connect(url)
+    dismiss()
     router.replace({ path: `/${id}/tables` })
+  }
+  catch (error) {
+    const options = { title: 'Warning', description: String(error) }
+
+    if (typeof error === 'string') {
+      const [_title, _description] = error.split(':').filter(Boolean).map(e => e.trim())
+
+      options.title = _title ?? options.title
+      options.description = _description ?? options.description
+    }
+
+    dismiss = toast(options).dismiss
   }
   finally {
     isCnxLoading.value[url] = false
@@ -171,4 +188,6 @@ async function onConnectByHash(url: string) {
       <DrawerFooter />
     </DrawerContent>
   </Drawer>
+
+  <Toaster />
 </template>
