@@ -1,0 +1,19 @@
+[package]
+name = "tauri-plugin-sql-extra"
+version = "0.1.0"
+authors = [ "You" ]
+description = ""
+edition = "2021"
+rust-version = "1.77.2"
+exclude = ["/examples", "/webview-dist", "/webview-src", "/node_modules"]
+links = "tauri-plugin-sql-extra"
+
+[dependencies]
+tauri = { version = "2.1.0" }
+serde = "1.0"
+thiserror = "2"
+sqlx = { version = "0.7", features = ["json", "time"] }
+tokio = { version = "1.43.0", features = ["sync"] }
+
+[build-dependencies]
+tauri-plugin = { version = "2.0.2", features = ["build"] }

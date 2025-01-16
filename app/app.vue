@@ -1,3 +1,7 @@
+<script setup lang="ts">
+Database.load('./app.db')
+</script>
+
 <template>
   <div class="relative overflow-hidden overscroll-none bg-zinc-50">
     <TitleBar />
