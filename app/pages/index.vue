@@ -4,9 +4,10 @@ import CircleStack from '~icons/heroicons/circle-stack'
 import PaperAirplane from '~icons/heroicons/paper-airplane'
 
 const router = useRouter()
-const { url, isInvalidate, isPending, connect } = useConnection()
+const { url, isInvalidate, connect } = useConnection()
 const store = useConnectionStore()
-const { connections } = storeToRefs(store)
+const { connections, isLoading } = storeToRefs(store)
+const isCnxLoading = ref<Record<string, boolean>>({})
 
 const normalizations = computed(() => {
   return connections.value.map(({ url: origin }) => {
@@ -27,9 +28,18 @@ async function onConnectByURL() {
 }
 
 async function onConnectByHash(url: string) {
-  const id = hash(url)
-  await store.connect(url)
-  router.replace({ path: `/${id}/tables` })
+  if (isCnxLoading.value[url])
+    return
+  isCnxLoading.value[url] = true
+
+  try {
+    const id = hash(url)
+    await store.connect(url)
+    router.replace({ path: `/${id}/tables` })
+  }
+  finally {
+    isCnxLoading.value[url] = false
+  }
 }
 </script>
 
@@ -78,7 +88,7 @@ async function onConnectByHash(url: string) {
       <Separator v-if="normalizations.length" class="my-8" />
 
       <div class="grid gap-7 grid-cols-2">
-        <Card v-for="c in normalizations" :key="c.origin" class="cursor-pointer p-4" @click="onConnectByHash(c.origin)">
+        <Card v-for="c in normalizations" :key="c.origin" class="cursor-pointer p-4 transition-all duration-300 hover:shadow-lg hover:-translate-x-[2px] hover:-translate-y-[3px]" @click="onConnectByHash(c.origin)">
           <div class="fade flex animate-fade items-center gap-2.5">
             <div class="flex size-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-800 text-white">
               <DbLogo :value="c.backend" class="size-6" />
@@ -97,6 +107,7 @@ async function onConnectByHash(url: string) {
                 </div>
               </CardDescription>
             </div>
+            <Spin v-if="isCnxLoading[c.origin]" class="size-4" />
           </div>
         </Card>
       </div>
@@ -151,7 +162,7 @@ async function onConnectByHash(url: string) {
 
         <div class="flex w-full max-w-xl items-center gap-2">
           <Input v-model="url" placeholder="e.g. mysql://username:password@hostnmae:port/database" class="h-9" />
-          <Button size="icon" :disabled="isInvalidate || isPending" @click="onConnectByURL">
+          <Button size="icon" :disabled="isInvalidate || isLoading" @click="onConnectByURL">
             <PaperAirplane class="w-4 h-4" />
           </Button>
         </div>

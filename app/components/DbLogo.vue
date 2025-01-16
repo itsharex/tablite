@@ -4,7 +4,7 @@ import Postgres from './Postgres.vue'
 import Sqlite from './Sqlite.vue'
 
 const props = defineProps<{
-  value: string
+  value?: string
 }>()
 
 const as = computed(() => {

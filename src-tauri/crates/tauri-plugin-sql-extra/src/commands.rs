@@ -29,7 +29,6 @@ pub async fn select(
     query: String,
 ) -> Result<Vec<HashMap<String, JsonValue>>, Error> {
     let instances = db_instances.0.read().await;
-
     let pool = instances.get(&db).ok_or(Error::DatabaseNotLoaded(db))?;
     pool.select(&query).await
 }

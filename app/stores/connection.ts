@@ -9,16 +9,25 @@ interface Cursor {
 }
 
 export const useConnectionStore = defineStore('connection', () => {
+  const isLoading = ref(false)
   const cursors = ref<Record<string, Cursor>>({})
   const connections = useTauriStorage<Connection[]>('connections', [], 'data.json')
 
   async function connect(url: string) {
-    const db = await Database.load(unref(url))
-    const id = findCnxOrCreate(url)
-    if (cursors.value[id]?.instance)
+    isLoading.value = true
+
+    try {
+      const db = await Database.load(unref(url))
+      const id = findCnxOrCreate(url)
+
+      if (cursors.value[id]?.instance)
+        return id
+      cursors.value[id] = { instance: db }
       return id
-    cursors.value[id] = { instance: db }
-    return id
+    }
+    finally {
+      isLoading.value = false
+    }
   }
 
   function findCnxOrCreate(url: string) {
@@ -33,6 +42,7 @@ export const useConnectionStore = defineStore('connection', () => {
   return {
     cursors,
     connections,
+    isLoading,
     connect,
   }
 })
