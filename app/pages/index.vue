@@ -28,7 +28,7 @@ const normalizations = computed(() => {
 
 async function onConnectByURL() {
   const hash = await connect()
-  router.replace({ path: `/${hash}/tables` })
+  router.replace({ name: 'id-tables', params: { id: hash } })
 }
 
 async function onConnectByHash(url: string) {
@@ -41,7 +41,7 @@ async function onConnectByHash(url: string) {
     await store.connect(url)
     dismiss?.()
     dismiss = undefined
-    router.replace({ path: `/${id}/tables` })
+    router.replace({ name: 'id-tables', params: { id } })
   }
   catch (error) {
     const options = { title: 'Warning', description: String(error) }
