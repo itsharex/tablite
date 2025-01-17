@@ -256,7 +256,7 @@ function onRemove(index: number) {
 
           <div v-if="isSelect && !error" class="flex flex-1 flex-col bg-white">
             <div class="h-0 flex flex-1 flex-col bg-zinc-100">
-              <VirtualGrid :columns="columns" :data-source="data ?? []" />
+              <VisTable :columns="columns" :records="data ?? []" />
             </div>
 
             <Separator />

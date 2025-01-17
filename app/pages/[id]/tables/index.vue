@@ -11,7 +11,7 @@ const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const selectedTable = ref('')
 const { data, limit, offset, count, structure, schema, primaryKeys, isLoading, setup, execute } = useTable(selectedTable, cursor)
 const mode = ref('data')
-const columns = computed(() => structure.value.map(({ columnName, dataType }) => ({ name: columnName, dataType })))
+const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 
 const page = computed({
   get() {
@@ -72,8 +72,7 @@ async function onPaginationChange(value: number) {
         <Separator />
 
         <div class="w-full h-0 flex-1 flex flex-col bg-zinc-100">
-          <Skeleton v-if="isLoading" class="w-full h-0 flex-1" />
-          <VirtualGrid v-else :columns="columns" :data-source="data" :primary-keys="primaryKeys" />
+          <VisTable editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
         </div>
 
         <Separator />
