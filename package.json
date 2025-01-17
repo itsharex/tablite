@@ -27,7 +27,6 @@
     "pinia": "^2.3.0",
     "radix-vue": "^1.9.11",
     "shadcn-nuxt": "0.11.3",
-    "uuid": "^11.0.3",
     "vaul-vue": "^0.2.0",
     "vue": "latest",
     "vue-router": "latest"

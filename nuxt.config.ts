@@ -28,6 +28,14 @@ export default defineNuxtConfig({
     storesDirs: ['./app/stores/**'],
   },
 
+  build: {
+    transpile: [
+      '@visactor/vtable',
+      '@visactor/vutils',
+      '@visactor/vscale',
+    ],
+  },
+
   devServer: {
     host: process.env.TAURI_DEV_HOST ?? 'localhost',
   },

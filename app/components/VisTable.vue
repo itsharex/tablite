@@ -20,7 +20,7 @@ const KeySolid = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fi
 </svg>
 `
 
-let instance: VTable.ListTableSimple
+let instance: VTable.ListTable
 
 const inputEditor = new InputEditor()
 VTable.register.editor('input-editor', inputEditor)
@@ -99,7 +99,7 @@ const options = computed<any>(() => ({
 }))
 
 onMounted(() => {
-  instance = new VTable.ListTableSimple(domRef.value, options.value)
+  instance = new VTable.ListTable(domRef.value, options.value)
 })
 
 watch(options, async () => {
