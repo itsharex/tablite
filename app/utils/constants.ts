@@ -13,6 +13,11 @@ export const Sql = {
   QUERY_UNIQUE_COLUMNS: (database: string, table: string) => defineQuery(`SELECT CASE non_unique WHEN 0 THEN'TRUE'ELSE'FALSE'END AS is_unique,column_name as column_name FROM information_schema.statistics WHERE table_schema = '${database}' AND table_name = '${table}' ORDER BY seq_in_index ASC;`, 'SHOW TABLES;', `SELECT CASE il."unique" WHEN 1 THEN 'TRUE' ELSE 'FALSE' END AS is_unique, ii.name AS 'column_name' FROM sqlite_master AS m, pragma_index_list (m.name) AS il, pragma_index_info (il.name) AS ii WHERE m.name = "${table}";`),
 }
 
+export const ConnectionPattern = {
+  // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-misleading-capturing-group
+  MYSQL: /mysql:\/\/([^:]+):(.*)@([^:/]+):(\d+)\/([^?]+)(\?.*)?/,
+}
+
 export const SQL_KEYWORDS = [
   'ACCESSIBLE',
   'ADD',

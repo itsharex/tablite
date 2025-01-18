@@ -53,6 +53,21 @@ function useCursorBackend(cursor: ComputedRef<Database | undefined>) {
   return computed(() => cursor.value?.path.split(':')[0] ?? 'mysql')
 }
 
+function parseConnectionURL(value: string) {
+  if (value.startsWith('mysql')) {
+    const matches = value.match(ConnectionPattern.MYSQL) ?? []
+    const [_, username, password, host, port, database, queries] = matches
+    return { username, password, host, port, database: database ?? '', queries }
+  }
+
+  if (value.startsWith('sqlite')) {
+    const database = new URL(value).pathname.split('/').filter(Boolean)[0] ?? ''
+    return { database }
+  }
+
+  return { database: '' }
+}
+
 export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<Database | undefined> | undefined) {
   const table = computed(() => unref(tableName))
   const cursor = computed(() => unref(cursorInstance))
@@ -76,7 +91,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
     try {
       if (table.value && cursor.value) {
         isLoading.value[0] = true
-        const database = new URL(cursor.value.path).pathname.split('/').filter(Boolean)[0] ?? ''
+        const { database } = parseConnectionURL(cursor.value.path)
         const results = await Promise.all([
           cursor.value?.select<QueryStructureResults>(Sql.DESCRIBE_TABLE(table.value)[backend.value]!),
           cursor.value?.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),

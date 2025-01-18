@@ -1,7 +1,6 @@
 <script setup lang="tsx">
 import * as VTable from '@visactor/vtable'
 import { InputEditor } from '@visactor/vtable-editors'
-import { createGroup, Tag } from '@visactor/vtable/es/vrender'
 
 const props = defineProps<{
   columns: string[]
@@ -57,24 +56,18 @@ const columns = computed(() => props.columns.map(column => ({
   width: 'auto',
   headerIcon: (props.primaryKeys ?? []).includes(column) ? 'freeze' : undefined,
   editor: props.editable ? 'input-editor' : undefined,
-
   fieldFormat: fieldFormatGenerator(column),
-  customLayout,
-
   style: {
     color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
   },
-
 })))
 
 function fieldFormatGenerator(key: string) {
   return (record: any) => {
     const value = record?.[key]
-    if (isBlob(value))
-      return 'BLOB'
     if (isEmpty(value))
       return 'EMPTY'
-    return value
+    return String(value)
   }
 }
 
@@ -84,8 +77,12 @@ const options = computed<any>(() => ({
   theme: TABLITE_THEME,
 
   defaultRowHeight: 32,
+  limitMaxAutoWidth: 256,
+  limitMinWidth: 96,
 
   editCellTrigger: 'doubleclick' as const,
+
+  autoFillWidth: true,
 
   keyboardOptions: {
     copySelected: true,
@@ -108,52 +105,6 @@ watch(options, async () => {
 
 function isEmpty(value: any) {
   return ['', undefined, null].includes(value)
-}
-
-function isBlob(value: any) {
-  return Array.isArray(value)
-}
-
-function customLayout({ row, col, dataValue, rect, table }: any) {
-  if (typeof dataValue === 'number')
-    return { renderDefault: true }
-  if (typeof dataValue === 'string' && dataValue.length < 1024)
-    return { renderDefault: true }
-  if ([undefined, null, ''].includes(dataValue))
-    return { renderDefault: true }
-
-  const { height, width } = rect ?? table.getCellRect(col, row)
-  const container = createGroup({
-    height,
-    width,
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-  })
-
-  const text = isBlob(dataValue) ? 'BLOB' : 'LONG TEXT'
-  const tag = new Tag({
-    text,
-    textStyle: {
-      fontSize: 12 * 0.75,
-      fontWeight: 600,
-      fill: '#ffffff',
-    },
-    panel: {
-      visible: true,
-      fill: '#000000',
-      cornerRadius: 12,
-    },
-    boundsPadding: [8, 0, 0, 12],
-    padding: [3, 10, 3, 10],
-  })
-
-  container.add(tag as any)
-
-  return {
-    rootContainer: container,
-    renderDefault: false,
-  }
 }
 </script>
 
