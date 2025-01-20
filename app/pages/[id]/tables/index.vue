@@ -8,7 +8,7 @@ definePageMeta({
 
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const selectedTable = ref('')
-const { data, limit, offset, count, structure, schema, primaryKeys, isLoading, setup, execute } = useTable(selectedTable, cursor)
+const { data, limit, offset, count, structure, schema, primaryKeys, isLoading, backend, where, setup, execute } = useTable(selectedTable, cursor)
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 
@@ -33,6 +33,14 @@ async function onPaginationChange(value: number) {
     return
   page.value = value
   await execute()
+}
+
+async function onApplyFliters(value: string) {
+  if (!value)
+    where.value = ''
+  else
+    where.value = ['WHERE', value].join(' ')
+  await onPaginationChange(1)
 }
 </script>
 
@@ -61,7 +69,7 @@ async function onPaginationChange(value: number) {
           </div>
 
           <div class="flex gap-2">
-            <TableFilter :columns="columns" />
+            <TableFilter :columns="columns" :backend="backend" @apply="onApplyFliters" />
           </div>
         </div>
 

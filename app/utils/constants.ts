@@ -11,6 +11,17 @@ export const Sql = {
   SHOW_TABLES: () => defineQuery('SHOW TABLES;', 'SHOW TABLES;', 'SELECT * FROM sqlite_master WHERE type = \'table\';'),
   DESCRIBE_TABLE: (value: string) => defineQuery(`DESCRIBE ${value};`, 'SHOW TABLES;', `PRAGMA table_info(${value});`),
   QUERY_UNIQUE_COLUMNS: (database: string, table: string) => defineQuery(`SELECT CASE non_unique WHEN 0 THEN'TRUE'ELSE'FALSE'END AS is_unique,column_name as column_name FROM information_schema.statistics WHERE table_schema = '${database}' AND table_name = '${table}' ORDER BY seq_in_index ASC;`, 'SHOW TABLES;', `SELECT CASE il."unique" WHEN 1 THEN 'TRUE' ELSE 'FALSE' END AS is_unique, ii.name AS 'column_name' FROM sqlite_master AS m, pragma_index_list (m.name) AS il, pragma_index_info (il.name) AS ii WHERE m.name = "${table}";`),
+
+  EQUALS: (value: string) => defineQuery(`= \'${value}\'`, `= \'${value}\'`, `= \'${value}\'`),
+  NOT_EQUALS: (value: string) => defineQuery(`!= \'${value}\'`, `!= \'${value}\'`, `!= \'${value}\'`),
+  GREATER_THAN_OR_EQUALS: (value: string) => defineQuery(`>= \'${value}\'`, `>= \'${value}\'`, `>= \'${value}\'`),
+  GREATER_THAN: (value: string) => defineQuery(`> \'${value}\'`, `> \'${value}\'`, `> \'${value}\'`),
+  LESS_THAN_OR_EQUALS: (value: string) => defineQuery(`<= \'${value}\'`, `<= \'${value}\'`, `<= \'${value}\'`),
+  LESS_THAN: (value: string) => defineQuery(`< \'${value}\'`, `< \'${value}\'`, `< \'${value}\'`),
+  IN: (value: string) => defineQuery(`IN (\'${value}\')`, `IN (\'${value}\')`, `IN (\'${value}\')`),
+  LIKE: (value: string) => defineQuery(`LIKE \'${value}\'`, `LIKE \'${value}\'`, `LIKE \'${value}\'`),
+  ILIKE: (value: string) => defineQuery(`ILIKE \'${value}\'`, `ILIKE \'${value}\'`, `ILIKE \'${value}\'`),
+  CONTAINS: (value: string) => defineQuery(`LIKE \'%${value}%\'`, `LIKE \'%${value}%\'`, `LIKE \'%${value}%\'`),
 }
 
 export const ConnectionPattern = {

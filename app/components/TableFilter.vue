@@ -12,6 +12,7 @@ interface Filter {
 
 const props = defineProps<{
   columns: string[]
+  backend: string
 }>()
 
 const emit = defineEmits(['apply'])
@@ -27,12 +28,27 @@ const OPERATIONS = [
   'like',
   'ilike',
   'contains',
-] as const
+]
+
+const OPERATION_SQL: Record<string, any> = {
+  'equals': Sql.EQUALS,
+  'not equals': Sql.NOT_EQUALS,
+  'greater than or equals': Sql.GREATER_THAN_OR_EQUALS,
+  'greater than': Sql.GREATER_THAN,
+  'less than or equals': Sql.LESS_THAN_OR_EQUALS,
+  'less than': Sql.LESS_THAN,
+  'in': Sql.IN,
+  'like': Sql.LIKE,
+  'ilike': Sql.ILIKE,
+  'contains': Sql.CONTAINS,
+}
 
 const filters = ref<Filter[]>([])
+const enabledFilters = ref<string[]>([])
 
 watch(() => props.columns, () => {
   filters.value = []
+  enabledFilters.value = []
 })
 
 function onAdd() {
@@ -43,7 +59,7 @@ function createDefaults() {
   return {
     key: Date.now(),
     column: props.columns[0],
-    operation: OPERATIONS[0],
+    operation: 'equals',
   }
 }
 
@@ -54,12 +70,25 @@ function onUpdateOpen() {
 
 function onClear() {
   filters.value = []
-  onUpdateOpen()
+  enabledFilters.value = []
   onApply()
+  onUpdateOpen()
 }
 
 function onApply() {
-  emit('apply', filters.value)
+  const sqls = filters.value.map((item) => {
+    if (item.column && item.operation && item.value) {
+      return [
+        item.column,
+        OPERATION_SQL[item.operation]?.(item.value)[props.backend ?? 'mysql'],
+      ].join(' ')
+    }
+
+    return undefined
+  }).filter(Boolean)
+
+  enabledFilters.value = sqls as string[]
+  emit('apply', sqls.join(' AND '))
 }
 </script>
 
@@ -69,6 +98,7 @@ function onApply() {
       <Button size="sm">
         <AdjustmentsHorizontal />
         Add filters
+        <span v-if="enabledFilters.length">({{ enabledFilters.length }})</span>
       </Button>
     </PopoverTrigger>
 

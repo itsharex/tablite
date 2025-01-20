@@ -80,6 +80,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const isLoading = ref([false, false])
   const primaryKeys = ref<string[]>([])
   const backend = useCursorBackend(cursor)
+  const where = ref('')
 
   async function queryTableSchema(value: string) {
     if (backend.value === 'mysql')
@@ -113,7 +114,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
     if (table.value && cursor.value) {
       try {
         isLoading.value[1] = true
-        data.value = await cursor.value?.select<any[]>(`SELECT * FROM \`${table.value}\` LIMIT ${limit.value} OFFSET ${offset.value};`) ?? []
+        data.value = await cursor.value?.select<any[]>(`SELECT * FROM \`${table.value}\` ${where.value} LIMIT ${limit.value} OFFSET ${offset.value};`) ?? []
       }
       catch {
         data.value = []
@@ -132,6 +133,8 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
     offset,
     count,
     primaryKeys,
+    backend,
+    where,
     isLoading: computed(() => isLoading.value.some(Boolean)),
     setup,
     execute,
