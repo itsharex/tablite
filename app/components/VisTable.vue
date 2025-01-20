@@ -75,7 +75,7 @@ const columns = computed(() => {
     fieldFormat: fieldFormatGenerator(column),
     style: {
       color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
-      bgColor: ({ row, col }: any) => changes.value[`${col}:${row}`] ? '#fef08a' : !(row & 1) ? '#fafafa' : '#ffffff',
+      bgColor: ({ row, col }: any) => changes.value[`${col}:${row}`] ? '#fef9c3' : !(row & 1) ? '#fafafa' : '#ffffff',
     },
   }))
 
