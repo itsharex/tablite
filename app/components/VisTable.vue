@@ -33,6 +33,7 @@ VTable.register.icon('freeze', {
   funcType: VTable.TYPES.IconFuncTypeEnum.frozen,
   positionType: VTable.TYPES.IconPosition.right,
   marginRight: 0,
+  marginLeft: 12,
   cursor: 'pointer',
 })
 
@@ -45,22 +46,37 @@ VTable.register.icon('frozenCurrent', {
   funcType: VTable.TYPES.IconFuncTypeEnum.frozen,
   positionType: VTable.TYPES.IconPosition.right,
   marginRight: 0,
+  marginLeft: 12,
   cursor: 'pointer',
 })
 
 const domRef = ref()
 
-const columns = computed(() => props.columns.map(column => ({
-  field: column,
-  title: column,
-  width: 'auto',
-  headerIcon: (props.primaryKeys ?? []).includes(column) ? 'freeze' : undefined,
-  editor: props.editable ? 'input-editor' : undefined,
-  fieldFormat: fieldFormatGenerator(column),
-  style: {
-    color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
-  },
-})))
+const columns = computed(() => {
+  const constantColumns = [
+    {
+      field: 'isCheck',
+      title: '',
+      width: 36,
+      headerType: 'checkbox',
+      cellType: 'checkbox',
+    },
+  ]
+
+  const dynamicColumns = props.columns.map(column => ({
+    field: column,
+    title: column,
+    width: 'auto',
+    headerIcon: (props.primaryKeys ?? []).includes(column) ? 'freeze' : undefined,
+    editor: props.editable ? 'input-editor' : undefined,
+    fieldFormat: fieldFormatGenerator(column),
+    style: {
+      color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
+    },
+  }))
+
+  return [...constantColumns, ...dynamicColumns]
+})
 
 function fieldFormatGenerator(key: string) {
   return (record: any) => {

@@ -58,7 +58,7 @@ export const TABLITE_THEME = {
   scrollStyle: {
     scrollSliderColor: 'rgb(0 0 0 / 0.5)',
     width: 11,
-    horizontalPadding: [2, 12, 2, 3] as [number, number, number, number],
-    verticalPadding: [3, 2, 3, 2] as [number, number, number, number],
+    horizontalPadding: [2, 12, 2, 2] as [number, number, number, number],
+    verticalPadding: [2, 2, 12, 2] as [number, number, number, number],
   },
 }

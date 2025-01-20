@@ -2,7 +2,7 @@
 import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
-import Squares2x2 from '~icons/heroicons/squares-2x2-solid'
+import Stop from '~icons/heroicons/stop'
 
 definePageMeta({
   keepalive: true,
@@ -54,7 +54,7 @@ preloadRouteComponents({ name: 'id-queries' })
 
       <div class="flex-shrink-0">
         <div class="flex items-center cursor-pointer justify-center size-11 mx-auto text-white/50 hover:text-white/75" @click="router.replace({ name: 'index' })">
-          <Squares2x2 class="size-5" />
+          <Stop class="size-5" />
         </div>
       </div>
     </div>
