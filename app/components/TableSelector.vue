@@ -30,7 +30,7 @@ function onSelect(table: string) {
 <template>
   <div class="h-full flex">
     <div class="flex-1 w-0 flex flex-col h-full">
-      <div class="px-4 pt-8 flex gap-2.5 items-center cursor-default justify-between">
+      <div class="px-4 pt-6 flex gap-2.5 items-center cursor-default justify-between">
         <span class="text-xl font-semibold">Tables</span>
 
         <div class="h-0">

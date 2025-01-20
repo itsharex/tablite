@@ -2,7 +2,6 @@
 import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
-import Stop from '~icons/heroicons/stop'
 
 definePageMeta({
   keepalive: true,
@@ -44,21 +43,26 @@ preloadRouteComponents({ name: 'id-queries' })
 </script>
 
 <template>
-  <div class="h-screen -mt-7 flex">
-    <div class="w-[70px] flex flex-col justify-between items-center flex-shrink-0 border-r pt-12 pb-4 bg-zinc-800 border-r-zinc-200">
-      <div class="flex flex-col items-center gap-2 flex-1">
-        <div v-for="tab in tabs" :key="tab.key" class="flex items-center cursor-pointer justify-center size-11 mx-auto rounded-md" :class="[route.name === tab.key ? 'text-white bg-white/15' : 'text-white/50 hover:text-white/75']" @click="router.replace({ name: tab.key })">
-          <component :is="tab.icon" class="flex-shrink-0 size-5" />
-        </div>
-      </div>
-
-      <div class="flex-shrink-0">
-        <div class="flex items-center cursor-pointer justify-center size-11 mx-auto text-white/50 hover:text-white/75" @click="router.replace({ name: 'index' })">
-          <Stop class="size-5" />
-        </div>
+  <div class="h-screen -mt-12 flex flex-col">
+    <div class="h-12 flex-shrink-0 p-2 bg-white">
+      <div class="pl-[72px] flex items-center h-full box-border uppercase">
+        <Button variant="ghost" size="sm" class="z-[101] font-semibold tracking-wide text-sm px-4" @click="router.replace({ name: 'index' })">
+          TABLITE
+        </Button>
       </div>
     </div>
 
-    <NuxtPage />
+    <Separator />
+
+    <div class="flex flex-1 h-0">
+      <div class="flex flex-col items-center flex-shrink-0 border-r border-r-zinc-200">
+        <div v-for="tab in tabs" :key="tab.key" class="flex items-center cursor-pointer justify-center relative" :class="[route.name === tab.key ? 'bg-zinc-100 text-zinc-600' : 'text-zinc-600/50']" @click="router.replace({ name: tab.key })">
+          <component :is="tab.icon" class="flex-shrink-0 size-5 m-4" />
+          <div v-if="route.name === tab.key" class="absolute top-0 bottom-0 left-0 w-0.5 bg-zinc-800" />
+        </div>
+      </div>
+
+      <NuxtPage />
+    </div>
   </div>
 </template>

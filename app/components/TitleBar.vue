@@ -1,3 +1,3 @@
 <template>
-  <div data-tauri-drag-region class="h-7 relative z-[99]" />
+  <div data-tauri-drag-region class="h-12 relative z-50" />
 </template>

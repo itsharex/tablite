@@ -157,7 +157,7 @@ function onRemove(index: number) {
   <ResizablePanelGroup direction="horizontal" class="flex-1 h-full">
     <ResizablePanel :default-size="24" :min-size="16" :max-size="50">
       <div>
-        <div class="px-4 pt-8 flex gap-2.5 items-center cursor-default justify-between">
+        <div class="p-4 flex gap-2.5 items-center cursor-default justify-between">
           <span class="text-xl font-semibold">Queries</span>
 
           <div class="h-0">
@@ -227,7 +227,7 @@ function onRemove(index: number) {
     <ResizablePanel>
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel :default-size="50" :min-size="25" class="w-full flex flex-col bg-white">
-          <div class="flex justify-between items-center px-4 pt-8 pb-6">
+          <div class="flex justify-between items-center p-4">
             <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" placeholder="Untitled Query" @click="($event: any) => $event.target.select()">
 
             <div class="flex-shrink-0 flex justify-end gap-2">

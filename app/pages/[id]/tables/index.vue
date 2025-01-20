@@ -47,7 +47,7 @@ async function onPaginationChange(value: number) {
 
     <ResizablePanel class="h-full bg-white">
       <div v-show="selectedTable" class="flex flex-col h-full">
-        <div class="px-4 pt-6 pb-4 flex justify-between items-center">
+        <div class="p-4 flex justify-between items-center">
           <div class="ml-2 flex-1">
             <div class="font-semibold uppercase cursor-default">
               {{ selectedTable }}
