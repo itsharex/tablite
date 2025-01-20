@@ -157,7 +157,7 @@ function onRemove(index: number) {
   <ResizablePanelGroup direction="horizontal" class="flex-1 h-full">
     <ResizablePanel :default-size="24" :min-size="16" :max-size="50">
       <div>
-        <div class="p-4 flex gap-2.5 items-center cursor-default justify-between">
+        <div class="px-4 pt-6 flex gap-2.5 items-center cursor-default justify-between">
           <span class="text-xl font-semibold">Queries</span>
 
           <div class="h-0">

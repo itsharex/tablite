@@ -111,6 +111,11 @@ const options = computed<any>(() => ({
   tooltip: {
     isShowOverflowTextTooltip: false,
   },
+
+  select: {
+    blankAreaClickDeselect: true,
+    outsideClickDeselect: true,
+  },
 }))
 
 onMounted(() => {
