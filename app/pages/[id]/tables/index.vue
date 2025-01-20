@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import AdjustmentsHorizontal from '~icons/heroicons/adjustments-horizontal'
 import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
 
@@ -62,10 +61,7 @@ async function onPaginationChange(value: number) {
           </div>
 
           <div class="flex gap-2">
-            <Button size="sm">
-              <AdjustmentsHorizontal />
-              Add filters
-            </Button>
+            <TableFilter :columns="columns" />
           </div>
         </div>
 
