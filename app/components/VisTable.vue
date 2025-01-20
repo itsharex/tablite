@@ -54,14 +54,16 @@ const domRef = ref()
 
 const columns = computed(() => {
   const constantColumns = [
-    {
-      field: 'isCheck',
-      title: '',
-      width: 36,
-      headerType: 'checkbox',
-      cellType: 'checkbox',
-    },
-  ]
+    props.editable
+      ? {
+          field: new Date().getTime().toString(),
+          title: '',
+          width: 36,
+          headerType: 'checkbox',
+          cellType: 'checkbox',
+        }
+      : undefined,
+  ].filter(Boolean)
 
   const dynamicColumns = props.columns.map(column => ({
     field: column,
