@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { platform } from '@tauri-apps/plugin-os'
 import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
@@ -45,7 +46,7 @@ preloadRouteComponents({ name: 'id-queries' })
 <template>
   <div class="h-screen -mt-12 flex flex-col">
     <div class="h-12 flex-shrink-0 p-2 bg-white">
-      <div class="pl-[72px] flex items-center h-full box-border uppercase">
+      <div class="flex items-center h-full box-border uppercase" :class="{ 'pl-[72px]': platform() === 'macos' }">
         <Button variant="ghost" size="sm" class="z-[101] font-semibold tracking-wide text-sm px-4" @click="router.replace({ name: 'index' })">
           TABLITE
         </Button>
