@@ -44,11 +44,9 @@ const OPERATION_SQL: Record<string, any> = {
 }
 
 const filters = ref<Filter[]>([])
-const enabledFilters = ref<string[]>([])
 
 watch(() => props.columns, () => {
   filters.value = []
-  enabledFilters.value = []
 })
 
 function onAdd() {
@@ -70,7 +68,6 @@ function onUpdateOpen() {
 
 function onClear() {
   filters.value = []
-  enabledFilters.value = []
   onApply()
   onUpdateOpen()
 }
@@ -87,7 +84,6 @@ function onApply() {
     return undefined
   }).filter(Boolean)
 
-  enabledFilters.value = sqls as string[]
   emit('apply', sqls.join(' AND '))
 }
 </script>
@@ -98,7 +94,6 @@ function onApply() {
       <Button size="sm">
         <AdjustmentsHorizontal />
         Add filters
-        <span v-if="enabledFilters.length">({{ enabledFilters.length }})</span>
       </Button>
     </PopoverTrigger>
 

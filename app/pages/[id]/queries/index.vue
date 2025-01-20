@@ -167,7 +167,7 @@ function onRemove(index: number) {
           </div>
         </div>
 
-        <div class="px-4 mt-6 pb-4 transition-all duration-150">
+        <div class="px-4 mt-4 pb-4 transition-all duration-150">
           <Input v-model="search" class="h-8 text-sm relative z-10" placeholder="Search queries" />
         </div>
 

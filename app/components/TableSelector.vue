@@ -40,7 +40,7 @@ function onSelect(table: string) {
         </div>
       </div>
 
-      <div class="px-4 mt-6 pb-4 transition-all duration-150" :class="{ shadow: y > 6 }">
+      <div class="px-4 mt-4 pb-4 transition-all duration-150" :class="{ shadow: y > 6 }">
         <Input v-model="search" class="h-8 text-sm relative z-10" placeholder="Search tables" />
       </div>
 

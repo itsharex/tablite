@@ -104,12 +104,6 @@ const options = computed<any>(() => ({
 
   autoFillWidth: true,
 
-  keyboardOptions: {
-    copySelected: true,
-    pasteValueToCell: true,
-    selectAllOnCtrlA: true,
-  },
-
   tooltip: {
     isShowOverflowTextTooltip: false,
   },
