@@ -51,6 +51,7 @@ VTable.register.icon('frozenCurrent', {
 })
 
 const domRef = ref()
+const changes = ref<Record<string, string[]>>({})
 
 const columns = computed(() => {
   const constantColumns = [
@@ -74,6 +75,7 @@ const columns = computed(() => {
     fieldFormat: fieldFormatGenerator(column),
     style: {
       color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
+      bgColor: ({ row, col }: any) => changes.value[`${col}:${row}`] ? '#fef08a' : !(row & 1) ? '#fafafa' : '#ffffff',
     },
   }))
 
@@ -119,11 +121,26 @@ const options = computed<any>(() => ({
 }))
 
 onMounted(() => {
+  if (instance)
+    return
+
   instance = new VTable.ListTable(domRef.value, options.value)
+
+  instance.on('change_cell_value', ({ col, row, currentValue, changedValue }: any) => {
+    if (!props.editable)
+      return
+    const key = [col, row].join(':')
+    const origin = changes.value[key] ? changes.value[key][0] : currentValue
+    if (origin === changedValue)
+      delete changes.value[key]
+    else
+      changes.value[key] = [origin, changedValue]
+  })
 })
 
 watch(options, async () => {
   instance.updateOption(options.value)
+  changes.value = {}
 })
 
 function isEmpty(value: any) {

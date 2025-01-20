@@ -1,12 +1,3 @@
-function getBackgroundColor(args: any): string {
-  const { row, table } = args
-  const index = row - table.frozenRowCount
-  if (!(index & 1)) {
-    return '#ffffff'
-  }
-  return '#fafafa'
-}
-
 export const TABLITE_THEME = {
   name: 'TABLITE',
   underlayBackgroundColor: 'transparent',
@@ -30,7 +21,7 @@ export const TABLITE_THEME = {
 
   bodyStyle: {
     color: '#27272a',
-    bgColor: getBackgroundColor,
+    bgColor: '#ffffff',
     borderColor: '#f4f4f5',
     hover: { cellBgColor: 'rgb(228 228 231 / 0.5)' },
   },
