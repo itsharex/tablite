@@ -255,7 +255,7 @@ function onRemove(index: number) {
           </div>
 
           <div v-if="isSelect && !error" class="flex flex-1 flex-col bg-white">
-            <div class="h-0 flex flex-1 flex-col bg-zinc-100">
+            <div class="h-0 flex flex-1 flex-col -m-px bg-zinc-100">
               <VisTable :columns="columns" :records="data ?? []" />
             </div>
 

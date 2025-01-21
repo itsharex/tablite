@@ -14,8 +14,8 @@ export const TABLITE_THEME = {
 
   headerStyle: {
     color: '#09090b',
-    bgColor: '#fafafa',
-    borderColor: '#f4f4f5',
+    bgColor: '#f4f4f5',
+    borderColor: '#e4e4e7',
     fontWeight: 600,
   },
 
