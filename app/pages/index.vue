@@ -112,7 +112,7 @@ async function onConnectByHash(url: string) {
       <Separator v-if="normalizations.length" class="my-8" />
 
       <div class="grid gap-7 grid-cols-2">
-        <Card v-for="c in normalizations" :key="c.origin" class="cursor-pointer p-4 transition-all duration-300 hover:shadow-lg hover:-translate-x-[2px] hover:-translate-y-[3px]" @click="onConnectByHash(c.origin)">
+        <Card v-for="c in normalizations" :key="c.origin" class="cursor-pointer p-4 transition-all duration-150 hover:bg-zinc-100" @click="onConnectByHash(c.origin)">
           <div class="fade flex animate-fade items-center gap-2.5">
             <div class="flex size-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-800 text-white">
               <DbLogo :value="c.backend" class="size-6" />
