@@ -112,6 +112,7 @@ const options = computed<any>(() => ({
   editCellTrigger: 'doubleclick' as const,
 
   autoFillWidth: true,
+  columnResizeMode: 'header',
 
   tooltip: {
     isShowOverflowTextTooltip: false,

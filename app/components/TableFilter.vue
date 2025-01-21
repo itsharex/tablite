@@ -111,7 +111,7 @@ function pluralFormatter() {
           <div v-for="item in filters" :key="item.key" class="flex gap-2 items-center">
             <Checkbox v-model:checked="item.enable" class="flex-shrink-0" />
 
-            <Select v-model="item.column">
+            <Select v-model="item.column" class="focus-visible:ring-0">
               <SelectTrigger class="h-8 text-sm w-32 flex-shrink-0">
                 <SelectValue />
               </SelectTrigger>
@@ -124,7 +124,7 @@ function pluralFormatter() {
               </SelectContent>
             </Select>
 
-            <Select v-model="item.operation">
+            <Select v-model="item.operation" class="focus-visible:ring-0">
               <SelectTrigger class="h-8 text-sm w-32 flex-shrink-0">
                 <SelectValue />
               </SelectTrigger>
