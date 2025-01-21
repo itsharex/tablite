@@ -62,6 +62,9 @@ const columns = computed(() => {
           width: 36,
           headerType: 'checkbox',
           cellType: 'checkbox',
+          style: {
+            bgColor: ({ row }: any) => !(row & 1) ? '#fafafa' : '#ffffff',
+          },
         }
       : undefined,
   ].filter(Boolean)

@@ -105,7 +105,7 @@ function pluralFormatter() {
       </div>
     </PopoverTrigger>
 
-    <PopoverContent align="end" class="w-[42rem]">
+    <PopoverContent align="end" :side-offset="8" class="w-[42rem]">
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
           <div v-for="item in filters" :key="item.key" class="flex gap-2 items-center">
