@@ -75,7 +75,7 @@ async function onApplyFliters(value: string) {
 
         <Separator />
 
-        <div class="w-full h-0 flex-1 flex flex-col bg-zinc-100 -m-px">
+        <div class="w-full h-0 flex-1 flex flex-col bg-zinc-50 -m-px">
           <VisTable editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
         </div>
 
