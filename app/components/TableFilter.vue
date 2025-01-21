@@ -8,6 +8,7 @@ interface Filter {
   column?: string
   operation?: string
   value?: string
+  enable?: boolean
 }
 
 const props = defineProps<{
@@ -44,9 +45,11 @@ const OPERATION_SQL: Record<string, any> = {
 }
 
 const filters = ref<Filter[]>([])
+const enabledFilters = ref<string[]>([])
 
 watch(() => props.columns, () => {
   filters.value = []
+  enabledFilters.value = []
 })
 
 function onAdd() {
@@ -56,6 +59,7 @@ function onAdd() {
 function createDefaults() {
   return {
     key: Date.now(),
+    enable: true,
     column: props.columns[0],
     operation: 'equals',
   }
@@ -68,41 +72,47 @@ function onUpdateOpen() {
 
 function onClear() {
   filters.value = []
+  enabledFilters.value = []
   onApply()
   onUpdateOpen()
 }
 
 function onApply() {
-  const sqls = filters.value.map((item) => {
-    if (item.column && item.operation && item.value) {
-      return [
-        item.column,
-        OPERATION_SQL[item.operation]?.(item.value)[props.backend ?? 'mysql'],
-      ].join(' ')
-    }
+  const sqls = filters.value.filter(item => item.column && item.operation && item.value && item.enable).map(item => [
+    item.column,
+    OPERATION_SQL[item.operation!]?.(item.value)[props.backend ?? 'mysql'],
+  ].join(' '))
 
-    return undefined
-  }).filter(Boolean)
-
+  enabledFilters.value = sqls
   emit('apply', sqls.join(' AND '))
+}
+
+function pluralFormatter() {
+  if (enabledFilters.value.length > 1)
+    return 'Filters'
+  return 'Filter'
 }
 </script>
 
 <template>
   <Popover @update:open="onUpdateOpen">
     <PopoverTrigger>
-      <Button size="sm">
-        <AdjustmentsHorizontal />
-        Add filters
-      </Button>
+      <div class="flex items-center">
+        <Button size="sm">
+          <AdjustmentsHorizontal />
+          {{ enabledFilters.length ? [enabledFilters.length, pluralFormatter()].join(' ') : 'Add filters' }}
+        </Button>
+      </div>
     </PopoverTrigger>
 
     <PopoverContent align="end" class="w-[42rem]">
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
-          <div v-for="item in filters" :key="item.key" class="flex gap-2">
+          <div v-for="item in filters" :key="item.key" class="flex gap-2 items-center">
+            <Checkbox v-model:checked="item.enable" class="flex-shrink-0" />
+
             <Select v-model="item.column">
-              <SelectTrigger class="h-8 text-sm w-72">
+              <SelectTrigger class="h-8 text-sm w-32 flex-shrink-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -115,7 +125,7 @@ function onApply() {
             </Select>
 
             <Select v-model="item.operation">
-              <SelectTrigger class="h-8 text-sm w-72">
+              <SelectTrigger class="h-8 text-sm w-32 flex-shrink-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -129,7 +139,7 @@ function onApply() {
 
             <Input v-model="item.value" placeholder="Enter value" class="h-8 text-sm" />
 
-            <Button size="icon" variant="ghost" class="h-8 px-2">
+            <Button v-if="filters.length > 1" size="icon" variant="ghost" class="h-8 px-2">
               <Trash />
             </Button>
           </div>
