@@ -10,6 +10,7 @@
     "beforeBuildCommand": "pnpm build"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "Tablite",
@@ -18,7 +19,8 @@
         "resizable": true,
         "fullscreen": false,
         "titleBarStyle": "Overlay",
-        "hiddenTitle": true
+        "hiddenTitle": true,
+        "decorations": false
       }
     ],
     "security": {

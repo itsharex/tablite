@@ -8,6 +8,8 @@ definePageMeta({
   keepalive: true,
 })
 
+const IS_MACOS = platform() === 'macos'
+
 const route = useRoute()
 const router = useRouter()
 const id = useRouteParams<string>('id')
@@ -44,12 +46,17 @@ preloadRouteComponents({ name: 'id-queries' })
 </script>
 
 <template>
-  <div class="h-screen -mt-12 flex flex-col">
-    <div class="h-12 flex-shrink-0 p-2 bg-white">
-      <div class="flex items-center h-full box-border uppercase" :class="{ 'pl-[72px]': platform() === 'macos' }">
-        <Button variant="ghost" size="sm" class="z-[101] font-extrabold text-zinc-800" @click="router.replace({ name: 'index' })">
+  <div class="h-screen flex flex-col" :class="[IS_MACOS ? '-mt-12' : '-mt-8']">
+    <div class="w-full p-2 flex-shrink-0 bg-white" :class="[IS_MACOS ? 'h-12' : 'h-8']">
+      <div class="flex items-center h-full box-border" :class="{ 'pl-[72px]': IS_MACOS }">
+        <Button v-if="IS_MACOS" variant="ghost" size="sm" class="z-[101] font-extrabold px-4" @click="router.replace({ name: 'index' })">
           TABLITE
         </Button>
+
+        <div v-else class="z-[101] cursor-pointer flex items-center text-xs gap-1.5" @click="router.replace({ name: 'index' })">
+          <img src="/images/tablite.png" class="w-5 select-none">
+          <span>Tablite</span>
+        </div>
       </div>
     </div>
 
