@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Query } from '~/composables/useQuery'
+import { platform } from '@tauri-apps/plugin-os'
 import * as monaco from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import CheckCircle from '~icons/heroicons/check-circle'
@@ -16,6 +17,8 @@ definePageMeta({
 })
 
 let editor: monaco.editor.IStandaloneCodeEditor
+
+const PLATFORM = platform()
 
 const domRef = ref()
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
@@ -34,14 +37,22 @@ const { title, code, data, error, timeToExecute, isSelect, isLoading, execute } 
 const transitionTimeToExecute = useTransition(timeToExecute)
 const useTablesReturn = useTables(cursor, { immediate: false })
 const search = ref('')
+const { meta, shift, s } = useMagicKeys()
 
 const filtered = computed(() => queries.value.filter(({ title }) => title.includes(search.value)))
+const upperKey = computed(() => PLATFORM === 'macos' ? meta?.value : shift?.value)
+const isSaving = computed(() => upperKey.value && s?.value)
 
 const columns = computed(() => {
   if (!Array.isArray(data.value))
     return []
 
   return Object.keys(data.value[0] ?? {})
+})
+
+watch(isSaving, (v, p) => {
+  if (!p && v)
+    onSave()
 })
 
 function setup() {
@@ -130,6 +141,8 @@ async function onSelect(index: number) {
 }
 
 function onSave() {
+  if (!title.value)
+    return
   const index = selectedQueryIndex.value
   code.value = editor.getValue()
   const query: Query = { title: title.value, content: btoa(code.value) }
@@ -231,7 +244,7 @@ function onRemove(index: number) {
             <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" placeholder="Untitled Query" @click="($event: any) => $event.target.select()">
 
             <div class="flex-shrink-0 flex justify-end gap-2">
-              <Button variant="secondary" size="sm" :disabled="!title" @click="onSave">
+              <Button variant="secondary" size="sm" :disabled="!title || isSaving" @click="onSave">
                 Save
               </Button>
 

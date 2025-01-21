@@ -62,6 +62,9 @@ const columns = computed(() => {
           width: 36,
           headerType: 'checkbox',
           cellType: 'checkbox',
+          disableSelect: true,
+          disableHeaderSelect: true,
+          disableColumnResize: true,
           style: {
             bgColor: ({ row }: any) => !(row & 1) ? '#fafafa' : '#ffffff',
           },
@@ -75,6 +78,9 @@ const columns = computed(() => {
     width: 'auto',
     headerIcon: (props.primaryKeys ?? []).includes(column) ? 'freeze' : undefined,
     editor: props.editable ? 'input-editor' : undefined,
+    disableSelect: !props.editable,
+    disableHeaderSelect: !props.editable,
+    disableColumnResize: !props.editable,
     fieldFormat: fieldFormatGenerator(column),
     style: {
       color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
