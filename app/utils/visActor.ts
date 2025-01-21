@@ -49,4 +49,9 @@ export const TABLITE_THEME = {
   scrollStyle: {
     visible: false,
   },
+
+  checkboxStyle: {
+    checkedFill: '#27272a',
+    checkedStroke: '#27272a',
+  },
 }
