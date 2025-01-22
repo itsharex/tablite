@@ -95,20 +95,16 @@ async function onApplyFliters(value: string) {
 
           <div class="text-xs flex justify-end items-center gap-3">
             <div>
-              Page {{ page }} of {{ pageTotal }}
+              {{ [offset + 1, offset + data.length].join('-') }} of {{ count }} rows
             </div>
 
             <div class="flex gap-1.5">
-              <Button size="icon" variant="outline" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
+              <Button size="icon" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
                 <ChevronLeft />
               </Button>
-              <Button size="icon" variant="outline" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
+              <Button size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
                 <ChevronRight />
               </Button>
-            </div>
-
-            <div>
-              {{ count }} records
             </div>
           </div>
         </div>
