@@ -184,7 +184,7 @@ function isEmpty(value: any) {
 }
 
 function hasChanged(col: number, row: any) {
-  if (!instance)
+  if (!props.editable || !instance)
     return false
   const record = instance.records[row - 1]
   if (!record)
