@@ -56,7 +56,7 @@ VTable.register.icon('frozenCurrent', {
 })
 
 const domRef = ref()
-const changes = ref<Record<string, Record<string, [any, any]>>>({})
+const changes = ref<Record<string, Record<string, any[]>>>({})
 
 const columns = computed(() => {
   const constantColumns = [
@@ -146,23 +146,30 @@ onMounted(() => {
       return
     if (!changes.value[key])
       changes.value[key] = {}
-    const origin = changes.value[key][column.field] ? changes.value[key][column.field]?.[0] : currentValue
+    if (!changes.value[key][column.field])
+      changes.value[key][column.field] = [currentValue]
+    const origin = changes.value[key][column.field]?.[0]
     if (origin === changedValue) {
-      delete changes.value[key][column.field]
+      changes.value[key][column.field]?.splice(1, 1)
     }
     else {
       changes.value[key][column.field] = [origin, changedValue]
-      triggerUndoToast()
+      triggerUndoToast(key, column.field, origin, row, col)
     }
   })
 })
 
-function triggerUndoToast() {
+function triggerUndoToast(key: string, field: string, origin: any, row: number, col: number) {
   toast('Field has been changed', {
     description: useDateFormat(useNow(), 'dddd, MMMM Mo HH:mma', { locales: 'en-US' }),
     action: {
       label: 'Undo',
-      onClick: () => {},
+      onClick() {
+        if (!instance)
+          return
+        changes.value[key]?.[field]?.splice(1, 1)
+        instance.changeCellValue(col, row, origin)
+      },
     },
   })
 }
@@ -189,11 +196,12 @@ function hasChanged(col: number, row: any) {
   if (!column)
     return false
 
-  return changes.value[key]?.[column.field]
+  const [_, v] = changes.value[key]?.[column.field] ?? []
+  return v
 }
 
 function generateRowKeyFromIndex(index: number) {
-  const record = instance.records[index]
+  const record = instance.records[index - 1]
   if (!record)
     return
   const keys: Record<string, any> = {}
