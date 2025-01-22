@@ -71,7 +71,7 @@ function parseConnectionURL(value: string) {
 export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<Database | undefined> | undefined) {
   const table = computed(() => unref(tableName))
   const cursor = computed(() => unref(cursorInstance))
-  const limit = ref(300)
+  const limit = ref(100)
   const offset = ref(0)
   const count = ref(0)
   const data = ref<any[]>([])
