@@ -1,13 +1,18 @@
 <script setup lang="tsx">
 import * as VTable from '@visactor/vtable'
 import { InputEditor } from '@visactor/vtable-editors'
+import { toast } from 'vue-sonner'
 
-const props = defineProps<{
+interface Props {
   columns: string[]
   records: Record<string, any>[]
   editable?: boolean
   primaryKeys?: string[]
-}>()
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  primaryKeys: () => [],
+})
 
 const Key = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#09090b">
   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
@@ -51,7 +56,7 @@ VTable.register.icon('frozenCurrent', {
 })
 
 const domRef = ref()
-const changes = ref<Record<string, string[]>>({})
+const changes = ref<Record<string, Record<string, [any, any]>>>({})
 
 const columns = computed(() => {
   const constantColumns = [
@@ -84,7 +89,7 @@ const columns = computed(() => {
     fieldFormat: fieldFormatGenerator(column),
     style: {
       color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
-      bgColor: ({ row, col }: any) => changes.value[`${col}:${row}`] ? '#fef9c3' : !(row & 1) ? '#fafafa' : '#ffffff',
+      bgColor: ({ col, row }: any) => hasChanged(col, row) ? '#fef9c3' : !(row & 1) ? '#fafafa' : '#ffffff',
     },
   }))
 
@@ -133,22 +138,69 @@ onMounted(() => {
   instance.on('change_cell_value', ({ col, row, currentValue, changedValue }: any) => {
     if (!props.editable)
       return
-    const key = [col, row].join(':')
-    const origin = changes.value[key] ? changes.value[key][0] : currentValue
-    if (origin === changedValue)
-      delete changes.value[key]
-    else
-      changes.value[key] = [origin, changedValue]
+    const column = columns.value[col]
+    if (!column)
+      return
+    const key = generateRowKeyFromIndex(row)
+    if (!key)
+      return
+    if (!changes.value[key])
+      changes.value[key] = {}
+    const origin = changes.value[key][column.field] ? changes.value[key][column.field]?.[0] : currentValue
+    if (origin === changedValue) {
+      delete changes.value[key][column.field]
+    }
+    else {
+      changes.value[key][column.field] = [origin, changedValue]
+      triggerUndoToast()
+    }
   })
 })
 
-watch(options, async () => {
+function triggerUndoToast() {
+  toast('Field has been changed', {
+    description: useDateFormat(useNow(), 'dddd, MMMM Mo HH:mma', { locales: 'en-US' }),
+    action: {
+      label: 'Undo',
+      onClick: () => {},
+    },
+  })
+}
+
+watch(props, async () => {
   instance.updateOption(options.value)
   changes.value = {}
 })
 
 function isEmpty(value: any) {
   return ['', undefined, null].includes(value)
+}
+
+function hasChanged(col: number, row: any) {
+  if (!instance)
+    return false
+  const record = instance.records[row - 1]
+  if (!record)
+    return false
+  const key = generateRowKeyFromIndex(row)
+  if (!key)
+    return false
+  const column = columns.value[col]
+  if (!column)
+    return false
+
+  return changes.value[key]?.[column.field]
+}
+
+function generateRowKeyFromIndex(index: number) {
+  const record = instance.records[index]
+  if (!record)
+    return
+  const keys: Record<string, any> = {}
+  props.primaryKeys.forEach((k) => {
+    keys[k] = record[k]
+  })
+  return JSON.stringify(keys)
 }
 </script>
 

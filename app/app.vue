@@ -6,6 +6,8 @@
       <NuxtPage />
     </main>
   </div>
+
+  <Toaster />
 </template>
 
 <style>
