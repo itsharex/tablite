@@ -46,7 +46,7 @@ async function onApplyFliters(value: string) {
 
 <template>
   <ResizablePanelGroup direction="horizontal" class="flex-1 h-full">
-    <ResizablePanel :default-size="24" :min-size="10" :max-size="50">
+    <ResizablePanel :default-size="22" :min-size="10" :max-size="50">
       <TableSelector v-model:value="selectedTable" :cursor="cursor" :loading="isLoading" @after-select="onSelectTable" />
     </ResizablePanel>
 

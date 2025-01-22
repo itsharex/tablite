@@ -33,6 +33,8 @@ function parseQueryContent(value?: string) {
 }
 
 export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefined, initialValue: MaybeRef<Query>) {
+  let _ac: AbortController | undefined
+
   const title = ref(unref(initialValue)?.title ?? '')
   const code = ref(parseQueryContent(unref(initialValue).content))
   const cursor = computed(() => unref(cursorInstance))
@@ -61,7 +63,7 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
     return sql
   }
 
-  async function execute() {
+  async function _execute() {
     if (!code.value)
       return
 
@@ -82,6 +84,12 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
     }
   }
 
+  function abort() {
+    if (_ac) {
+      _ac.abort()
+    }
+  }
+
   return {
     title,
     code,
@@ -91,6 +99,20 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
     timeToExecute,
     isSelect,
     isLoading,
-    execute,
+    abort,
+
+    execute(): Promise<void> {
+      _ac = new AbortController()
+      const signal = _ac.signal
+
+      return new Promise((resolve, reject) => {
+        _execute().then(resolve).catch(reject)
+
+        signal.addEventListener('abort', (error) => {
+          isLoading.value = false
+          reject(error)
+        })
+      })
+    },
   }
 }

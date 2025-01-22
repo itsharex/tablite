@@ -6,6 +6,7 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import CheckCircle from '~icons/heroicons/check-circle'
 import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
+import PauseSolid from '~icons/heroicons/pause-solid'
 import PencilSquare from '~icons/heroicons/pencil-square'
 import PlaySolid from '~icons/heroicons/play-solid'
 import Plus from '~icons/heroicons/plus'
@@ -33,7 +34,7 @@ const selectedQuery = computed<Query>(() => {
   return defaults
 })
 
-const { title, code, data, error, timeToExecute, isSelect, isLoading, execute } = useQuery(cursor, selectedQuery)
+const { title, code, data, error, timeToExecute, isSelect, isLoading, execute, abort } = useQuery(cursor, selectedQuery)
 const transitionTimeToExecute = useTransition(timeToExecute)
 const useTablesReturn = useTables(cursor, { immediate: false })
 const search = ref('')
@@ -168,7 +169,7 @@ function onRemove(index: number) {
 
 <template>
   <ResizablePanelGroup direction="horizontal" class="flex-1 h-full">
-    <ResizablePanel :default-size="24" :min-size="16" :max-size="50">
+    <ResizablePanel :default-size="2" :min-size="22" :max-size="50">
       <div>
         <div class="px-4 pt-6 flex gap-2.5 items-center cursor-default justify-between">
           <span class="text-xl font-semibold">Queries</span>
@@ -199,7 +200,7 @@ function onRemove(index: number) {
               Create a Query
             </div>
             <div class="text-pretty text-xs font-light mx-auto text-zinc-800/50">
-              Let's get started with something awesome
+              Let's get started with something fun
             </div>
           </div>
 
@@ -248,10 +249,9 @@ function onRemove(index: number) {
                 Save
               </Button>
 
-              <Button size="sm" :disabled="isLoading" @click="onRun">
-                <Spin v-if="isLoading" class="size-4" />
-                <PlaySolid v-else class="size-4" />
-                <span>Run</span>
+              <Button size="sm" @click="isLoading ? abort() : onRun()">
+                <component :is="isLoading ? PauseSolid : PlaySolid" />
+                <span>{{ isLoading ? 'Pause' : 'Run' }}</span>
               </Button>
             </div>
           </div>

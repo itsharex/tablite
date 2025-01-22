@@ -2,7 +2,9 @@
 import { platform } from '@tauri-apps/plugin-os'
 import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
+import Clock from '~icons/heroicons/clock'
 import CodeBracket from '~icons/heroicons/code-bracket'
+import Cog6Tooth from '~icons/heroicons/cog-6-tooth'
 
 definePageMeta({
   keepalive: true,
@@ -21,6 +23,8 @@ const instance = ref<Database | undefined>(undefined)
 const tabs = [
   { key: 'id-tables', icon: CircleStack },
   { key: 'id-queries', icon: CodeBracket },
+  { key: 'id-histories', icon: Clock },
+  { key: 'id-settings', icon: Cog6Tooth },
 ]
 
 async function findCursorOrCreate() {
@@ -49,7 +53,7 @@ preloadRouteComponents({ name: 'id-queries' })
   <div class="h-screen flex flex-col" :class="[IS_MACOS ? '-mt-12' : '-mt-8']">
     <div class="w-full p-2 flex-shrink-0 bg-white" :class="[IS_MACOS ? 'h-12' : 'h-8']">
       <div class="flex items-center h-full box-border" :class="{ 'pl-[72px]': IS_MACOS }">
-        <Button v-if="IS_MACOS" variant="ghost" size="sm" class="z-[101] font-extrabold px-4" @click="router.replace({ name: 'index' })">
+        <Button v-if="IS_MACOS" variant="ghost" size="sm" class="z-[101] font-semibold px-4" @click="router.replace({ name: 'index' })">
           TABLITE
         </Button>
 
@@ -65,7 +69,7 @@ preloadRouteComponents({ name: 'id-queries' })
     <div class="flex flex-1 h-0">
       <div class="flex flex-col items-center flex-shrink-0 border-r border-r-zinc-200 bg-zinc-100">
         <div v-for="tab in tabs" :key="tab.key" class="flex items-center cursor-pointer justify-center relative" :class="[route.name === tab.key ? 'bg-zinc-200 text-zinc-600' : 'text-zinc-600/50 hover:text-zinc-600']" @click="router.replace({ name: tab.key })">
-          <component :is="tab.icon" class="flex-shrink-0 size-4 m-4" />
+          <component :is="tab.icon" class="flex-shrink-0 size-[18px] m-4" />
           <div v-if="route.name === tab.key" class="absolute top-0 bottom-0 left-0 w-0.5 bg-zinc-800" />
         </div>
       </div>
