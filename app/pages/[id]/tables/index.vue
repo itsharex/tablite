@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
 import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
 
@@ -11,7 +12,7 @@ const selectedTable = ref('')
 const { data, limit, offset, count, structure, schema, primaryKeys, isLoading, backend, where, setup, execute } = useTable(selectedTable, cursor)
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
-const changes = ref({})
+const changes = ref<Record<string, any>>({})
 
 const page = computed({
   get() {
@@ -24,11 +25,10 @@ const page = computed({
 
 const pageTotal = computed(() => Math.floor(count.value / limit.value) + 1)
 
-watch(selectedTable, () => {
-  changes.value = {}
-})
-
 async function onSelectTable() {
+  toast.dismiss()
+  if (!changes.value[selectedTable.value])
+    changes.value[selectedTable.value] = {}
   page.value = 1
   await Promise.allSettled([setup(), execute()])
 }
@@ -78,7 +78,7 @@ async function onApplyFliters(value: string) {
         <Separator />
 
         <div class="w-full h-0 flex-1 flex flex-col bg-zinc-50 -m-px">
-          <VisTable v-model:changes="changes" editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
+          <VisTable v-model:changes="changes[selectedTable]" editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
         </div>
 
         <Separator />

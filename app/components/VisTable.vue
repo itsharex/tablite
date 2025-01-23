@@ -46,6 +46,19 @@ VTable.register.icon('freeze', {
   cursor: 'pointer',
 })
 
+VTable.register.icon('frozen', {
+  type: 'svg',
+  svg: KeySolid,
+  width: 14,
+  height: 14,
+  name: 'frozen',
+  funcType: VTable.TYPES.IconFuncTypeEnum.frozen,
+  positionType: VTable.TYPES.IconPosition.right,
+  marginRight: 0,
+  marginLeft: 12,
+  cursor: 'pointer',
+})
+
 VTable.register.icon('frozenCurrent', {
   type: 'svg',
   svg: KeySolid,
@@ -140,6 +153,7 @@ const options = computed<any>(() => ({
 
   autoFillWidth: true,
   columnResizeMode: 'header',
+  dragHeaderMode: 'column',
 
   tooltip: {
     isShowOverflowTextTooltip: false,

@@ -33,6 +33,12 @@ export const TABLITE_THEME = {
     width: 3,
   },
 
+  dragHeaderSplitLine: {
+    lineColor: '#27272a',
+    lineWidth: 2,
+    shadowBlockColor: 'rgb(39 39 42 / 0.1)',
+  },
+
   frozenColumnLine: {
     shadow: {
       width: 5,

@@ -8,7 +8,7 @@ const props = defineProps<{
   loading: boolean
 }>()
 
-const emit = defineEmits(['update:value', 'afterSelect'])
+const emit = defineEmits(['update:value', 'afterSelect', 'beforeRefresh'])
 
 const value = useVModel(props, 'value', emit)
 
@@ -25,6 +25,11 @@ function onSelect(table: string) {
   value.value = table
   emit('afterSelect', table)
 }
+
+async function onRefresh() {
+  emit('beforeRefresh')
+  await reconnect()
+}
 </script>
 
 <template>
@@ -34,7 +39,7 @@ function onSelect(table: string) {
         <span class="text-xl font-semibold">Tables</span>
 
         <div class="h-0">
-          <Button variant="ghost" size="icon" class="-translate-y-1/2" :disabled="isLoading" @click="reconnect">
+          <Button variant="ghost" size="icon" class="-translate-y-1/2" :disabled="isLoading" @click="onRefresh">
             <ArrowPath :class="{ 'animate-spin': isLoading }" />
           </Button>
         </div>
