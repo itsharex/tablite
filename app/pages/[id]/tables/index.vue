@@ -196,8 +196,8 @@ function onSave() {
                   <div class="w-full flex flex-col my-4 gap-2">
                     <div v-for="(update, index) in updates" :key="index" class="flex gap-2 items-center">
                       <Checkbox v-model:checked="update.enable" class="flex-shrink-0" />
-                      <Input v-model="update.sql" placeholder="Enter query" :readonly="!update.enable" class="h-8 text-xs focus-visible:ring-0" />
-                      <Button v-if="updates.length > 1" size="icon" variant="ghost" class="h-8 px-2">
+                      <Input v-model="update.sql" placeholder="Enter query" :readonly="!update.enable" class="h-8 text-xs focus-visible:ring-0" :class="{ 'bg-zinc-50 text-zinc-600/50': !update.enable }" />
+                      <Button v-if="updates.length > 1" size="icon" variant="ghost" class="h-8 px-2" @click="updates.splice(index, 1)">
                         <Trash />
                       </Button>
                     </div>
