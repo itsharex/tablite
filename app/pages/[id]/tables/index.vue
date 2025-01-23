@@ -98,9 +98,12 @@ function onOpenUpdatesPreview(visible: boolean) {
   updates.value = sqls.map(sql => ({ enable: true, sql }))
 }
 
-function onSave() {
+async function onSave() {
   if (!updates.value.length)
     onOpenUpdatesPreview(true)
+  changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
+  toast.dismiss()
+  await execute()
 }
 </script>
 
