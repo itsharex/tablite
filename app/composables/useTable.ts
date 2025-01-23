@@ -13,20 +13,7 @@ export interface Structure {
   dataType: string
 }
 
-interface MysqlSchema {
-  TABLE_CATALOG: string
-  TABLE_SCHEMA: string
-  TABLE_NAME: string
-  TABLE_TYPE: string
-  ENGINE: string
-  VERSION: number
-  TABLE_ROWS: number
-  TABLE_COMMENT: string
-  TABLE_COLLATION: string
-}
-
 type QueryStructureResults = MysqlStructure[] | SqliteStructure[]
-type QuerySchemaResults = MysqlSchema
 
 type QueryStatisticsResults = {
   is_unique: 'TRUE' | 'FALSE'
@@ -38,15 +25,6 @@ function normalizeStructure(value: QueryStructureResults): Structure[] {
     columnName: item.Field ?? item.name,
     dataType: item.Type ?? item.type,
   }))
-}
-
-function normalizeSchema(value: QuerySchemaResults) {
-  return {
-    tableCatalog: value.TABLE_CATALOG,
-    tableSchema: value.TABLE_SCHEMA,
-    tableType: value.TABLE_TYPE,
-    tableCollation: value.TABLE_COLLATION,
-  }
 }
 
 function useCursorBackend(cursor: ComputedRef<Database | undefined>) {
@@ -76,18 +54,11 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const count = ref(0)
   const data = ref<any[]>([])
   const structure = ref<Structure[]>([])
-  const schema = ref<Partial<ReturnType<typeof normalizeSchema>>>({})
   const isLoading = ref([false, false])
   const primaryKeys = ref<string[]>([])
   const backend = useCursorBackend(cursor)
   const where = ref('')
   const { sql } = useSelect([], table, { where, limit, offset })
-
-  async function queryTableSchema(value: string) {
-    if (backend.value === 'mysql')
-      return cursor.value?.select<any>(`SELECT * FROM information_schema.tables WHERE TABLE_NAME = '${value}';`)
-    return [{ TABLE_TYPE: backend.value }]
-  }
 
   async function setup() {
     try {
@@ -97,13 +68,11 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
         const results = await Promise.all([
           cursor.value?.select<QueryStructureResults>(Sql.DESCRIBE_TABLE(table.value)[backend.value]!),
           cursor.value?.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),
-          queryTableSchema(table.value),
           cursor.value?.select<QueryStatisticsResults>(Sql.QUERY_UNIQUE_COLUMNS(database, table.value)[backend.value]!),
         ])
         structure.value = normalizeStructure(results[0] ?? [])
         count.value = results[1]?.[0]?.count ?? 0
-        schema.value = normalizeSchema(results[2]?.[0])
-        primaryKeys.value = results[3].filter(({ is_unique }) => is_unique === 'TRUE').map(({ column_name }) => column_name) ?? []
+        primaryKeys.value = results[2].filter(({ is_unique }) => is_unique === 'TRUE').map(({ column_name }) => column_name) ?? []
       }
     }
     finally {
@@ -128,7 +97,6 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
 
   return {
     data,
-    schema,
     structure,
     limit,
     offset,

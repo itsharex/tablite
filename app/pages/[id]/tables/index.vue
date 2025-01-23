@@ -2,6 +2,8 @@
 import { toast } from 'vue-sonner'
 import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
+import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
+import InformationCircle from '~icons/heroicons/information-circle'
 
 definePageMeta({
   keepalive: true,
@@ -9,7 +11,7 @@ definePageMeta({
 
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const selectedTable = ref('')
-const { data, limit, offset, count, structure, schema, primaryKeys, isLoading, backend, where, setup, execute } = useTable(selectedTable, cursor)
+const { data, limit, offset, count, structure, primaryKeys, isLoading, backend, where, setup, execute } = useTable(selectedTable, cursor)
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 const changes = ref<Record<string, any>>({})
@@ -24,6 +26,39 @@ const page = computed({
 })
 
 const pageTotal = computed(() => Math.floor(count.value / limit.value) + 1)
+
+const hasChanged = computed(() => {
+  for (const _t in changes.value) {
+    const tc = changes.value[_t]
+    for (const _k in tc) {
+      if (Object.values(tc[_k] as Record<string, any[]>).some(e => e.length > 1))
+        return true
+    }
+  }
+
+  return false
+})
+
+const updates = computed(() => {
+  const sqls: string[] = []
+
+  for (const _t in changes.value) {
+    const tc = changes.value[_t]
+    for (const _k in tc) {
+      try {
+        const json = JSON.parse(_k)
+        const where = Object.entries(json).map(([k, v]) => `${k} = "${v}"`).join(' AND ')
+        const setter = Object.entries((tc[_k] ?? {}) as Record<string, any[]>).map(([k, [_, v]]) => `${k} = "${v}"`).join(', ')
+        sqls.push(`UPDATE \`${_t}\` SET ${setter} WHERE ${where}`)
+      }
+      catch {
+        continue
+      }
+    }
+  }
+
+  return sqls
+})
 
 async function onSelectTable() {
   toast.dismiss()
@@ -44,73 +79,114 @@ async function onApplyFliters(value: string) {
   where.value = value
   await onPaginationChange(1)
 }
+
+async function onDisvardChanges() {
+  changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
+  toast.dismiss()
+  await execute()
+}
 </script>
 
 <template>
-  <ResizablePanelGroup direction="horizontal" class="flex-1 h-full">
-    <ResizablePanel :default-size="22" :min-size="10" :max-size="50">
-      <TableSelector v-model:value="selectedTable" :cursor="cursor" :loading="isLoading" @after-select="onSelectTable" />
-    </ResizablePanel>
+  <div class="flex-1 h-full w-full flex flex-col">
+    <ResizablePanelGroup direction="horizontal" class="h-0 flex-1 w-full">
+      <ResizablePanel :default-size="22" :min-size="10" :max-size="50">
+        <TableSelector v-model:value="selectedTable" :cursor="cursor" :loading="isLoading" @after-select="onSelectTable" />
+      </ResizablePanel>
 
-    <ResizableHandle />
+      <ResizableHandle />
 
-    <ResizablePanel class="h-full bg-white">
-      <div v-show="selectedTable" class="flex flex-col h-full">
-        <div class="p-4 flex justify-between items-center">
-          <div class="ml-2 flex-1">
-            <div class="font-semibold uppercase cursor-default">
-              {{ selectedTable }}
+      <ResizablePanel class="h-full bg-white">
+        <div v-show="selectedTable" class="flex flex-col h-full">
+          <div class="p-4 flex justify-between items-center">
+            <div class="ml-2 flex-1">
+              <div class="font-semibold uppercase cursor-default">
+                {{ selectedTable }}
+              </div>
             </div>
 
-            <div v-if="!isLoading" class="flex my-px scale-75 origin-left gap-2 h-[22px]">
-              <Badge v-for="v in Object.values(schema).filter(Boolean)" :key="v" variant="outline" class="text-xs cursor-default">
-                {{ v }}
-              </Badge>
+            <div class="flex gap-2">
+              <TableFilter :columns="columns" :backend="backend" @apply="onApplyFliters" />
             </div>
-            <Skeleton v-else class="h-4 my-1 w-16 rounded-full" />
           </div>
 
-          <div class="flex gap-2">
-            <TableFilter :columns="columns" :backend="backend" @apply="onApplyFliters" />
+          <Separator />
+
+          <div class="w-full h-0 flex-1 flex flex-col bg-zinc-50 -m-px">
+            <VisTable v-model:changes="changes[selectedTable]" editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
+          </div>
+
+          <Separator />
+
+          <div class="flex-shrink-0 px-3 py-2 flex justify-between items-center relative z-10">
+            <Tabs v-model="mode">
+              <TabsList>
+                <TabsTrigger value="data" class="px-3 py-1 text-xs font-normal">
+                  Data
+                </TabsTrigger>
+                <TabsTrigger value="structure" class="px-3 py-1 text-xs font-normal">
+                  Structure
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <div class="text-xs flex justify-end items-center gap-3">
+              <div>
+                {{ [offset + 1, offset + data.length].join('-') }} of {{ count }} rows
+              </div>
+
+              <div class="flex gap-1.5">
+                <Button size="icon" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
+                  <ChevronLeft />
+                </Button>
+                <Button size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
+                  <ChevronRight />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
+      </ResizablePanel>
+    </ResizablePanelGroup>
 
-        <Separator />
+    <div v-if="hasChanged" class="w-full bg-white">
+      <Separator />
 
-        <div class="w-full h-0 flex-1 flex flex-col bg-zinc-50 -m-px">
-          <VisTable v-model:changes="changes[selectedTable]" editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
-        </div>
+      <div class="px-3 py-2 flex items-center justify-between">
+        <span class="text-xs cursor-default flex items-center gap-1.5 text-zinc-800">
+          <InformationCircle />
+          You have unsaved changes
+        </span>
 
-        <Separator />
+        <div>
+          <div class="flex gap-2.5">
+            <Button size="sm" variant="ghost" @click="onDisvardChanges">
+              Disvard Changes
+            </Button>
 
-        <div class="flex-shrink-0 px-3 py-2 flex justify-between items-center relative z-10">
-          <Tabs v-model="mode">
-            <TabsList>
-              <TabsTrigger value="data" class="px-3 py-1 text-xs font-normal">
-                Data
-              </TabsTrigger>
-              <TabsTrigger value="structure" class="px-3 py-1 text-xs font-normal">
-                Structure
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <div class="text-xs flex justify-end items-center gap-3">
-            <div>
-              {{ [offset + 1, offset + data.length].join('-') }} of {{ count }} rows
-            </div>
-
-            <div class="flex gap-1.5">
-              <Button size="icon" class="h-8 w-8 p-0" :disabled="page === 1 || isLoading" @click="onPaginationChange(page - 1)">
-                <ChevronLeft />
+            <div class="flex items-center">
+              <Button size="sm" class="rounded-r-none">
+                Save
               </Button>
-              <Button size="icon" class="h-8 w-8 p-0" :disabled="page === pageTotal || isLoading" @click="onPaginationChange(page + 1)">
-                <ChevronRight />
-              </Button>
+              <Popover @update:open="toast.dismiss()">
+                <PopoverTrigger>
+                  <Button size="icon" class="rounded-l-none h-8 w-8">
+                    <EllipsisHorizontal />
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent align="end" :side-offset="8" class="w-[36rem] py-0 overflow-y-auto max-h-48">
+                  <div class="w-full flex flex-col my-4 gap-2">
+                    <div v-for="sql in updates" :key="sql" class="text-xs flex-shrink-0 truncate rounded px-2 py-1 cursor-default bg-zinc-50 border text-zinc-600">
+                      {{ sql }}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>
       </div>
-    </ResizablePanel>
-  </ResizablePanelGroup>
+    </div>
+  </div>
 </template>
