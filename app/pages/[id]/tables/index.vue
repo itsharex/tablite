@@ -4,6 +4,12 @@ import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
 import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import InformationCircle from '~icons/heroicons/information-circle'
+import Trash from '~icons/heroicons/trash'
+
+interface Update {
+  enable: boolean
+  sql: string
+}
 
 definePageMeta({
   keepalive: true,
@@ -15,6 +21,7 @@ const { data, limit, offset, count, structure, primaryKeys, isLoading, backend, 
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 const changes = ref<Record<string, any>>({})
+const updates = ref<Update[]>([])
 
 const page = computed({
   get() {
@@ -37,27 +44,6 @@ const hasChanged = computed(() => {
   }
 
   return false
-})
-
-const updates = computed(() => {
-  const sqls: string[] = []
-
-  for (const _t in changes.value) {
-    const tc = changes.value[_t]
-    for (const _k in tc) {
-      try {
-        const json = JSON.parse(_k)
-        const where = Object.entries(json).map(([k, v]) => `${k} = "${v}"`).join(' AND ')
-        const setter = Object.entries((tc[_k] ?? {}) as Record<string, any[]>).map(([k, [_, v]]) => `${k} = "${v}"`).join(', ')
-        sqls.push(`UPDATE \`${_t}\` SET ${setter} WHERE ${where}`)
-      }
-      catch {
-        continue
-      }
-    }
-  }
-
-  return sqls
 })
 
 async function onSelectTable() {
@@ -84,6 +70,37 @@ async function onDisvardChanges() {
   changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
   toast.dismiss()
   await execute()
+}
+
+function onOpenUpdatesPreview(visible: boolean) {
+  if (!visible)
+    return
+
+  toast.dismiss()
+
+  const sqls: string[] = []
+
+  for (const _t in changes.value) {
+    const tc = changes.value[_t]
+    for (const _k in tc) {
+      try {
+        const json = JSON.parse(_k)
+        const where = Object.entries(json).map(([k, v]) => `${k} = "${v}"`).join(' AND ')
+        const setter = Object.entries((tc[_k] ?? {}) as Record<string, any[]>).map(([k, [_, v]]) => `${k} = "${v}"`).join(', ')
+        sqls.push(`UPDATE \`${_t}\` SET ${setter} WHERE ${where}`)
+      }
+      catch {
+        continue
+      }
+    }
+  }
+
+  updates.value = sqls.map(sql => ({ enable: true, sql }))
+}
+
+function onSave() {
+  if (!updates.value.length)
+    onOpenUpdatesPreview(true)
 }
 </script>
 
@@ -165,10 +182,10 @@ async function onDisvardChanges() {
             </Button>
 
             <div class="flex items-center">
-              <Button size="sm" class="rounded-r-none">
+              <Button size="sm" class="rounded-r-none" @click="onSave">
                 Save
               </Button>
-              <Popover @update:open="toast.dismiss()">
+              <Popover @update:open="onOpenUpdatesPreview">
                 <PopoverTrigger>
                   <Button size="icon" class="rounded-l-none h-8 w-8">
                     <EllipsisHorizontal />
@@ -177,8 +194,12 @@ async function onDisvardChanges() {
 
                 <PopoverContent align="end" :side-offset="8" class="w-[36rem] py-0 overflow-y-auto max-h-48">
                   <div class="w-full flex flex-col my-4 gap-2">
-                    <div v-for="sql in updates" :key="sql" class="text-xs flex-shrink-0 truncate rounded px-2 py-1 cursor-default bg-zinc-50 border text-zinc-600">
-                      {{ sql }}
+                    <div v-for="(update, index) in updates" :key="index" class="flex gap-2 items-center">
+                      <Checkbox v-model:checked="update.enable" class="flex-shrink-0" />
+                      <Input v-model="update.sql" placeholder="Enter query" :readonly="!update.enable" class="h-8 text-xs focus-visible:ring-0" />
+                      <Button v-if="updates.length > 1" size="icon" variant="ghost" class="h-8 px-2">
+                        <Trash />
+                      </Button>
                     </div>
                   </div>
                 </PopoverContent>
