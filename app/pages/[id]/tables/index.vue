@@ -11,6 +11,7 @@ const selectedTable = ref('')
 const { data, limit, offset, count, structure, schema, primaryKeys, isLoading, backend, where, setup, execute } = useTable(selectedTable, cursor)
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
+const changes = ref({})
 
 const page = computed({
   get() {
@@ -22,6 +23,10 @@ const page = computed({
 })
 
 const pageTotal = computed(() => Math.floor(count.value / limit.value) + 1)
+
+watch(selectedTable, () => {
+  changes.value = {}
+})
 
 async function onSelectTable() {
   page.value = 1
@@ -36,10 +41,7 @@ async function onPaginationChange(value: number) {
 }
 
 async function onApplyFliters(value: string) {
-  if (!value)
-    where.value = ''
-  else
-    where.value = ['WHERE', value].join(' ')
+  where.value = value
   await onPaginationChange(1)
 }
 </script>
@@ -76,7 +78,7 @@ async function onApplyFliters(value: string) {
         <Separator />
 
         <div class="w-full h-0 flex-1 flex flex-col bg-zinc-50 -m-px">
-          <VisTable editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
+          <VisTable v-model:changes="changes" editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
         </div>
 
         <Separator />

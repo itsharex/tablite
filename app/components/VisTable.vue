@@ -6,13 +6,17 @@ import { toast } from 'vue-sonner'
 interface Props {
   columns: string[]
   records: Record<string, any>[]
+  changes?: Record<string, Record<string, any[]>>
   editable?: boolean
   primaryKeys?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  changes: () => ({}),
   primaryKeys: () => [],
 })
+
+const emit = defineEmits(['update:changes'])
 
 const Key = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#09090b">
   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
@@ -56,7 +60,25 @@ VTable.register.icon('frozenCurrent', {
 })
 
 const domRef = ref()
-const changes = ref<Record<string, Record<string, any[]>>>({})
+const changes = useVModel(props, 'changes', emit)
+
+const records = computed(() => {
+  if (!props.editable)
+    return props.records
+
+  return props.records.map((record) => {
+    const key = generateRowKeyFromRecord(record)
+    record.__TABLITE_ROW_KEY = key
+
+    for (const column in record) {
+      const [_, changed] = changes.value[key]?.[column] ?? []
+      if (changed)
+        record[column] = changed
+    }
+
+    return record
+  })
+})
 
 const columns = computed(() => {
   const constantColumns = [
@@ -107,7 +129,7 @@ function fieldFormatGenerator(key: string) {
 
 const options = computed<any>(() => ({
   columns: columns.value,
-  records: props.records,
+  records: records.value,
   theme: TABLITE_THEME,
 
   defaultRowHeight: 32,
@@ -141,7 +163,7 @@ onMounted(() => {
     const column = columns.value[col]
     if (!column)
       return
-    const key = generateRowKeyFromIndex(row)
+    const key = instance.records[row - 1].__TABLITE_ROW_KEY
     if (!key)
       return
     if (!changes.value[key])
@@ -176,34 +198,26 @@ function triggerUndoToast(key: string, field: string, origin: any, row: number, 
 
 watch(props, async () => {
   instance.updateOption(options.value)
-  changes.value = {}
 })
 
 function isEmpty(value: any) {
   return ['', undefined, null].includes(value)
 }
 
-function hasChanged(col: number, row: any) {
+function hasChanged(x: number, y: number) {
   if (!props.editable || !instance)
     return false
-  const record = instance.records[row - 1]
-  if (!record)
-    return false
-  const key = generateRowKeyFromIndex(row)
+  const key = instance.records[y - 1]?.__TABLITE_ROW_KEY
   if (!key)
     return false
-  const column = columns.value[col]
+  const column = columns.value[x]
   if (!column)
     return false
-
   const [_, v] = changes.value[key]?.[column.field] ?? []
   return v
 }
 
-function generateRowKeyFromIndex(index: number) {
-  const record = instance.records[index - 1]
-  if (!record)
-    return
+function generateRowKeyFromRecord(record: any) {
   const keys: Record<string, any> = {}
   props.primaryKeys.forEach((k) => {
     keys[k] = record[k]

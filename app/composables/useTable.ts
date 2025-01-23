@@ -81,6 +81,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const primaryKeys = ref<string[]>([])
   const backend = useCursorBackend(cursor)
   const where = ref('')
+  const { sql } = useSelect([], table, { where, limit, offset })
 
   async function queryTableSchema(value: string) {
     if (backend.value === 'mysql')
@@ -114,7 +115,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
     if (table.value && cursor.value) {
       try {
         isLoading.value[1] = true
-        data.value = await cursor.value?.select<any[]>(`SELECT * FROM \`${table.value}\` ${where.value} LIMIT ${limit.value} OFFSET ${offset.value};`) ?? []
+        data.value = await cursor.value?.select<any[]>(sql.value) ?? []
       }
       catch {
         data.value = []
