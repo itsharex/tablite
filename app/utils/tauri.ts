@@ -17,10 +17,11 @@ export class Database {
 
   execute() {}
 
-  async select<T>(query: string) {
+  async select<T>(query: string, values: any[] = []) {
     const result = await invoke<T>('plugin:sql-extra|select', {
       db: this.path,
       query,
+      values,
     })
 
     return result

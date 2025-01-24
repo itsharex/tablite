@@ -47,10 +47,22 @@ impl DbPool {
     pub(crate) async fn select(
         &self,
         query: &str,
+        _values: Vec<JsonValue>,
     ) -> Result<Vec<HashMap<String, JsonValue>>, Error> {
         Ok(match self {
             DbPool::Sqlite(pool) => {
-                let query = sqlx::query(query);
+                let mut query = sqlx::query(query);
+                for value in _values {
+                    if value.is_null() {
+                        query = query.bind(None::<JsonValue>);
+                    } else if value.is_string() {
+                        query = query.bind(value.as_str().unwrap().to_owned())
+                    } else if let Some(number) = value.as_number() {
+                        query = query.bind(number.as_f64().unwrap_or_default())
+                    } else {
+                        query = query.bind(value);
+                    }
+                }
                 let rows = pool.fetch_all(query).await?;
 
                 let mut values = Vec::new();
@@ -69,7 +81,18 @@ impl DbPool {
                 values
             }
             DbPool::MySql(pool) => {
-                let query = sqlx::query(query);
+                let mut query = sqlx::query(query);
+                for value in _values {
+                    if value.is_null() {
+                        query = query.bind(None::<JsonValue>);
+                    } else if value.is_string() {
+                        query = query.bind(value.as_str().unwrap().to_owned())
+                    } else if let Some(number) = value.as_number() {
+                        query = query.bind(number.as_f64().unwrap_or_default())
+                    } else {
+                        query = query.bind(value);
+                    }
+                }
                 let rows = pool.fetch_all(query).await?;
 
                 let mut values = Vec::new();
@@ -88,7 +111,18 @@ impl DbPool {
                 values
             }
             DbPool::Postgres(pool) => {
-                let query = sqlx::query(query);
+                let mut query = sqlx::query(query);
+                for value in _values {
+                    if value.is_null() {
+                        query = query.bind(None::<JsonValue>);
+                    } else if value.is_string() {
+                        query = query.bind(value.as_str().unwrap().to_owned())
+                    } else if let Some(number) = value.as_number() {
+                        query = query.bind(number.as_f64().unwrap_or_default())
+                    } else {
+                        query = query.bind(value);
+                    }
+                }
                 let rows = pool.fetch_all(query).await?;
 
                 let mut values = Vec::new();
@@ -107,7 +141,16 @@ impl DbPool {
                 values
             }
             DbPool::Any(pool) => {
-                let query = sqlx::query(query);
+                let mut query = sqlx::query(query);
+                for value in _values {
+                    if value.is_string() {
+                        query = query.bind(value.as_str().unwrap().to_owned())
+                    } else if let Some(number) = value.as_number() {
+                        query = query.bind(number.as_f64().unwrap_or_default())
+                    } else {
+                        query = query.bind(value.as_str().unwrap().to_owned());
+                    }
+                }
                 let rows = pool.fetch_all(query).await?;
 
                 let mut values = Vec::new();

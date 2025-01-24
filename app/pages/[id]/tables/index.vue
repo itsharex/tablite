@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { toast } from 'vue-sonner'
+import ArrowDownOnSquareStack from '~icons/heroicons/arrow-down-on-square-stack'
 import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
 import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import InformationCircle from '~icons/heroicons/information-circle'
-import Trash from '~icons/heroicons/trash'
 
 interface Update {
   enable: boolean
@@ -30,6 +30,16 @@ const page = computed({
   set(value: number) {
     offset.value = limit.value * (value - 1)
   },
+})
+
+const dataTypeMap = computed(() => {
+  const map: Record<string, string> = {}
+
+  structure.value.forEach(({ columnName, dataType }) => {
+    map[columnName] = dataType
+  })
+
+  return map
 })
 
 const pageTotal = computed(() => Math.floor(count.value / limit.value) + 1)
@@ -85,8 +95,8 @@ function onOpenUpdatesPreview(visible: boolean) {
     for (const _k in tc) {
       try {
         const json = JSON.parse(_k)
-        const where = Object.entries(json).map(([k, v]) => `${k} = "${v}"`).join(' AND ')
-        const setter = Object.entries((tc[_k] ?? {}) as Record<string, any[]>).map(([k, [_, v]]) => `${k} = "${v}"`).join(', ')
+        const where = Object.entries(json).map(([k, v]) => `${k} = ${normalizeQueryValue(v, dataTypeMap.value[k])}`).join(' AND ')
+        const setter = Object.entries((tc[_k] ?? {}) as Record<string, any[]>).map(([k, [_, v]]) => `${k} = ${normalizeQueryValue(v, dataTypeMap.value[k])}`).join(', ')
         sqls.push(`UPDATE \`${_t}\` SET ${setter} WHERE ${where}`)
       }
       catch {
@@ -127,6 +137,20 @@ async function onSave() {
 
             <div class="flex gap-2">
               <TableFilter :columns="columns" :backend="backend" @apply="onApplyFliters" />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger @click.stop>
+                  <Button size="icon" variant="outline" class="w-8 h-8">
+                    <EllipsisHorizontal />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent :side-offset="8" class="mr-4">
+                  <DropdownMenuItem class="text-xs">
+                    <ArrowDownOnSquareStack />
+                    <span>Export</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
@@ -195,14 +219,11 @@ async function onSave() {
                   </Button>
                 </PopoverTrigger>
 
-                <PopoverContent align="end" :side-offset="8" class="w-[36rem] py-0 overflow-y-auto max-h-48">
+                <PopoverContent align="end" :side-offset="8" class="w-[33.5rem] py-0 overflow-y-auto max-h-48">
                   <div class="w-full flex flex-col my-4 gap-2">
                     <div v-for="(update, index) in updates" :key="index" class="flex gap-2 items-center">
                       <Checkbox v-model:checked="update.enable" class="flex-shrink-0" />
                       <Input v-model="update.sql" placeholder="Enter query" :readonly="!update.enable" class="h-8 text-xs focus-visible:ring-0" :class="{ 'bg-zinc-50 text-zinc-600/50': !update.enable }" />
-                      <Button v-if="updates.length > 1" size="icon" variant="ghost" class="h-8 px-2" @click="updates.splice(index, 1)">
-                        <Trash />
-                      </Button>
                     </div>
                   </div>
                 </PopoverContent>

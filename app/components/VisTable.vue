@@ -134,7 +134,9 @@ const columns = computed(() => {
 function fieldFormatGenerator(key: string) {
   return (record: any) => {
     const value = record?.[key]
-    if (isEmpty(value))
+    if ([null, undefined].includes(value))
+      return 'NULL'
+    if (value === '')
       return 'EMPTY'
     return String(value)
   }
