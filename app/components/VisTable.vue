@@ -7,16 +7,18 @@ interface Props {
   columns: string[]
   records: Record<string, any>[]
   changes?: Record<string, Record<string, any[]>>
+  inserts?: Record<string, any>[]
   editable?: boolean
   primaryKeys?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   changes: () => ({}),
+  inserts: () => [],
   primaryKeys: () => [],
 })
 
-const emit = defineEmits(['update:changes'])
+const emit = defineEmits(['update:changes', 'update:inserts'])
 
 const Key = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#09090b">
   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
@@ -74,12 +76,13 @@ VTable.register.icon('frozenCurrent', {
 
 const domRef = ref()
 const changes = useVModel(props, 'changes', emit)
+const inserts = useVModel(props, 'inserts', emit)
 
 const records = computed(() => {
   if (!props.editable)
     return props.records
 
-  return props.records.map((record) => {
+  const source = props.records.map((record) => {
     const key = generateRowKeyFromRecord(record)
     record.__TABLITE_ROW_KEY = key
 
@@ -91,6 +94,11 @@ const records = computed(() => {
 
     return record
   })
+
+  return [
+    ...inserts.value,
+    ...source,
+  ]
 })
 
 const columns = computed(() => {
@@ -123,8 +131,16 @@ const columns = computed(() => {
     disableColumnResize: !props.editable,
     fieldFormat: fieldFormatGenerator(column),
     style: {
-      color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
-      bgColor: ({ col, row }: any) => hasChanged(col, row) ? '#fef9c3' : !(row & 1) ? '#fafafa' : '#ffffff',
+      color({ dataValue }: any) {
+        return isEmpty(dataValue) ? '#d4d4d8' : '#27272a'
+      },
+      bgColor({ col, row }: any) {
+        if (row <= inserts.value.length)
+          return '#f0fdf4'
+        if (hasChanged(col, row))
+          return '#fef9c3'
+        return !(row & 1) ? '#fafafa' : '#ffffff'
+      },
     },
   }))
 
@@ -176,9 +192,14 @@ onMounted(() => {
   instance.on('change_cell_value', ({ col, row, currentValue, changedValue }: any) => {
     if (!props.editable)
       return
+
     const column = columns.value[col]
     if (!column)
       return
+    if (row <= inserts.value.length && inserts.value[row - 1]) {
+      inserts.value[row - 1]![column.field] = changedValue
+      return
+    }
     const key = instance.records[row - 1].__TABLITE_ROW_KEY
     if (!key)
       return
@@ -211,6 +232,10 @@ function triggerUndoToast(key: string, field: string, origin: any, row: number, 
     },
   })
 }
+
+watch(records, (v) => {
+  instance.setRecords(v)
+})
 
 watch(props, async () => {
   instance.updateOption(options.value)

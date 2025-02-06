@@ -98,7 +98,7 @@ function pluralFormatter() {
   <Popover @update:open="onUpdateOpen">
     <PopoverTrigger>
       <div class="flex items-center">
-        <Button size="sm">
+        <Button size="sm" class="rounded-r-none">
           <AdjustmentsHorizontal />
           {{ enabledFilters.length ? [enabledFilters.length, pluralFormatter()].join(' ') : 'Add filters' }}
         </Button>

@@ -5,6 +5,7 @@ import ChevronLeft from '~icons/heroicons/chevron-left'
 import ChevronRight from '~icons/heroicons/chevron-right'
 import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import InformationCircle from '~icons/heroicons/information-circle'
+import Plus from '~icons/heroicons/plus'
 
 interface Update {
   enable: boolean
@@ -22,6 +23,7 @@ const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 const changes = ref<Record<string, any>>({})
 const updates = ref<Update[]>([])
+const inserts = ref<Record<string, any>[]>([])
 
 const page = computed({
   get() {
@@ -45,6 +47,9 @@ const dataTypeMap = computed(() => {
 const pageTotal = computed(() => Math.floor(count.value / limit.value) + 1)
 
 const hasChanged = computed(() => {
+  if (inserts.value.length > 0)
+    return true
+
   for (const _t in changes.value) {
     const tc = changes.value[_t]
     for (const _k in tc) {
@@ -61,6 +66,7 @@ async function onSelectTable() {
   if (!changes.value[selectedTable.value])
     changes.value[selectedTable.value] = {}
   page.value = 1
+  inserts.value = []
   await Promise.allSettled([setup(), execute()])
 }
 
@@ -78,6 +84,7 @@ async function onApplyFliters(value: string) {
 
 async function onDisvardChanges() {
   changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
+  inserts.value = []
   toast.dismiss()
   await execute()
 }
@@ -103,6 +110,11 @@ function onOpenUpdatesPreview(visible: boolean) {
         continue
       }
     }
+  }
+
+  for (const _n of inserts.value) {
+    const keys = Object.keys(_n)
+    sqls.push(`INSERT INTO \`${selectedTable.value}\` (${keys.join(', ')}) VALUES (${keys.map(k => normalizeQueryValue(_n[k], dataTypeMap.value[k])).join(', ')})`)
   }
 
   updates.value = sqls.map(sql => ({ enable: true, sql }))
@@ -135,16 +147,21 @@ async function onSave() {
               </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex">
               <TableFilter :columns="columns" :backend="backend" @apply="onApplyFliters" />
 
               <DropdownMenu>
                 <DropdownMenuTrigger @click.stop>
-                  <Button size="icon" variant="outline" class="w-8 h-8">
+                  <Button size="icon" class="w-8 h-8 rounded-l-none">
                     <EllipsisHorizontal />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent :side-offset="8" class="mr-4">
+                  <DropdownMenuItem class="text-xs" @click="inserts.unshift({})">
+                    <Plus />
+                    <span>Add Row</span>
+                  </DropdownMenuItem>
+
                   <DropdownMenuItem class="text-xs">
                     <ArrowDownOnSquareStack />
                     <span>Export</span>
@@ -157,7 +174,7 @@ async function onSave() {
           <Separator />
 
           <div class="w-full h-0 flex-1 flex flex-col bg-zinc-50 -m-px">
-            <VisTable v-model:changes="changes[selectedTable]" editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
+            <VisTable v-model:changes="changes[selectedTable]" v-model:inserts="inserts" editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
           </div>
 
           <Separator />
