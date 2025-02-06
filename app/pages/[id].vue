@@ -2,9 +2,7 @@
 import { platform } from '@tauri-apps/plugin-os'
 import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
-import Clock from '~icons/heroicons/clock'
 import CodeBracket from '~icons/heroicons/code-bracket'
-import Cog6Tooth from '~icons/heroicons/cog-6-tooth'
 
 definePageMeta({
   keepalive: true,
@@ -23,8 +21,6 @@ const instance = ref<Database | undefined>(undefined)
 const tabs = [
   { key: 'id-tables', icon: CircleStack },
   { key: 'id-queries', icon: CodeBracket },
-  { key: 'id-histories', icon: Clock },
-  { key: 'id-settings', icon: Cog6Tooth },
 ]
 
 async function findCursorOrCreate() {

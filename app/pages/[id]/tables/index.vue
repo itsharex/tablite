@@ -24,6 +24,8 @@ const columns = computed(() => structure.value.map(({ columnName }) => columnNam
 const changes = ref<Record<string, any>>({})
 const updates = ref<Update[]>([])
 const inserts = ref<Record<string, any>[]>([])
+const deletes = ref<string[]>([])
+const selectedRowKeys = ref([])
 
 const page = computed({
   get() {
@@ -48,6 +50,8 @@ const pageTotal = computed(() => Math.floor(count.value / limit.value) + 1)
 
 const hasChanged = computed(() => {
   if (inserts.value.length > 0)
+    return true
+  if (deletes.value.length > 0)
     return true
 
   for (const _t in changes.value) {
@@ -85,6 +89,7 @@ async function onApplyFliters(value: string) {
 async function onDisvardChanges() {
   changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
   inserts.value = []
+  deletes.value = []
   toast.dismiss()
   await execute()
 }
@@ -117,6 +122,17 @@ function onOpenUpdatesPreview(visible: boolean) {
     sqls.push(`INSERT INTO \`${selectedTable.value}\` (${keys.join(', ')}) VALUES (${keys.map(k => normalizeQueryValue(_n[k], dataTypeMap.value[k])).join(', ')})`)
   }
 
+  for (const _d of deletes.value) {
+    try {
+      const json = JSON.parse(_d)
+      const where = Object.entries(json).map(([k, v]) => `${k} = ${normalizeQueryValue(v, dataTypeMap.value[k])}`).join(' AND ')
+      sqls.push(`DELETE FROM \`${selectedTable.value}\` WHERE ${where}`)
+    }
+    catch {
+      continue
+    }
+  }
+
   updates.value = sqls.map(sql => ({ enable: true, sql }))
 }
 
@@ -126,6 +142,17 @@ async function onSave() {
   changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
   toast.dismiss()
   await execute()
+}
+
+function onDeleteRecords() {
+  deletes.value = []
+
+  for (const key of selectedRowKeys.value) {
+    if (typeof key === 'number')
+      inserts.value.splice(key, 1)
+    else
+      deletes.value.push(key)
+  }
 }
 </script>
 
@@ -147,34 +174,49 @@ async function onSave() {
               </div>
             </div>
 
-            <div class="flex">
-              <TableFilter :columns="columns" :backend="backend" @apply="onApplyFliters" />
+            <div class="flex gap-2.5">
+              <Button v-if="selectedRowKeys.length" variant="ghost" size="sm" @click="onDeleteRecords">
+                Delete {{ selectedRowKeys.length }} {{ selectedRowKeys.length > 1 ? 'Records' : 'Record' }}
+              </Button>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger @click.stop>
-                  <Button size="icon" class="w-8 h-8 rounded-l-none">
-                    <EllipsisHorizontal />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent :side-offset="8" class="mr-4">
-                  <DropdownMenuItem class="text-xs" @click="inserts.unshift({})">
-                    <Plus />
-                    <span>Add Row</span>
-                  </DropdownMenuItem>
+              <div class="flex">
+                <TableFilter :columns="columns" :backend="backend" @apply="onApplyFliters" />
 
-                  <DropdownMenuItem class="text-xs">
-                    <ArrowDownOnSquareStack />
-                    <span>Export</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger @click.stop>
+                    <Button size="icon" class="w-8 h-8 rounded-l-none">
+                      <EllipsisHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent :side-offset="8" class="mr-4">
+                    <DropdownMenuItem class="text-xs" @click="inserts.unshift({})">
+                      <Plus />
+                      <span>Add Row</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem class="text-xs">
+                      <ArrowDownOnSquareStack />
+                      <span>Export</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </div>
 
           <Separator />
 
           <div class="w-full h-0 flex-1 flex flex-col bg-zinc-50 -m-px">
-            <VisTable v-model:changes="changes[selectedTable]" v-model:inserts="inserts" editable :columns="columns" :records="data" :primary-keys="primaryKeys" />
+            <VisTable
+              v-model:changes="changes[selectedTable]"
+              v-model:inserts="inserts"
+              v-model:selected-row-keys="selectedRowKeys"
+              editable
+              :columns="columns"
+              :records="data"
+              :deletes="deletes"
+              :primary-keys="primaryKeys"
+            />
           </div>
 
           <Separator />

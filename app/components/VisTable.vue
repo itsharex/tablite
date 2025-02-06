@@ -8,17 +8,21 @@ interface Props {
   records: Record<string, any>[]
   changes?: Record<string, Record<string, any[]>>
   inserts?: Record<string, any>[]
+  deletes?: string[]
   editable?: boolean
+  selectedRowKeys?: (string | number)[]
   primaryKeys?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   changes: () => ({}),
   inserts: () => [],
+  deletes: () => [],
+  selectedRowKeys: () => [],
   primaryKeys: () => [],
 })
 
-const emit = defineEmits(['update:changes', 'update:inserts'])
+const emit = defineEmits(['update:changes', 'update:inserts', 'update:selectedRowKeys'])
 
 const Key = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#09090b">
   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
@@ -74,9 +78,12 @@ VTable.register.icon('frozenCurrent', {
   cursor: 'pointer',
 })
 
+let selectedRowRecord: Record<string, string | number> = {}
+
 const domRef = ref()
 const changes = useVModel(props, 'changes', emit)
 const inserts = useVModel(props, 'inserts', emit)
+const selectedRowKeys = useVModel(props, 'selectedRowKeys', emit)
 
 const records = computed(() => {
   if (!props.editable)
@@ -137,6 +144,8 @@ const columns = computed(() => {
       bgColor({ col, row }: any) {
         if (row <= inserts.value.length)
           return '#f0fdf4'
+        if (hasDeleted(row))
+          return '#fee2e2'
         if (hasChanged(col, row))
           return '#fef9c3'
         return !(row & 1) ? '#fafafa' : '#ffffff'
@@ -216,6 +225,34 @@ onMounted(() => {
       triggerUndoToast(key, column.field, origin, row, col)
     }
   })
+
+  instance.on('checkbox_state_change', ({ row, checked }): any => {
+    if (row > 0) {
+      const isTemp = row <= inserts.value.length
+      const rowKey = instance.records[row - 1].__TABLITE_ROW_KEY
+      if (!isTemp && !rowKey)
+        return
+      const key = isTemp ? row - 1 : rowKey
+      if (checked)
+        selectedRowRecord[key] = key
+      else
+        delete selectedRowRecord[key]
+
+      selectedRowKeys.value = Object.values(selectedRowRecord)
+      return
+    }
+    if (!checked) {
+      selectedRowRecord = {}
+      selectedRowKeys.value = []
+    }
+    else {
+      selectedRowKeys.value = instance.records.map(({ __TABLITE_ROW_KEY }, index) => {
+        const key = __TABLITE_ROW_KEY ?? index
+        selectedRowRecord[key] = key
+        return key
+      })
+    }
+  })
 })
 
 function triggerUndoToast(key: string, field: string, origin: any, row: number, col: number) {
@@ -234,10 +271,13 @@ function triggerUndoToast(key: string, field: string, origin: any, row: number, 
 }
 
 watch(records, (v) => {
+  selectedRowRecord = {}
+  selectedRowKeys.value = []
   instance.setRecords(v)
 })
 
-watch(props, async () => {
+watch(() => [props.columns, props.changes, props.primaryKeys, props.records, props.inserts, props.deletes], async () => {
+  selectedRowKeys.value = []
   instance.updateOption(options.value)
 })
 
@@ -256,6 +296,13 @@ function hasChanged(x: number, y: number) {
     return false
   const [_, v] = changes.value[key]?.[column.field] ?? []
   return v
+}
+
+function hasDeleted(y: number) {
+  if (!props.editable || !instance)
+    return false
+  const key = instance.records[y - 1]?.__TABLITE_ROW_KEY
+  return props.deletes.includes(key)
 }
 
 function generateRowKeyFromRecord(record: any) {
