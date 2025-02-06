@@ -71,6 +71,8 @@ async function onSelectTable() {
     changes.value[selectedTable.value] = {}
   page.value = 1
   inserts.value = []
+  deletes.value = []
+  changes.value = {}
   await Promise.allSettled([setup(), execute()])
 }
 
