@@ -67,12 +67,12 @@ const hasChanged = computed(() => {
 
 async function onSelectTable() {
   toast.dismiss()
+  changes.value = {}
   if (!changes.value[selectedTable.value])
     changes.value[selectedTable.value] = {}
   page.value = 1
   inserts.value = []
   deletes.value = []
-  changes.value = {}
   await Promise.allSettled([setup(), execute()])
 }
 
