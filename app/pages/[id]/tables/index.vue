@@ -167,12 +167,8 @@ function onDeleteRecords() {
       <ResizableHandle />
 
       <ResizablePanel class="h-full bg-white">
-        <div v-if="!selectedTable" class="w-full h-full flex items-center justify-center flex-col">
-          <svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500" class="h-64 w-64">
-            <line x1="100" y1="200" x2="400" y2="200" stroke="#f4f4f5" stroke-width="52" stroke-linecap="round" />
-            <line x1="200" y1="100" x2="200" y2="400" stroke="#f4f4f5" stroke-width="52" stroke-linecap="round" />
-            <line x1="300" y1="300" x2="300" y2="400" stroke="#f4f4f5" stroke-width="52" stroke-linecap="round" />
-          </svg>
+        <div v-if="!selectedTable" class="w-full h-full flex items-center justify-center flex-col cursor-default">
+          <TextHoverEffect class="w-1/2 px-1" :stroke-width="1" text="TABLITE" />
         </div>
 
         <div v-show="selectedTable" class="flex flex-col h-full">
