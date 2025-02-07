@@ -121,7 +121,7 @@ const columns = computed(() => {
           disableHeaderSelect: true,
           disableColumnResize: true,
           style: {
-            bgColor: ({ row }: any) => !(row & 1) ? '#fafafa' : '#ffffff',
+            bgColor: ({ col, row }: any) => calcRowBgColor(col, row),
           },
         }
       : undefined,
@@ -138,18 +138,8 @@ const columns = computed(() => {
     disableColumnResize: !props.editable,
     fieldFormat: fieldFormatGenerator(column),
     style: {
-      color({ dataValue }: any) {
-        return isEmpty(dataValue) ? '#d4d4d8' : '#27272a'
-      },
-      bgColor({ col, row }: any) {
-        if (row <= inserts.value.length)
-          return '#fef9c3'
-        if (hasDeleted(row))
-          return '#fee2e2'
-        if (hasChanged(col, row))
-          return '#fef9c3'
-        return !(row & 1) ? '#fafafa' : '#ffffff'
-      },
+      color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
+      bgColor: ({ col, row }: any) => calcRowBgColor(col, row),
     },
   }))
 
@@ -276,7 +266,12 @@ watch(records, (v) => {
   instance.setRecords(v)
 })
 
-watch(() => [props.columns, props.changes, props.primaryKeys, props.records, props.inserts, props.deletes], async () => {
+watch(() => [props.columns, props.primaryKeys], () => {
+  selectedRowKeys.value = []
+  instance.updateColumns(columns.value as any)
+})
+
+watch(() => [props.changes, props.inserts, props.deletes], async () => {
   selectedRowKeys.value = []
   instance.updateOption(options.value)
 })
@@ -311,6 +306,16 @@ function generateRowKeyFromRecord(record: any) {
     keys[k] = record[k]
   })
   return JSON.stringify(keys)
+}
+
+function calcRowBgColor(col: number, row: number) {
+  if (row <= inserts.value.length)
+    return '#fef9c3'
+  if (hasDeleted(row))
+    return '#fee2e2'
+  if (hasChanged(col, row))
+    return '#fef9c3'
+  return !(row & 1) ? '#fafafa' : '#ffffff'
 }
 </script>
 
