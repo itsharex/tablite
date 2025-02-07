@@ -261,8 +261,9 @@ function triggerUndoToast(key: string, field: string, origin: any, row: number, 
   })
 }
 
-watch(() => props.records, (v) => {
-  originRecordKeys.value = v.map(i => generateRowKeyFromRecord(i))
+watch(() => [props.records, props.primaryKeys], ([v0, v1]) => {
+  if (v1?.length)
+    originRecordKeys.value = v0!.map(i => generateRowKeyFromRecord(i))
 })
 
 watch(records, (v) => {
