@@ -84,13 +84,14 @@ const domRef = ref()
 const changes = useVModel(props, 'changes', emit)
 const inserts = useVModel(props, 'inserts', emit)
 const selectedRowKeys = useVModel(props, 'selectedRowKeys', emit)
+const originRecordKeys = ref<string[]>([])
 
 const records = computed(() => {
   if (!props.editable)
     return props.records
 
-  const source = props.records.map((record) => {
-    const key = generateRowKeyFromRecord(record)
+  const source = props.records.map((record, index) => {
+    const key = originRecordKeys.value[index]!
     record.__TABLITE_ROW_KEY = key
 
     for (const column in record) {
@@ -121,7 +122,7 @@ const columns = computed(() => {
           disableHeaderSelect: true,
           disableColumnResize: true,
           style: {
-            bgColor: ({ col, row }: any) => calcRowBgColor(col, row),
+            bgColor: ({ col, row }: any) => calcCellBgColor(col, row),
           },
         }
       : undefined,
@@ -139,7 +140,7 @@ const columns = computed(() => {
     fieldFormat: fieldFormatGenerator(column),
     style: {
       color: ({ dataValue }: any) => isEmpty(dataValue) ? '#d4d4d8' : '#27272a',
-      bgColor: ({ col, row }: any) => calcRowBgColor(col, row),
+      bgColor: ({ col, row }: any) => calcCellBgColor(col, row),
     },
   }))
 
@@ -260,6 +261,10 @@ function triggerUndoToast(key: string, field: string, origin: any, row: number, 
   })
 }
 
+watch(() => props.records, (v) => {
+  originRecordKeys.value = v.map(i => generateRowKeyFromRecord(i))
+})
+
 watch(records, (v) => {
   selectedRowRecord = {}
   selectedRowKeys.value = []
@@ -271,7 +276,7 @@ watch(() => [props.columns, props.primaryKeys], () => {
   instance.updateColumns(columns.value as any)
 })
 
-watch(() => [props.changes, props.inserts, props.deletes], async () => {
+watch(() => [props.changes, props.inserts, props.deletes], () => {
   selectedRowKeys.value = []
   instance.updateOption(options.value)
 })
@@ -289,8 +294,8 @@ function hasChanged(x: number, y: number) {
   const column = columns.value[x]
   if (!column)
     return false
-  const [_, v] = changes.value[key]?.[column.field] ?? []
-  return v
+  const his = changes.value[key]?.[column.field] ?? []
+  return his.length > 1
 }
 
 function hasDeleted(y: number) {
@@ -308,7 +313,7 @@ function generateRowKeyFromRecord(record: any) {
   return JSON.stringify(keys)
 }
 
-function calcRowBgColor(col: number, row: number) {
+function calcCellBgColor(col: number, row: number) {
   if (row <= inserts.value.length)
     return '#fef9c3'
   if (hasDeleted(row))
