@@ -143,7 +143,7 @@ const columns = computed(() => {
       },
       bgColor({ col, row }: any) {
         if (row <= inserts.value.length)
-          return '#f0fdf4'
+          return '#fef9c3'
         if (hasDeleted(row))
           return '#fee2e2'
         if (hasChanged(col, row))

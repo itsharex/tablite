@@ -17,6 +17,7 @@ const store = useConnectionStore()
 const { cursors, connections } = storeToRefs(store)
 const cursor = computed(() => cursors.value[id.value])
 const instance = ref<Database | undefined>(undefined)
+const db = computed(() => parseConnectionURL(instance.value?.path).database)
 
 const tabs = [
   { key: 'id-tables', icon: CircleStack },
@@ -47,10 +48,12 @@ preloadRouteComponents({ name: 'id-queries' })
 
 <template>
   <div class="h-screen flex flex-col" :class="[IS_MACOS ? '-mt-12' : '-mt-8']">
-    <div class="w-full p-2 flex-shrink-0 bg-white" :class="[IS_MACOS ? 'h-12' : 'h-8']">
+    <div class="w-full p-2 flex-shrink-0 bg-zinc-50" :class="[IS_MACOS ? 'h-12' : 'h-8']">
       <div class="flex items-center h-full box-border" :class="{ 'pl-[72px]': IS_MACOS }">
-        <Button v-if="IS_MACOS" variant="ghost" size="sm" class="z-[101] font-semibold px-4" @click="router.replace({ name: 'index' })">
-          TABLITE
+        <Button v-if="IS_MACOS" variant="ghost" size="sm" class="z-[101] font-semibold px-4 uppercase align-middle hover:bg-zinc-200/50" @click="router.replace({ name: 'index' })">
+          <span>TABLITE</span>
+          <span class="-translate-y-px">/</span>
+          <span class="text-zinc-600/50">{{ db }}</span>
         </Button>
 
         <div v-else class="z-[101] cursor-pointer flex items-center text-xs gap-1.5" @click="router.replace({ name: 'index' })">

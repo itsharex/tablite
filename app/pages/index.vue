@@ -15,19 +15,13 @@ const normalizations = computed(() => {
     const [backend, path] = origin.split('://')
 
     if (backend === 'mysql')
-      return { origin, backend, url: parseMysqlURL(origin) }
+      return { origin, backend, url: parseConnectionURL(origin) }
     if (backend === 'sqlite')
       return { origin, backend, url: { host: path } }
 
     return { origin, backend, url: {} }
   })
 })
-
-function parseMysqlURL(value: string) {
-  const matches = value.match(ConnectionPattern.MYSQL) ?? []
-  const [_, username, password, host, port, database, queries] = matches
-  return { username, password, host, port, database, queries }
-}
 
 async function onConnectByURL() {
   const hash = await connect()
