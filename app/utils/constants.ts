@@ -47,8 +47,6 @@ Use the following format:
 
 Question: Question here
 SQLQuery: SQL Query to run
-SQLResult: Result of the SQLQuery
-Answer: Final answer here
 
 `
 }
@@ -64,8 +62,6 @@ Use the following format:
 
 Question: Question here
 SQLQuery: SQL Query to run
-SQLResult: Result of the SQLQuery
-Answer: Final answer here
 
 `
 }
@@ -81,8 +77,6 @@ Use the following format:
 
 Question: Question here
 SQLQuery: SQL Query to run
-SQLResult: Result of the SQLQuery
-Answer: Final answer here
 
 `
 }
@@ -98,8 +92,6 @@ Use the following format:
 
 Question: Question here
 SQLQuery: SQL Query to run
-SQLResult: Result of the SQLQuery
-Answer: Final answer here
 
 `
 }
@@ -108,7 +100,8 @@ function PROMPT_SUFFIX(tableInfo: string, input: string) {
   return `Only use the following tables:
 ${tableInfo}
 
-Question: ${input}`
+Question: ${input}
+SQLQuery:`
 }
 
 export const SQL_KEYWORDS = [

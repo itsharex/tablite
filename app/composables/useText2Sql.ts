@@ -5,8 +5,25 @@ interface UseText2SqlOptions {
 }
 
 async function querySchema(value: string, cursor?: Database) {
-  const results = await cursor?.select<{ 'Create Table': string }[]>(`SHWO CREATE TABLE \`${value}\``) ?? []
-  return results[0]?.['Create Table']
+  const [v0, v1] = await Promise.all([
+    cursor?.select<{ 'Create Table': string }[]>(`SHOW CREATE TABLE \`${value}\``) ?? [],
+    cursor?.select<Record<string, any>[]>(`SELECT * FROM \`${value}\` LIMIT 3;`) ?? [],
+  ])
+
+  const cols = Object.keys(v1[0] ?? {})
+  const rows: string[] = []
+
+  for (const i of v1) {
+    rows.push(cols.map(k => String(i[k])).join('\t'))
+  }
+
+  return [
+    v0[0]?.['Create Table'],
+    '\n/*\n3 rows from t_inf_app_application table:',
+    cols.join('\t'),
+    rows.join('\n'),
+    '\n',
+  ].join('\n')
 }
 
 let ai: GoogleGenerativeAI | undefined
@@ -19,11 +36,12 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
   const answer = ref('')
   const apiKey = ref('')
 
-  async function execute() {
-    if (question.value && apiKey.value) {
-      const tableInfo = (await Promise.all(tables.value.map(i => querySchema(i, cursor.value)))).filter(Boolean).join(' ')
+  async function execute(q?: string) {
+    const _q = q ?? question.value
+    if (_q && apiKey.value && tables.value.length) {
+      const tableInfo = (await Promise.all(tables.value.map(i => querySchema(i, cursor.value)))).filter(Boolean).join('\n\n')
       if (!ai)
-        ai = new GoogleGenerativeAI('')
+        ai = new GoogleGenerativeAI(apiKey.value)
       const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash' })
       const prompt = SQL_PROMPT[backend.value]?.(unref(options.limit) ?? 5, tableInfo, question.value, backend.value)
       if (!prompt)

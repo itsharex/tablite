@@ -36,9 +36,10 @@ const selectedQuery = computed<Query>(() => {
 
 const { title, code, data, error, timeToExecute, isSelect, isLoading, execute, abort } = useQuery(cursor, selectedQuery)
 const transitionTimeToExecute = useTransition(timeToExecute)
-const useTablesReturn = useTables(cursor, { immediate: false })
+const { tables } = useTables(cursor)
 const search = ref('')
 const { meta, shift, s } = useMagicKeys()
+const text2Sql = useText2Sql(cursor)
 
 const filtered = computed(() => queries.value.filter(({ title }) => title.includes(search.value)))
 const upperKey = computed(() => PLATFORM === 'macos' ? meta?.value : shift?.value)
@@ -87,11 +88,8 @@ function setup() {
       const PREV_TOKEN = textUntilPosition.split(' ').at(-2)?.toUpperCase() ?? ''
 
       if (['FROM', 'TABLE', 'JOIN', 'INTO', 'DESCRIBE', 'ON', 'UPDATE'].includes(PREV_TOKEN)) {
-        if (!useTablesReturn.tables.value.length)
-          await useTablesReturn.execute()
-
         return {
-          suggestions: useTablesReturn.tables.value.map(keyword => ({
+          suggestions: tables.value.map(keyword => ({
             label: keyword,
             kind: monaco.languages.CompletionItemKind.Variable,
             insertText: `\`${keyword}\``,
@@ -164,6 +162,11 @@ function onRemove(index: number) {
   selectedQueryIndex.value = -1
   code.value = ''
   editor.setValue(code.value)
+}
+
+function _onGenerateSqlByLlm() {
+  text2Sql.tables.value = tables.value
+  text2Sql.execute(title.value)
 }
 </script>
 
