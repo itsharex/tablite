@@ -42,7 +42,7 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
   const data = ref<any>()
   const error = ref()
   const isLoading = ref(false)
-  const limit = ref(50)
+  const limit = ref(100)
 
   watch(initialValue, (value) => {
     const v = unref(value)

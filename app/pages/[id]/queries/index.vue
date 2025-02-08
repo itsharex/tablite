@@ -169,7 +169,7 @@ function onRemove(index: number) {
 
 <template>
   <ResizablePanelGroup direction="horizontal" class="flex-1 h-full">
-    <ResizablePanel :default-size="2" :min-size="22" :max-size="50">
+    <ResizablePanel :default-size="22" :min-size="22" :max-size="50">
       <div>
         <div class="px-4 pt-6 flex gap-2.5 items-center cursor-default justify-between">
           <span class="text-xl font-semibold">Queries</span>

@@ -27,7 +27,7 @@ function normalizeStructure(value: QueryStructureResults): Structure[] {
   }))
 }
 
-function useCursorBackend(cursor: ComputedRef<Database | undefined>) {
+export function useCursorBackend(cursor: ComputedRef<Database | undefined>) {
   return computed(() => cursor.value?.path.split(':')[0] ?? 'mysql')
 }
 
