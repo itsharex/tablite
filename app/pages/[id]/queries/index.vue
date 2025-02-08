@@ -10,6 +10,7 @@ import PauseSolid from '~icons/heroicons/pause-solid'
 import PencilSquare from '~icons/heroicons/pencil-square'
 import PlaySolid from '~icons/heroicons/play-solid'
 import Plus from '~icons/heroicons/plus'
+import Sparkles from '~icons/heroicons/sparkles-solid'
 import Tag from '~icons/heroicons/tag'
 import Trash from '~icons/heroicons/trash'
 
@@ -34,12 +35,12 @@ const selectedQuery = computed<Query>(() => {
   return defaults
 })
 
-const { title, code, data, error, timeToExecute, isSelect, isLoading, execute, abort } = useQuery(cursor, selectedQuery)
+const { title, code, data, error, timeToExecute, isSelect, isLoading, limit, execute, abort } = useQuery(cursor, selectedQuery)
 const transitionTimeToExecute = useTransition(timeToExecute)
 const { tables } = useTables(cursor)
 const search = ref('')
 const { meta, shift, s } = useMagicKeys()
-const text2Sql = useText2Sql(cursor)
+const text2Sql = useText2Sql(cursor, { limit })
 
 const filtered = computed(() => queries.value.filter(({ title }) => title.includes(search.value)))
 const upperKey = computed(() => PLATFORM === 'macos' ? meta?.value : shift?.value)
@@ -164,9 +165,11 @@ function onRemove(index: number) {
   editor.setValue(code.value)
 }
 
-function _onGenerateSqlByLlm() {
+async function onGenerateSqlByLlm() {
   text2Sql.tables.value = tables.value
-  text2Sql.execute(title.value)
+  await text2Sql.execute(title.value)
+  code.value = text2Sql.answer.value
+  editor.setValue(code.value)
 }
 </script>
 
@@ -245,7 +248,11 @@ function _onGenerateSqlByLlm() {
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel :default-size="50" :min-size="25" class="w-full flex flex-col bg-white">
           <div class="flex justify-between items-center p-4">
-            <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" placeholder="Untitled Query" @click="($event: any) => $event.target.select()">
+            <Button variant="ghost" size="icon" class="w-8 h-8" :disabled="!title || !text2Sql.isLoading" @click="onGenerateSqlByLlm">
+              <Sparkles />
+            </Button>
+
+            <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" placeholder="Untitled Query">
 
             <div class="flex-shrink-0 flex justify-end gap-2">
               <Button variant="secondary" size="sm" :disabled="!title || isSaving" @click="onSave">

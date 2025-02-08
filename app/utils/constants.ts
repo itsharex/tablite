@@ -97,7 +97,7 @@ SQLQuery: SQL Query to run
 }
 
 function PROMPT_SUFFIX(tableInfo: string, input: string) {
-  return `Only use the following tables:
+  return `Only use the following tables:\n
 ${tableInfo}
 
 Question: ${input}
