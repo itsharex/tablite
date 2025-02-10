@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai'
+import { FunctionCallingMode, GoogleGenerativeAI, SchemaType } from '@google/generative-ai'
 import { remark } from 'remark'
 import { visit } from 'unist-util-visit'
 
@@ -67,21 +67,39 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
         type: SchemaType.OBJECT,
         description: 'Table in SQL database.',
         properties: {
-          name: {
-            type: SchemaType.STRING,
-            description: 'Name of table in SQL database.',
+          includes: {
+            type: SchemaType.ARRAY,
+            description: 'Names of table in SQL database.',
+            items: {
+              type: SchemaType.OBJECT,
+              properties: {
+                name: {
+                  type: SchemaType.STRING,
+                  enum: includes.value,
+                },
+              },
+              required: [
+                'name',
+              ],
+            },
           },
         },
-        required: ['name'],
+        required: ['includes'],
       },
     }
 
     const model = ai.getGenerativeModel({
-      model: 'gemini-1.5-pro',
+      model: 'gemini-2.0-flash',
 
       tools: [{
         functionDeclarations: [fnd],
       }],
+
+      toolConfig: {
+        functionCallingConfig: {
+          mode: FunctionCallingMode.ANY,
+        },
+      },
     })
 
     const prompt = [
@@ -90,14 +108,18 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       ...includes.value,
     ].join('\n')
 
-    const chat = model.startChat()
-    const result = await chat.sendMessage([prompt, q])
+    const result = await model.generateContent([prompt, q])
     const call = result.response.functionCalls()?.[0]
 
-    if (!call)
-      return includes.value.slice(0, 25)
+    const defaults = includes.value.slice(0, 25)
 
-    return call.args as string[]
+    if (!call)
+      return defaults
+
+    const args = ((call.args as any).includes ?? []) as { name: string }[]
+    const tables = args.map(({ name }) => name)
+
+    return tables.length ? tables : defaults
   }
 
   async function execute(q?: string) {
