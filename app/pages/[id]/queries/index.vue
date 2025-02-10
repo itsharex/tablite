@@ -59,6 +59,11 @@ watch(isSaving, (v, p) => {
     onSave()
 })
 
+watch(selectedQueryIndex, () => {
+  data.value = undefined
+  error.value = undefined
+})
+
 function setup() {
   if (editor)
     return
