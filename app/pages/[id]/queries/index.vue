@@ -3,6 +3,7 @@ import type { Query } from '~/composables/useQuery'
 import { platform } from '@tauri-apps/plugin-os'
 import * as monaco from 'monaco-editor'
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import Check from '~icons/heroicons/check'
 import CheckCircle from '~icons/heroicons/check-circle'
 import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import ExclamationTriangle from '~icons/heroicons/exclamation-triangle'
@@ -168,8 +169,10 @@ function onRemove(index: number) {
 async function onGenerateSqlByLlm() {
   includes.value = tables.value
   await runText2Sql(title.value)
-  code.value = sql.value
-  editor.setValue(code.value)
+  if (sql.value) {
+    code.value = sql.value
+    editor.setValue(code.value)
+  }
 }
 </script>
 
@@ -255,10 +258,42 @@ async function onGenerateSqlByLlm() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="start" class="text-xs">
-                <div class="text-xs flex items-center gap-2.5">
-                  <Spin class="size-4" />
-                  <span class="text-zinc-600">{{ steps.at(-1)?.title }}</span>
-                </div>
+                <Stepper :model-value="steps.length - 1" orientation="vertical" class="mx-auto flex max-w-96 flex-col justify-start gap-4">
+                  <StepperItem
+                    v-for="(step, index) in steps"
+                    :key="index"
+                    v-slot="{ state }"
+                    class="relative flex w-full items-start gap-4 text-xs"
+                    :step="index"
+                  >
+                    <StepperSeparator
+                      v-if="index !== steps.length - 1"
+                      class="absolute left-[12px] top-[30px] block h-4 w-px shrink-0 rounded-full bg-muted group-data-[state=completed]:bg-zinc-900"
+                    />
+
+                    <StepperTrigger as-child>
+                      <Button
+                        :variant="state === 'completed' ? 'default' : 'outline'"
+                        size="icon"
+                        class="z-10 rounded-full shrink-0 size-6"
+                      >
+                        <Check v-if="step.status === GenerationStatus.SUCCEEDED" class="scale-75" />
+                        <Spin v-if="step.status === GenerationStatus.RUNNING" class="size-4" />
+                        <div v-if="step.status === GenerationStatus.PENDING" class="bg-zinc-600/50 w-2 h-2 flex-shrink-0 rounded-full" />
+                      </Button>
+                    </StepperTrigger>
+
+                    <div class="flex flex-col gap-1">
+                      <StepperTitle class="text-xs text-zinc-600 transition">
+                        {{ step.title }}
+                      </StepperTitle>
+
+                      <StepperDescription class="text-xs text-zinc-600/50">
+                        {{ step.description }}
+                      </StepperDescription>
+                    </div>
+                  </StepperItem>
+                </Stepper>
               </PopoverContent>
             </Popover>
 

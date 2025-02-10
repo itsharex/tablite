@@ -7,7 +7,7 @@ interface UseText2SqlOptions {
   limit?: MaybeRef<number>
 }
 
-enum GenerationStatus {
+export enum GenerationStatus {
   PENDING,
   RUNNING,
   SUCCEEDED,
@@ -78,8 +78,6 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
     if (includes.value.length < 25)
       return includes.value
 
-    nextStep('Including relevent tables...')
-
     const fnd = {
       name: 'Table',
       parameters: {
@@ -142,33 +140,42 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
   }
 
   async function execute(q?: string) {
+    steps.value = []
     const _q = q ?? question.value
     if (_q && !isLoading.value && googleAPIKey.value && includes.value.length) {
       isLoading.value = true
-      nextStep(`Initialze google ai with ${model.value}...`)
+      nextStep('Engine Priming', `Initialze ${model.value}`)
       const ai = new GoogleGenerativeAI(googleAPIKey.value)
       const _m = ai.getGenerativeModel({ model: model.value })
+      nextStep('Semantic Table Indexing', 'Analyzing relevent tables ')
       const releventTables = (await filterReleventTables(ai, _q)) ?? []
-      nextStep('Quering the schemas of targets....')
+      nextStep('Metadata Topology Parsing', 'Quering schemas')
       const tableInfo = (await Promise.all(releventTables.map(i => querySchema(i, cursor.value)))).filter(Boolean).join('\n\n')
       const prompt = SQL_PROMPT[backend.value]?.(unref(options.limit) ?? 5, tableInfo, _q, backend.value)
       if (!prompt)
         return
-      nextStep('Generating sql...')
+      nextStep('Context Aware', 'Generate sql from model output')
       const { response } = await _m.generateContent(prompt)
       output.value = response.text()
       sql.value = parseConentInCodeBlock(output.value)
       isLoading.value = false
 
-      if (!sql.value)
-        toast('unexpected EOF while parsing', { description: output.value })
+      if (sql.value)
+        return
+
+      toast('unexpected EOF while parsing', { description: output.value })
+      abortWithStatus()
     }
   }
 
-  function nextStep(title: string, status = GenerationStatus.RUNNING) {
+  function nextStep(title: string, description?: string, status = GenerationStatus.RUNNING) {
     if (steps.value.length > 0)
       steps.value.at(-1)!.status = GenerationStatus.SUCCEEDED
-    steps.value.push({ title, status })
+    steps.value.push({ title, description, status })
+  }
+
+  function abortWithStatus(status = GenerationStatus.FAILED) {
+    steps.value.at(-1)!.status = status
   }
 
   return {
