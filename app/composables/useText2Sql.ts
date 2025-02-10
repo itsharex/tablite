@@ -106,7 +106,7 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       isLoading.value = true
       const ai = new GoogleGenerativeAI(googleAPIKey.value)
       const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash' })
-      const releventTables = await filterReleventTables(ai, _q)
+      const releventTables = (await filterReleventTables(ai, _q)) ?? []
       const tableInfo = (await Promise.all(releventTables.map(i => querySchema(i, cursor.value)))).filter(Boolean).join('\n\n')
       const prompt = SQL_PROMPT[backend.value]?.(unref(options.limit) ?? 5, tableInfo, _q, backend.value)
       if (!prompt)
