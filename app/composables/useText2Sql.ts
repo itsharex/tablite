@@ -1,6 +1,7 @@
 import { FunctionCallingMode, GoogleGenerativeAI, SchemaType } from '@google/generative-ai'
 import { remark } from 'remark'
 import { visit } from 'unist-util-visit'
+import { toast } from 'vue-sonner'
 
 interface UseText2SqlOptions {
   limit?: MaybeRef<number>
@@ -158,6 +159,9 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       output.value = response.text()
       sql.value = parseConentInCodeBlock(output.value)
       isLoading.value = false
+
+      if (!sql.value)
+        toast('unexpected EOF while parsing', { description: output.value })
     }
   }
 
