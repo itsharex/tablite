@@ -40,7 +40,7 @@ const transitionTimeToExecute = useTransition(timeToExecute)
 const { tables } = useTables(cursor)
 const search = ref('')
 const { meta, shift, s } = useMagicKeys()
-const text2Sql = useText2Sql(cursor, { limit })
+const { includes, sql, apiKey, execute: runText2Sql } = useText2Sql(cursor, { limit })
 
 const filtered = computed(() => queries.value.filter(({ title }) => title.includes(search.value)))
 const upperKey = computed(() => PLATFORM === 'macos' ? meta?.value : shift?.value)
@@ -166,9 +166,9 @@ function onRemove(index: number) {
 }
 
 async function onGenerateSqlByLlm() {
-  text2Sql.tables.value = tables.value
-  await text2Sql.execute(title.value)
-  code.value = text2Sql.answer.value
+  includes.value = tables.value
+  await runText2Sql(title.value)
+  code.value = sql.value
   editor.setValue(code.value)
 }
 </script>
@@ -248,7 +248,7 @@ async function onGenerateSqlByLlm() {
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel :default-size="50" :min-size="25" class="w-full flex flex-col bg-white">
           <div class="flex justify-between items-center p-4">
-            <Button variant="ghost" size="icon" class="w-8 h-8" :disabled="!title || !text2Sql.isLoading" @click="onGenerateSqlByLlm">
+            <Button v-if="apiKey" variant="ghost" size="icon" class="w-8 h-8" :disabled="!title" @click="onGenerateSqlByLlm">
               <Sparkles />
             </Button>
 

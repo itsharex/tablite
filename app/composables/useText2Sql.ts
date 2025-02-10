@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai'
 import { remark } from 'remark'
 import { visit } from 'unist-util-visit'
 
@@ -31,13 +31,16 @@ async function querySchema(value: string, cursor?: Database) {
 }
 
 export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | undefined, options: UseText2SqlOptions = {}) {
+  const store = useSettingsStore()
+  const { googleAPIKey } = storeToRefs(store)
+
   const question = ref<string>('')
   const cursor = computed(() => unref(cursorInstance))
-  const tables = ref<string[]>([])
+  const includes = ref<string[]>([])
   const backend = useCursorBackend(cursor)
-  const answer = ref('')
-  const apiKey = ref('')
+  const sql = ref('')
   const isLoading = ref(false)
+  const apiKey = computed(() => googleAPIKey.value)
 
   function parseConentInCodeBlock(value?: string) {
     if (!value)
@@ -54,28 +57,71 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
     return code
   }
 
+  async function filterReleventTables(ai: GoogleGenerativeAI, q: string) {
+    if (includes.value.length < 25)
+      return includes.value
+
+    const fnd = {
+      name: 'Table',
+      parameters: {
+        type: SchemaType.OBJECT,
+        description: 'Table in SQL database.',
+        properties: {
+          name: {
+            type: SchemaType.STRING,
+            description: 'Name of table in SQL database.',
+          },
+        },
+        required: ['name'],
+      },
+    }
+
+    const model = ai.getGenerativeModel({
+      model: 'gemini-1.5-pro',
+
+      tools: [{
+        functionDeclarations: [fnd],
+      }],
+    })
+
+    const prompt = [
+      'Return the names of any SQL tables that are relevant to the user question.',
+      'The tables are:\n',
+      ...includes.value,
+    ].join('\n')
+
+    const chat = model.startChat()
+    const result = await chat.sendMessage([prompt, q])
+    const call = result.response.functionCalls()?.[0]
+
+    if (!call)
+      return includes.value.slice(0, 25)
+
+    return call.args as string[]
+  }
+
   async function execute(q?: string) {
     const _q = q ?? question.value
-    if (_q && apiKey.value && tables.value.length) {
-      const ai = new GoogleGenerativeAI(apiKey.value)
+    if (_q && googleAPIKey.value && includes.value.length) {
       isLoading.value = true
-      const tableInfo = (await Promise.all(tables.value.map(i => querySchema(i, cursor.value)))).filter(Boolean).join('\n\n')
+      const ai = new GoogleGenerativeAI(googleAPIKey.value)
       const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash' })
+      const releventTables = await filterReleventTables(ai, _q)
+      const tableInfo = (await Promise.all(releventTables.map(i => querySchema(i, cursor.value)))).filter(Boolean).join('\n\n')
       const prompt = SQL_PROMPT[backend.value]?.(unref(options.limit) ?? 5, tableInfo, _q, backend.value)
       if (!prompt)
         return
-      const result = await model.generateContent(prompt)
-      const response = await result.response
-      answer.value = parseConentInCodeBlock(response.text())
+      const { response } = await model.generateContent(prompt)
+      sql.value = parseConentInCodeBlock(response.text())
       isLoading.value = false
     }
   }
 
   return {
-    apiKey,
-    tables,
+    includes,
     question,
-    answer,
+    sql,
+    apiKey,
     isLoading,
     execute,
   }
