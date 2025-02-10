@@ -123,6 +123,7 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       'Return the names of any SQL tables that are relevant to the user question.',
       'The tables are:\n',
       ...includes.value,
+      '\nRemember to include ALL POTENTIALLY RELEVANT tables, even if you\'re not sure that they\'re needed.',
     ].join('\n')
 
     const result = await _m.generateContent([prompt, q])
