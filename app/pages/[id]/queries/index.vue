@@ -40,7 +40,7 @@ const transitionTimeToExecute = useTransition(timeToExecute)
 const { tables } = useTables(cursor)
 const search = ref('')
 const { meta, shift, s } = useMagicKeys()
-const { includes, sql, apiKey, execute: runText2Sql } = useText2Sql(cursor, { limit })
+const { includes, sql, apiKey, steps, isLoading: isThinking, execute: runText2Sql } = useText2Sql(cursor, { limit })
 
 const filtered = computed(() => queries.value.filter(({ title }) => title.includes(search.value)))
 const upperKey = computed(() => PLATFORM === 'macos' ? meta?.value : shift?.value)
@@ -248,11 +248,21 @@ async function onGenerateSqlByLlm() {
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel :default-size="50" :min-size="25" class="w-full flex flex-col bg-white">
           <div class="flex justify-between items-center p-4">
-            <Button v-if="apiKey" variant="ghost" size="icon" class="w-8 h-8" :disabled="!title" @click="onGenerateSqlByLlm">
-              <Sparkles />
-            </Button>
+            <Popover v-if="apiKey" :open="isThinking">
+              <PopoverTrigger>
+                <Button variant="ghost" size="icon" class="w-8 h-8" :disabled="!title" @click="onGenerateSqlByLlm">
+                  <Sparkles />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" class="text-xs">
+                <div class="text-xs flex items-center gap-2.5">
+                  <Spin class="size-4" />
+                  <span class="text-zinc-600">{{ steps.at(-1)?.title }}</span>
+                </div>
+              </PopoverContent>
+            </Popover>
 
-            <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" placeholder="Untitled Query">
+            <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" :readonly="isThinking" placeholder="Untitled Query">
 
             <div class="flex-shrink-0 flex justify-end gap-2">
               <Button variant="secondary" size="sm" :disabled="!title || isSaving" @click="onSave">

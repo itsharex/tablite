@@ -6,6 +6,19 @@ interface UseText2SqlOptions {
   limit?: MaybeRef<number>
 }
 
+enum GenerationStatus {
+  PENDING,
+  RUNNING,
+  SUCCEEDED,
+  FAILED,
+}
+
+interface GenerationStep {
+  title: string
+  description?: string
+  status: GenerationStatus
+}
+
 async function querySchema(value: string, cursor?: Database) {
   if (value && cursor) {
     const [v0, v1] = await Promise.all([
@@ -41,6 +54,9 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
   const sql = ref('')
   const isLoading = ref(false)
   const apiKey = computed(() => googleAPIKey.value)
+  const steps = ref<GenerationStep[]>([])
+  const model = ref('gemini-2.0-flash')
+  const output = ref('')
 
   function parseConentInCodeBlock(value?: string) {
     if (!value)
@@ -60,6 +76,8 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
   async function filterReleventTables(ai: GoogleGenerativeAI, q: string) {
     if (includes.value.length < 25)
       return includes.value
+
+    nextStep('Including relevent tables...')
 
     const fnd = {
       name: 'Table',
@@ -88,8 +106,8 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       },
     }
 
-    const model = ai.getGenerativeModel({
-      model: 'gemini-2.0-flash',
+    const _m = ai.getGenerativeModel({
+      model: model.value,
 
       tools: [{
         functionDeclarations: [fnd],
@@ -108,7 +126,7 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       ...includes.value,
     ].join('\n')
 
-    const result = await model.generateContent([prompt, q])
+    const result = await _m.generateContent([prompt, q])
     const call = result.response.functionCalls()?.[0]
 
     const defaults = includes.value.slice(0, 25)
@@ -124,27 +142,39 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
 
   async function execute(q?: string) {
     const _q = q ?? question.value
-    if (_q && googleAPIKey.value && includes.value.length) {
+    if (_q && !isLoading.value && googleAPIKey.value && includes.value.length) {
       isLoading.value = true
+      nextStep(`Initialze google ai with ${model.value}...`)
       const ai = new GoogleGenerativeAI(googleAPIKey.value)
-      const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash' })
+      const _m = ai.getGenerativeModel({ model: model.value })
       const releventTables = (await filterReleventTables(ai, _q)) ?? []
+      nextStep('Quering the schemas of targets....')
       const tableInfo = (await Promise.all(releventTables.map(i => querySchema(i, cursor.value)))).filter(Boolean).join('\n\n')
       const prompt = SQL_PROMPT[backend.value]?.(unref(options.limit) ?? 5, tableInfo, _q, backend.value)
       if (!prompt)
         return
-      const { response } = await model.generateContent(prompt)
-      sql.value = parseConentInCodeBlock(response.text())
+      nextStep('Generating sql...')
+      const { response } = await _m.generateContent(prompt)
+      output.value = response.text()
+      sql.value = parseConentInCodeBlock(output.value)
       isLoading.value = false
     }
+  }
+
+  function nextStep(title: string, status = GenerationStatus.RUNNING) {
+    if (steps.value.length > 0)
+      steps.value.at(-1)!.status = GenerationStatus.SUCCEEDED
+    steps.value.push({ title, status })
   }
 
   return {
     includes,
     question,
     sql,
+    output,
     apiKey,
     isLoading,
+    steps,
     execute,
   }
 }
