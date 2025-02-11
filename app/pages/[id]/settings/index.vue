@@ -52,14 +52,18 @@ const { language, googleAPIKey, deepseekApiKey, model } = storeToRefs(store)
             </SelectTrigger>
             <SelectContent>
               <SelectGroup v-if="googleAPIKey">
-                <SelectLabel>Google AI</SelectLabel>
+                <SelectLabel class="cursor-default">
+                  Google AI
+                </SelectLabel>
                 <SelectItem v-for="m in GOOGLE_AI_MODELS" :key="m.model" :value="m.model">
                   {{ m.alias }}
                 </SelectItem>
               </SelectGroup>
 
               <SelectGroup v-if="deepseekApiKey">
-                <SelectLabel>DeepSeek</SelectLabel>
+                <SelectLabel class="cursor-default">
+                  DeepSeek
+                </SelectLabel>
                 <SelectItem v-for="m in DEEPSEEK_MODELS" :key="m.model" :value="m.model">
                   {{ m.alias }}
                 </SelectItem>
