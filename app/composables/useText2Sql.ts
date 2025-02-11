@@ -73,6 +73,7 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
   const steps = ref<GenerationStep[]>([])
   const model = ref('gemini-2.0-flash')
   const output = ref('')
+  const llm = useLlm(model)
 
   function parseConentInCodeBlock(value?: string) {
     if (!value)
@@ -166,8 +167,8 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       if (!prompt.value)
         return
       nextStep('Context Aware', 'Generate sql from model output')
-      const { response } = await _m.generateContent(prompt.value)
-      output.value = response.text()
+      const { choices } = (await llm.chat.completions.create({ messages: [{ role: 'user', content: prompt.value }] })) ?? {}
+      output.value = choices?.[0]?.message.content ?? ''
       sql.value = parseConentInCodeBlock(output.value)
       isLoading.value = false
 
