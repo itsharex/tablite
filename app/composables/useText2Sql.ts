@@ -20,10 +20,25 @@ interface GenerationStep {
   status: GenerationStatus
 }
 
-async function querySchema(value: string, cursor?: Database) {
+async function queryCreateTableSQL(value: string, cursor?: Database): Promise<string> {
+  if (value && cursor) {
+    const backend = cursor?.path.split(':')[0] ?? 'mysql'
+    const sql = Sql.SHOW_CREATE_TABLE(value)[backend]
+    if (!sql)
+      return ''
+    const [row] = await cursor?.select<any[]>(sql) ?? []
+    if (backend === 'sqlite')
+      return row.sql
+    return row['Create Table']
+  }
+
+  return ''
+}
+
+async function querySchemaPrompt(value: string, cursor?: Database) {
   if (value && cursor) {
     const [v0, v1] = await Promise.all([
-      cursor?.select<{ 'Create Table': string }[]>(`SHOW CREATE TABLE \`${value}\``) ?? [],
+      queryCreateTableSQL(value, cursor),
       cursor?.select<Record<string, any>[]>(`SELECT * FROM \`${value}\` LIMIT 3;`) ?? [],
     ])
 
@@ -35,7 +50,7 @@ async function querySchema(value: string, cursor?: Database) {
     }
 
     return [
-      v0[0]?.['Create Table'],
+      v0,
       '\n/*',
       '3 rows from t_inf_app_application table:',
       rows.join('\n'),
@@ -74,7 +89,7 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
     return code
   }
 
-  async function filterReleventTables(ai: GoogleGenerativeAI, q: string) {
+  async function analysisReleventTables(ai: GoogleGenerativeAI, q: string) {
     if (includes.value.length < 25)
       return includes.value
 
@@ -143,9 +158,9 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       const ai = new GoogleGenerativeAI(googleAPIKey.value)
       const _m = ai.getGenerativeModel({ model: model.value })
       nextStep('Semantic Table Indexing', 'Analyzing relevent tables ')
-      const releventTables = (await filterReleventTables(ai, _q)) ?? []
+      const releventTables = (await analysisReleventTables(ai, _q)) ?? []
       nextStep('Metadata Topology Parsing', 'Quering schemas')
-      const tableInfo = (await Promise.all(releventTables.map(i => querySchema(i, cursor.value)))).filter(Boolean).join('\n\n')
+      const tableInfo = (await Promise.all(releventTables.map(i => querySchemaPrompt(i, cursor.value)))).filter(Boolean).join('\n\n')
       const template = SQL_PROMPT?.[backend.value] ?? SQL_PROMPT.default as string
       const prompt = usePromptTemplate(template, { tableInfo, input: _q, topK: unref(options.limit) ?? 5, dialect: backend.value })
       if (!prompt.value)
