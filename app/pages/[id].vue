@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getCurrentWindow } from '@tauri-apps/api/window'
 import { platform } from '@tauri-apps/plugin-os'
 import { hash } from 'ohash'
 import ChevronUpDown from '~icons/heroicons/chevron-up-down'
@@ -22,6 +23,7 @@ const cursor = computed(() => cursors.value[id.value])
 const instance = ref<Database | undefined>(undefined)
 const db = computed(() => parseConnectionURL(instance.value?.path).database)
 const { model } = storeToRefs(useSettingsStore())
+const { isFullscreen } = useTauriWindow()
 
 const llm = computed(() => {
   const _MODELS = [
@@ -63,7 +65,7 @@ preloadRouteComponents({ name: 'id-queries' })
 <template>
   <div class="h-screen flex flex-col" :class="[IS_MACOS ? '-mt-12' : '-mt-8']">
     <div class="w-full p-2 flex justify-between items-center flex-shrink-0 bg-zinc-50" :class="[IS_MACOS ? 'h-12' : 'h-8']">
-      <div class="flex items-center h-full box-border" :class="{ 'pl-[72px]': IS_MACOS }">
+      <div class="flex items-center h-full box-border" :class="{ 'pl-[72px]': IS_MACOS && !isFullscreen }">
         <Button v-if="IS_MACOS" variant="ghost" size="sm" class="z-[101] font-semibold px-4 uppercase align-middle hover:bg-zinc-200/50" @click="router.replace({ name: 'index' })">
           <span>TABLITE</span>
           <span class="-translate-y-px">/</span>
@@ -78,9 +80,7 @@ preloadRouteComponents({ name: 'id-queries' })
 
       <Button v-if="llm" variant="ghost" size="sm" class="z-[101] h-8 hover:bg-zinc-200/50" @click="router.replace({ name: 'id-settings' })">
         <img :src="llm.icon" class="size-4">
-
         <HyperText :text="llm.alias ?? llm.model" :duration="300" class="cursor-pointer text-[0.65rem]" />
-
         <ChevronUpDown class="size-4" />
       </Button>
 

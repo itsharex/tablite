@@ -114,8 +114,8 @@ async function onConnectByHash(url: string) {
                 </div>
               </CardTitle>
               <CardDescription class="mt-px">
-                <div class="scale-75 origin-top-left uppercase">
-                  <Badge variant="outline">
+                <div class="origin-top-left uppercase">
+                  <Badge variant="outline" class="h-4 px-2 text-[0.5rem]">
                     {{ c.backend }}
                   </Badge>
                 </div>

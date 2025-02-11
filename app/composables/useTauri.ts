@@ -8,11 +8,17 @@ export function useTauriWindow() {
   const window = ref(getCurrentWindow())
   const isFullscreen = ref(false)
 
-  async function setup() {
-    isFullscreen.value = await window.value.isFullscreen()
-  }
+  let unlisten: any
 
-  setup()
+  onMounted(async () => {
+    unlisten = await window.value.listen('tauri://resize', async () => {
+      isFullscreen.value = await window.value.isFullscreen()
+    })
+  })
+
+  onUnmounted(() => {
+    unlisten?.()
+  })
 
   return {
     window,
