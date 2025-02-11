@@ -38,8 +38,12 @@ const { language, googleAPIKey, deepseekApiKey, model } = storeToRefs(store)
         </div>
 
         <div>
-          <div class="text-sm font-semibold mb-4">
+          <div class="text-sm font-semibold mb-2">
             Model
+          </div>
+
+          <div class="text-xs text-zinc-600/50 mb-4 cursor-default">
+            Asking your database questions in natural language
           </div>
 
           <Select v-model="model" class="focus-visible:ring-0">
