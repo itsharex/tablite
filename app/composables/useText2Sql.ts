@@ -119,14 +119,8 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       },
     })
 
-    const prompt = [
-      'Return the names of any SQL tables that are relevant to the user question.',
-      'The tables are:\n',
-      ...includes.value,
-      '\nRemember to include ALL POTENTIALLY RELEVANT tables, even if you\'re not sure that they\'re needed.',
-    ].join('\n')
-
-    const result = await _m.generateContent([prompt, q])
+    const prompt = usePromptTemplate(RELEVANT_TABLES_PROMPT, { tableNames: includes.value.join('\n') })
+    const result = await _m.generateContent([prompt.value, q])
     const call = result.response.functionCalls()?.[0]
 
     const defaults = includes.value.slice(0, 25)
@@ -152,11 +146,12 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       const releventTables = (await filterReleventTables(ai, _q)) ?? []
       nextStep('Metadata Topology Parsing', 'Quering schemas')
       const tableInfo = (await Promise.all(releventTables.map(i => querySchema(i, cursor.value)))).filter(Boolean).join('\n\n')
-      const prompt = SQL_PROMPT[backend.value]?.(unref(options.limit) ?? 5, tableInfo, _q, backend.value)
-      if (!prompt)
+      const template = SQL_PROMPT?.[backend.value] ?? SQL_PROMPT.default as string
+      const prompt = usePromptTemplate(template, { tableInfo, input: _q, topK: unref(options.limit) ?? 5, dialect: backend.value })
+      if (!prompt.value)
         return
       nextStep('Context Aware', 'Generate sql from model output')
-      const { response } = await _m.generateContent(prompt)
+      const { response } = await _m.generateContent(prompt.value)
       output.value = response.text()
       sql.value = parseConentInCodeBlock(output.value)
       isLoading.value = false

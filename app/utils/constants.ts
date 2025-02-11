@@ -29,15 +29,7 @@ export const ConnectionPattern = {
   MYSQL: /mysql:\/\/([^:]+):(.*)@([^:/]+):(\d+)\/([^?]+)(\?.*)?/,
 }
 
-export const SQL_PROMPT: Record<string, (topK: number, tableInfo: string, input: string, dialect?: string) => string> = {
-  mysql: (topK: number, tableInfo: string, input: string) => MYSQL_PROMPT(topK) + PROMPT_SUFFIX(tableInfo, input),
-  sqlite: (topK: number, tableInfo: string, input: string) => SQLITE_PROMPT(topK) + PROMPT_SUFFIX(tableInfo, input),
-  postgres: (topK: number, tableInfo: string, input: string) => POSTGRES_PROMPT(topK) + PROMPT_SUFFIX(tableInfo, input),
-  default: (topK: number, tableInfo: string, input: string, dialect = 'mysql') => DEFAULT_TEMPLATE(dialect, topK) + PROMPT_SUFFIX(tableInfo, input),
-}
-
-function DEFAULT_TEMPLATE(dialect: string, topK: number) {
-  return `Given an input question, first create a syntactically correct ${dialect} query to run, then look at the results of the query and return the answer. Unless the user specifies in his question a specific number of examples he wishes to obtain, always limit your query to at most ${topK} results. You can order the results by a relevant column to return the most interesting examples in the database.
+const DEFAULT_TEMPLATE = `Given an input question, first create a syntactically correct {dialect} query to run, then look at the results of the query and return the answer. Unless the user specifies in his question a specific number of examples he wishes to obtain, always limit your query to at most {top_k} results. You can order the results by a relevant column to return the most interesting examples in the database.
 
 Never query for all the columns from a specific table, only ask for a the few relevant columns given the question.
 
@@ -49,11 +41,9 @@ Question: Question here
 SQLQuery: SQL Query to run
 
 `
-}
 
-function MYSQL_PROMPT(topK: number) {
-  return `You are a MySQL expert. Given an input question, first create a syntactically correct MySQL query to run, then look at the results of the query and return the answer to the input question.
-Unless the user specifies in the question a specific number of examples to obtain, query for at most ${topK} results using the LIMIT clause as per MySQL. You can order the results to return the most informative data in the database.
+const MYSQL_PROMPT = `You are a MySQL expert. Given an input question, first create a syntactically correct MySQL query to run, then look at the results of the query and return the answer to the input question.
+Unless the user specifies in the question a specific number of examples to obtain, query for at most {top_k} results using the LIMIT clause as per MySQL. You can order the results to return the most informative data in the database.
 Never query for all columns from a table. You must query only the columns that are needed to answer the question. Wrap each column name in backticks (\`) to denote them as delimited identifiers.
 Pay attention to use only the column names you can see in the tables below. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table.
 Pay attention to use CURDATE() function to get the current date, if the question involves "today".
@@ -64,11 +54,9 @@ Question: Question here
 SQLQuery: SQL Query to run
 
 `
-}
 
-function SQLITE_PROMPT(topK: number) {
-  return `You are a SQLite expert. Given an input question, first create a syntactically correct SQLite query to run, then look at the results of the query and return the answer to the input question.
-Unless the user specifies in the question a specific number of examples to obtain, query for at most ${topK} results using the LIMIT clause as per SQLite. You can order the results to return the most informative data in the database.
+const SQLITE_PROMPT = `You are a SQLite expert. Given an input question, first create a syntactically correct SQLite query to run, then look at the results of the query and return the answer to the input question.
+Unless the user specifies in the question a specific number of examples to obtain, query for at most {top_k} results using the LIMIT clause as per SQLite. You can order the results to return the most informative data in the database.
 Never query for all columns from a table. You must query only the columns that are needed to answer the question. Wrap each column name in double quotes (") to denote them as delimited identifiers.
 Pay attention to use only the column names you can see in the tables below. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table.
 Pay attention to use date('now') function to get the current date, if the question involves "today".
@@ -79,11 +67,9 @@ Question: Question here
 SQLQuery: SQL Query to run
 
 `
-}
 
-function POSTGRES_PROMPT(topK: number) {
-  return `You are a PostgreSQL expert. Given an input question, first create a syntactically correct PostgreSQL query to run, then look at the results of the query and return the answer to the input question.
-Unless the user specifies in the question a specific number of examples to obtain, query for at most ${topK} results using the LIMIT clause as per PostgreSQL. You can order the results to return the most informative data in the database.
+const POSTGRES_PROMPT = `You are a PostgreSQL expert. Given an input question, first create a syntactically correct PostgreSQL query to run, then look at the results of the query and return the answer to the input question.
+Unless the user specifies in the question a specific number of examples to obtain, query for at most {top_k} results using the LIMIT clause as per PostgreSQL. You can order the results to return the most informative data in the database.
 Never query for all columns from a table. You must query only the columns that are needed to answer the question. Wrap each column name in double quotes (") to denote them as delimited identifiers.
 Pay attention to use only the column names you can see in the tables below. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table.
 Pay attention to use CURRENT_DATE function to get the current date, if the question involves "today".
@@ -94,14 +80,34 @@ Question: Question here
 SQLQuery: SQL Query to run
 
 `
+
+const PROMPT_SUFFIX = `Only use the following tables:\n
+{table_info}
+
+Question: {input}
+SQLQuery:`
+
+export const SQL_PROMPT: Record<string, string> = {
+  mysql: [MYSQL_PROMPT, PROMPT_SUFFIX].join(''),
+  sqlite: [SQLITE_PROMPT, PROMPT_SUFFIX].join(''),
+  postgres: [POSTGRES_PROMPT, PROMPT_SUFFIX].join(''),
+  default: [DEFAULT_TEMPLATE, PROMPT_SUFFIX].join(''),
 }
 
-function PROMPT_SUFFIX(tableInfo: string, input: string) {
-  return `Only use the following tables:\n
-${tableInfo}
+export const RELEVANT_TABLES_PROMPT = `Return the names of any SQL tables that are relevant to the user question.
+The tables are:
 
-Question: ${input}
-SQLQuery:`
+{table_names}
+
+Remember to include ALL POTENTIALLY RELEVANT tables, even if you\'re not sure that they\'re needed.
+`
+
+export const Model: Record<string, { group: string, alias?: string, level?: number }> = {
+  'gemini-2.0-flash': { group: 'Google AI', alias: 'Gemini 2.0 Flash', level: 3 },
+  'gemini-1.5-pro': { group: 'Google AI', alias: 'Gemini 1.5 Pro', level: 2 },
+  'gemini-1.5-flash': { group: 'Google AI', alias: 'Gemini 1.5 Flash', level: 1 },
+  'deepseek-chat': { group: 'DeepSeek', alias: 'DeepSeek V3', level: 2 },
+  'deepseek-reasoner': { group: 'DeepSeek', alias: 'DeepSeek R1', level: 1 },
 }
 
 export const SQL_KEYWORDS = [
