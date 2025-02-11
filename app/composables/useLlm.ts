@@ -54,7 +54,7 @@ export function useLlm(model: MaybeRef<string>) {
       _baseURL = 'https://generativelanguage.googleapis.com/v1beta/openai'
     }
 
-    if (_DEEPSEEK_MODELS.includes(_model.value) && googleAPIKey.value && googleAPIKey.value.startsWith('sk-')) {
+    if (_DEEPSEEK_MODELS.includes(_model.value) && deepseekApiKey.value && deepseekApiKey.value.startsWith('sk-')) {
       _apiKey = deepseekApiKey.value
       _baseURL = 'https://api.deepseek.com/v1'
     }

@@ -2,7 +2,7 @@
 import { Input } from '~/components/ui/input'
 
 const store = useSettingsStore()
-const { language, googleAPIKey } = storeToRefs(store)
+const { language, googleAPIKey, deepseekApiKey } = storeToRefs(store)
 </script>
 
 <template>
@@ -75,7 +75,7 @@ const { language, googleAPIKey } = storeToRefs(store)
             DeepSeek
           </div>
 
-          <Input type="password" class="h-8" placeholder="sk-..." />
+          <Input v-model="deepseekApiKey" type="password" class="h-8" placeholder="sk-..." />
         </div>
 
         <div>
