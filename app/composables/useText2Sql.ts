@@ -89,6 +89,7 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
   const steps = ref<GenerationStep[]>([])
   const output = ref('')
   const llm = useLlm(model)
+  const retries = ref(3)
 
   async function filterReleventTables(q: string) {
     if (includes.value.length < 25)
@@ -102,7 +103,7 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
         parameters: {
           type: 'object',
           properties: {
-            includes: {
+            rows: {
               type: 'array',
               description: 'Name list of table in SQL database',
               items: {
@@ -111,32 +112,37 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
               },
             },
           },
-          required: ['includes'],
+          required: ['rows'],
         },
       },
     }
 
     const prompt = usePromptTemplate(RELEVANT_TABLES_PROMPT, { tableNames: includes.value.join('\n') })
-
-    const { choices } = await llm.chat.completions.create({
-      messages: [
-        { role: 'user', content: prompt.value },
-        { role: 'user', content: q },
-      ],
-      tools: [tool],
-      tool_choice: 'required',
-    })
-
-    const [call] = choices[0].message.tool_calls
     const defaults = includes.value.slice(0, 25)
 
-    if (!call)
-      return defaults
+    for (let i = 0; i < retries.value; i++) {
+      const { choices } = await llm.chat.completions.create({
+        messages: [
+          { role: 'user', content: prompt.value },
+          { role: 'user', content: q },
+        ],
+        tools: [tool],
+        tool_choice: 'required',
+      })
 
-    const args: string[] = call.function.arguments
-    const tables = destr<{ includes: string[] }>(args).includes ?? []
+      const [call] = choices[0].message.tool_calls
 
-    return args.length ? tables : defaults
+      if (!call)
+        continue
+
+      const args: string[] = call.function.arguments
+      const rows = destr<{ rows: string[] }>(args).rows ?? []
+
+      if (rows.length)
+        return rows
+    }
+
+    return defaults
   }
 
   async function execute(q?: string) {
@@ -154,16 +160,21 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
       if (!prompt.value)
         return
       nextStep('Context Aware', 'Generate sql from model output')
-      const { choices } = (await llm.chat.completions.create({ messages: [{ role: 'user', content: prompt.value }] })) ?? {}
-      output.value = choices?.[0]?.message.content ?? ''
-      sql.value = parseConentInCodeBlock(output.value)
+
+      for (let i = 0; i < retries.value; i++) {
+        const { choices } = (await llm.chat.completions.create({ messages: [{ role: 'user', content: prompt.value }] })) ?? {}
+        output.value = choices?.[0]?.message.content ?? ''
+        sql.value = parseConentInCodeBlock(output.value)
+        if (sql.value)
+          break
+      }
+
       isLoading.value = false
 
-      if (sql.value)
-        return
-
-      toast('unexpected EOF while parsing', { description: output.value })
-      abortWithStatus()
+      if (!sql.value && output.value) {
+        toast('unexpected EOF while parsing', { description: output.value })
+        abortWithStatus()
+      }
     }
   }
 
