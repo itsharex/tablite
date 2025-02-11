@@ -103,13 +103,16 @@ The tables are:
 Remember to include ALL POTENTIALLY RELEVANT tables, even if you\'re not sure that they\'re needed.
 `
 
-export const Model: Record<string, { group: string, alias?: string, level?: number }> = {
-  'gemini-2.0-flash': { group: 'Google AI', alias: 'Gemini 2.0 Flash', level: 3 },
-  'gemini-1.5-pro': { group: 'Google AI', alias: 'Gemini 1.5 Pro', level: 2 },
-  'gemini-1.5-flash': { group: 'Google AI', alias: 'Gemini 1.5 Flash', level: 1 },
-  'deepseek-chat': { group: 'DeepSeek', alias: 'DeepSeek V3', level: 2 },
-  'deepseek-reasoner': { group: 'DeepSeek', alias: 'DeepSeek R1', level: 1 },
-}
+export const GOOGLE_AI_MODELS = [
+  { model: 'gemini-2.0-flash', alias: 'Gemini 2.0 Flash' },
+  { model: 'gemini-1.5-pro', alias: 'Gemini 1.5 Pro' },
+  { model: 'gemini-1.5-flash', alias: 'Gemini 1.5 Flash' },
+]
+
+export const DEEPSEEK_MODELS = [
+  { model: 'deepseek-chat', alias: 'DeepSeek V3' },
+  { model: 'deepseek-reasoner', alias: 'DeepSeek V3' },
+]
 
 export const SQL_KEYWORDS = [
   'ACCESSIBLE',

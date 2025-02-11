@@ -1,6 +1,12 @@
-import { createFetch, useFetch } from '@vueuse/core'
+import { createFetch } from '@vueuse/core'
 
-const MODELS = Object.keys(Model)
+const _GOOGLE_AI_MODELS = GOOGLE_AI_MODELS.map(({ model }) => model)
+const _DEEPSEEK_MODELS = DEEPSEEK_MODELS.map(({ model }) => model)
+
+const _MODELS = [
+  ..._GOOGLE_AI_MODELS,
+  ..._DEEPSEEK_MODELS,
+]
 
 interface ChatCompletionsResponse {
   choices: {
@@ -9,6 +15,15 @@ interface ChatCompletionsResponse {
     message: {
       content: string
       role: 'assistant'
+
+      tool_calls: {
+        function: {
+          arguments: string
+          name: string
+        }
+        id: string
+        type: string
+      }[]
     }
   }[]
 
@@ -31,15 +46,15 @@ export function useLlm(model: MaybeRef<string>) {
   const { googleAPIKey, deepseekApiKey } = storeToRefs(store)
 
   const openai = computed(() => {
-    if (!MODELS.includes(_model.value))
+    if (!_MODELS.includes(_model.value))
       return
 
-    if (Model[_model.value]?.group === 'Google AI' && googleAPIKey.value && googleAPIKey.value.startsWith('AIzaSy')) {
+    if (_GOOGLE_AI_MODELS.includes(_model.value) && googleAPIKey.value && googleAPIKey.value.startsWith('AIzaSy')) {
       _apiKey = googleAPIKey.value
       _baseURL = 'https://generativelanguage.googleapis.com/v1beta/openai'
     }
 
-    if (Model[_model.value]?.group === 'DeepSeek' && googleAPIKey.value && googleAPIKey.value.startsWith('sk-')) {
+    if (_DEEPSEEK_MODELS.includes(_model.value) && googleAPIKey.value && googleAPIKey.value.startsWith('sk-')) {
       _apiKey = deepseekApiKey.value
       _baseURL = 'https://api.deepseek.com/v1'
     }

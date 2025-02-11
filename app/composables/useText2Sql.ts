@@ -1,4 +1,5 @@
 import { FunctionCallingMode, GoogleGenerativeAI, SchemaType } from '@google/generative-ai'
+import { destr } from 'destr'
 import { remark } from 'remark'
 import { visit } from 'unist-util-visit'
 import { toast } from 'vue-sonner'
@@ -59,9 +60,24 @@ async function querySchemaPrompt(value: string, cursor?: Database) {
   }
 }
 
+function parseConentInCodeBlock(value?: string) {
+  if (!value)
+    return ''
+
+  let code = ''
+  const ast = remark.parse(value)
+
+  visit(ast, 'code', (node) => {
+    code = node.value
+    return false
+  })
+
+  return code
+}
+
 export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | undefined, options: UseText2SqlOptions = {}) {
   const store = useSettingsStore()
-  const { googleAPIKey } = storeToRefs(store)
+  const { googleAPIKey, deepseekApiKey, model } = storeToRefs(store)
 
   const question = ref<string>('')
   const cursor = computed(() => unref(cursorInstance))
@@ -69,85 +85,58 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
   const backend = useCursorBackend(cursor)
   const sql = ref('')
   const isLoading = ref(false)
-  const apiKey = computed(() => googleAPIKey.value)
+  const apiKey = computed(() => [deepseekApiKey.value, googleAPIKey.value].filter(Boolean).length)
   const steps = ref<GenerationStep[]>([])
-  const model = ref('gemini-2.0-flash')
   const output = ref('')
   const llm = useLlm(model)
 
-  function parseConentInCodeBlock(value?: string) {
-    if (!value)
-      return ''
-
-    let code = ''
-    const ast = remark.parse(value)
-
-    visit(ast, 'code', (node) => {
-      code = node.value
-      return false
-    })
-
-    return code
-  }
-
-  async function analysisReleventTables(ai: GoogleGenerativeAI, q: string) {
+  async function filterReleventTables(q: string) {
     if (includes.value.length < 25)
       return includes.value
 
-    const fnd = {
-      name: 'Table',
-      parameters: {
-        type: SchemaType.OBJECT,
-        description: 'Table in SQL database.',
-        properties: {
-          includes: {
-            type: SchemaType.ARRAY,
-            description: 'Names of table in SQL database.',
-            items: {
-              type: SchemaType.OBJECT,
-              properties: {
-                name: {
-                  type: SchemaType.STRING,
-                  enum: includes.value,
-                },
+    const tool = {
+      type: 'function',
+      function: {
+        name: 'Table',
+        description: 'Get relevant tables from a given list',
+        parameters: {
+          type: 'object',
+          properties: {
+            includes: {
+              type: 'array',
+              description: 'Name list of table in SQL database',
+              items: {
+                type: 'string',
+                enum: includes.value,
               },
-              required: [
-                'name',
-              ],
             },
           },
+          required: ['includes'],
         },
-        required: ['includes'],
       },
     }
 
-    const _m = ai.getGenerativeModel({
-      model: model.value,
+    const prompt = usePromptTemplate(RELEVANT_TABLES_PROMPT, { tableNames: includes.value.join('\n') })
 
-      tools: [{
-        functionDeclarations: [fnd],
-      }],
-
-      toolConfig: {
-        functionCallingConfig: {
-          mode: FunctionCallingMode.ANY,
-        },
-      },
+    const { choices } = await llm.chat.completions.create({
+      messages: [
+        { role: 'user', content: prompt.value },
+        { role: 'user', content: q },
+      ],
+      tools: [tool],
+      tool_choice: 'required',
     })
 
-    const prompt = usePromptTemplate(RELEVANT_TABLES_PROMPT, { tableNames: includes.value.join('\n') })
-    const result = await _m.generateContent([prompt.value, q])
-    const call = result.response.functionCalls()?.[0]
-
+    const [call] = choices[0].message.tool_calls
     const defaults = includes.value.slice(0, 25)
 
     if (!call)
       return defaults
 
-    const args = ((call.args as any).includes ?? []) as { name: string }[]
-    const tables = args.map(({ name }) => name)
+    const args: string[] = call.function.arguments
+    const tables = destr<{ includes: string[] }>(args).includes ?? []
 
-    return tables.length ? tables : defaults
+    return args.length ? tables : defaults
   }
 
   async function execute(q?: string) {
@@ -156,10 +145,8 @@ export function useText2Sql(cursorInstance: MaybeRef<Database | undefined> | und
     if (_q && !isLoading.value && googleAPIKey.value && includes.value.length) {
       isLoading.value = true
       nextStep('Engine Priming', `Initialze ${model.value}`)
-      const ai = new GoogleGenerativeAI(googleAPIKey.value)
-      const _m = ai.getGenerativeModel({ model: model.value })
       nextStep('Semantic Table Indexing', 'Analyzing relevent tables ')
-      const releventTables = (await analysisReleventTables(ai, _q)) ?? []
+      const releventTables = (await filterReleventTables(_q)) ?? []
       nextStep('Metadata Topology Parsing', 'Quering schemas')
       const tableInfo = (await Promise.all(releventTables.map(i => querySchemaPrompt(i, cursor.value)))).filter(Boolean).join('\n\n')
       const template = SQL_PROMPT?.[backend.value] ?? SQL_PROMPT.default as string
