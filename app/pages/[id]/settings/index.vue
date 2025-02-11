@@ -2,7 +2,7 @@
 import { Input } from '~/components/ui/input'
 
 const store = useSettingsStore()
-const { language, googleAPIKey, deepseekApiKey } = storeToRefs(store)
+const { language, googleAPIKey, deepseekApiKey, model } = storeToRefs(store)
 </script>
 
 <template>
@@ -24,13 +24,40 @@ const { language, googleAPIKey, deepseekApiKey } = storeToRefs(store)
           </div>
 
           <Select v-model="language" class="focus-visible:ring-0">
-            <SelectTrigger class="h-8 w-32 flex-shrink-0">
+            <SelectTrigger class="h-8 w-64 flex-shrink-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectItem value="en-US">
                   English
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <div class="text-sm font-semibold mb-4">
+            Model
+          </div>
+
+          <Select v-model="model" class="focus-visible:ring-0">
+            <SelectTrigger class="h-8 w-64 flex-shrink-0">
+              <SelectValue placeholder="Select a model..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup v-if="googleAPIKey">
+                <SelectLabel>Google AI</SelectLabel>
+                <SelectItem v-for="m in GOOGLE_AI_MODELS" :key="m.model" :value="m.model">
+                  {{ m.alias }}
+                </SelectItem>
+              </SelectGroup>
+
+              <SelectGroup v-if="deepseekApiKey">
+                <SelectLabel>DeepSeek</SelectLabel>
+                <SelectItem v-for="m in DEEPSEEK_MODELS" :key="m.model" :value="m.model">
+                  {{ m.alias }}
                 </SelectItem>
               </SelectGroup>
             </SelectContent>

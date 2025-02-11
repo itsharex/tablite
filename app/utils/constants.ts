@@ -104,14 +104,14 @@ Remember to include ALL POTENTIALLY RELEVANT tables, even if you\'re not sure th
 `
 
 export const GOOGLE_AI_MODELS = [
-  { model: 'gemini-2.0-flash', alias: 'Gemini 2.0 Flash' },
-  { model: 'gemini-1.5-pro', alias: 'Gemini 1.5 Pro' },
-  { model: 'gemini-1.5-flash', alias: 'Gemini 1.5 Flash' },
+  { model: 'gemini-2.0-flash', alias: 'Gemini 2.0 Flash', icon: '/images/gemini.svg' },
+  { model: 'gemini-1.5-pro', alias: 'Gemini 1.5 Pro', icon: '/images/gemini.svg' },
+  { model: 'gemini-1.5-flash', alias: 'Gemini 1.5 Flash', icon: '/images/gemini.svg' },
 ]
 
 export const DEEPSEEK_MODELS = [
-  { model: 'deepseek-chat', alias: 'DeepSeek V3' },
-  { model: 'deepseek-reasoner', alias: 'DeepSeek V3' },
+  { model: 'deepseek-chat', alias: 'DeepSeek V3', icon: '/images/deepseek.svg' },
+  { model: 'deepseek-reasoner', alias: 'DeepSeek R1', icon: '/images/deepseek.svg' },
 ]
 
 export const SQL_KEYWORDS = [
