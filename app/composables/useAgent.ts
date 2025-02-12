@@ -208,6 +208,7 @@ export function useSqlAgent(cursorInstance: MaybeRef<Database | undefined> | und
     }
     catch (errors: any) {
       error.value = errors
+      output.value = ''
 
       if (Array.isArray(errors)) {
         errors.forEach(({ error }: any) => {
