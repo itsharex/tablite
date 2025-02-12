@@ -296,7 +296,9 @@ async function onGenerateSqlByLlm() {
                       </StepperTitle>
 
                       <StepperDescription class="text-xs text-zinc-600/50">
-                        {{ step.description }}
+                        <div class="truncate w-52">
+                          {{ step.description }}
+                        </div>
                       </StepperDescription>
                     </div>
                   </StepperItem>

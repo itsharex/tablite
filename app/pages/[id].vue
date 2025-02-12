@@ -29,6 +29,7 @@ const llm = computed(() => {
   const _MODELS = [
     ...GOOGLE_AI_MODELS,
     ...DEEPSEEK_MODELS,
+    ...OPENROUTER_MODELS,
   ]
 
   return _MODELS.find(m => m.model === model.value)

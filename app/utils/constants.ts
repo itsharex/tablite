@@ -119,6 +119,11 @@ export const DEEPSEEK_MODELS = [
   { model: 'deepseek-reasoner', alias: 'DeepSeek R1', icon: '/images/deepseek.svg' },
 ]
 
+export const OPENROUTER_MODELS = [
+  { model: 'google/gemini-2.0-flash-lite-preview-02-05:free', alias: 'Gemini Flash Lite 2.0', icon: '/images/openrouter.svg' },
+  { model: 'google/gemini-2.0-pro-exp-02-05:free', alias: 'Gemini Pro 2.0 Experimental', icon: '/images/openrouter.svg' },
+]
+
 export const SQL_KEYWORDS = [
   'ACCESSIBLE',
   'ADD',

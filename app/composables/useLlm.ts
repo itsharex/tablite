@@ -3,10 +3,12 @@ import { createFetch } from '@vueuse/core'
 
 const _GOOGLE_AI_MODELS = GOOGLE_AI_MODELS.map(({ model }) => model)
 const _DEEPSEEK_MODELS = DEEPSEEK_MODELS.map(({ model }) => model)
+const _OPENROUTER_MODELS = OPENROUTER_MODELS.map(({ model }) => model)
 
 const _MODELS = [
   ..._GOOGLE_AI_MODELS,
   ..._DEEPSEEK_MODELS,
+  ..._OPENROUTER_MODELS,
 ]
 
 export function useLlm(model: MaybeRef<string>) {
@@ -15,7 +17,7 @@ export function useLlm(model: MaybeRef<string>) {
   const _model = computed(() => unref(model))
 
   const store = useSettingsStore()
-  const { googleAPIKey, deepseekApiKey } = storeToRefs(store)
+  const { googleAPIKey, deepseekApiKey, openrouterApiKey } = storeToRefs(store)
 
   const openai = computed(() => {
     if (!_MODELS.includes(_model.value))
@@ -29,6 +31,11 @@ export function useLlm(model: MaybeRef<string>) {
     if (_DEEPSEEK_MODELS.includes(_model.value) && deepseekApiKey.value && deepseekApiKey.value.startsWith('sk-')) {
       _apiKey = deepseekApiKey.value
       _baseURL = 'https://api.deepseek.com/v1'
+    }
+
+    if (_OPENROUTER_MODELS.includes(_model.value) && openrouterApiKey.value && openrouterApiKey.value.startsWith('sk-')) {
+      _apiKey = openrouterApiKey.value
+      _baseURL = 'https://openrouter.ai/api/v1'
     }
 
     if (!_apiKey)

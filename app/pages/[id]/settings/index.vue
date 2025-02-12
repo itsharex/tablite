@@ -2,7 +2,7 @@
 import { Input } from '~/components/ui/input'
 
 const store = useSettingsStore()
-const { language, googleAPIKey, deepseekApiKey, model } = storeToRefs(store)
+const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = storeToRefs(store)
 </script>
 
 <template>
@@ -68,6 +68,15 @@ const { language, googleAPIKey, deepseekApiKey, model } = storeToRefs(store)
                   {{ m.alias }}
                 </SelectItem>
               </SelectGroup>
+
+              <SelectGroup v-if="openrouterApiKey">
+                <SelectLabel class="cursor-default">
+                  OpenRouter
+                </SelectLabel>
+                <SelectItem v-for="m in OPENROUTER_MODELS" :key="m.model" :value="m.model">
+                  {{ m.alias }}
+                </SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
         </div>
@@ -111,6 +120,24 @@ const { language, googleAPIKey, deepseekApiKey, model } = storeToRefs(store)
           </div>
 
           <Input v-model="deepseekApiKey" type="password" class="h-8" placeholder="sk-..." />
+        </div>
+
+        <div>
+          <div class="text-sm font-semibold mb-2">
+            OpenRouter
+          </div>
+
+          <div class="text-xs text-zinc-600/50 mb-4 cursor-default">
+            <div>To use tablite assistant with OpenRouter you need to add an API key. Follow these steps:</div>
+            <div>
+              Create one by visiting <Button variant="link" class="text-xs p-0 h-4 text-zinc-600 font-normal">
+                https://openrouter.ai/settings/keys
+              </Button>
+            </div>
+            <div>Paste your API key below and hit enter to use the assistant</div>
+          </div>
+
+          <Input v-model="openrouterApiKey" type="password" class="text-sm h-8" placeholder="sk-..." />
         </div>
 
         <div>
