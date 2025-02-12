@@ -81,7 +81,7 @@ preloadRouteComponents({ name: 'id-queries' })
 
       <Button v-if="llm" variant="ghost" size="sm" class="z-[101] h-8 hover:bg-zinc-200/50" @click="router.replace({ name: 'id-settings' })">
         <img :src="llm.icon" class="size-4">
-        <HyperText :text="llm.alias ?? llm.model" :duration="300" class="cursor-pointer text-[0.65rem]" />
+        <HyperText :text="llm.alias ?? llm.model" :duration="300" class="p-0 cursor-pointer text-[0.65rem]" />
         <ChevronUpDown class="size-4" />
       </Button>
 
