@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getCurrentWindow } from '@tauri-apps/api/window'
 import { platform } from '@tauri-apps/plugin-os'
 import { hash } from 'ohash'
 import ChevronUpDown from '~icons/heroicons/chevron-up-down'
