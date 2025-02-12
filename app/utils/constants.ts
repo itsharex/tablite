@@ -120,10 +120,10 @@ export const DEEPSEEK_MODELS = [
 ]
 
 export const OPENROUTER_MODELS = [
-  { model: 'google/gemini-2.0-flash-lite-preview-02-05:free', alias: 'Gemini Flash Lite 2.0 (Free)', icon: '/images/openrouter.svg' },
-  { model: 'google/gemini-2.0-pro-exp-02-05:free', alias: 'Gemini Pro 2.0 Experimental (Free)', icon: '/images/openrouter.svg' },
   { model: 'openai/gpt-4o-mini', alias: 'GPT 4o Mini', icon: '/images/openrouter.svg' },
   { model: 'anthropic/claude-3.5-sonnet:beta', alias: 'Claude 3.5 Sonnet (Beta)', icon: '/images/openrouter.svg' },
+  { model: 'google/gemini-2.0-flash-lite-preview-02-05:free', alias: 'Gemini Flash Lite 2.0 (Free)', icon: '/images/openrouter.svg' },
+  { model: 'mistralai/mistral-nemo', alias: 'Mistral Nemo', icon: '/images/openrouter.svg' },
 ]
 
 export const SQL_KEYWORDS = [

@@ -50,6 +50,7 @@ const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = stor
             <SelectTrigger class="h-8 w-64 flex-shrink-0">
               <SelectValue placeholder="Select a model..." />
             </SelectTrigger>
+
             <SelectContent>
               <SelectGroup v-if="googleAPIKey">
                 <SelectLabel class="cursor-default">
@@ -60,6 +61,8 @@ const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = stor
                 </SelectItem>
               </SelectGroup>
 
+              <SelectSeparator />
+
               <SelectGroup v-if="deepseekApiKey">
                 <SelectLabel class="cursor-default">
                   DeepSeek
@@ -68,6 +71,8 @@ const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = stor
                   {{ m.alias }}
                 </SelectItem>
               </SelectGroup>
+
+              <SelectSeparator />
 
               <SelectGroup v-if="openrouterApiKey">
                 <SelectLabel class="cursor-default">
