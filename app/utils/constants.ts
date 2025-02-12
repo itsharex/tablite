@@ -121,8 +121,8 @@ export const DEEPSEEK_MODELS = [
 
 export const OPENROUTER_MODELS = [
   { model: 'openai/gpt-4o-mini', alias: 'GPT 4o Mini', icon: '/images/openrouter.svg' },
-  { model: 'anthropic/claude-3.5-sonnet:beta', alias: 'Claude 3.5 Sonnet (Beta)', icon: '/images/openrouter.svg' },
-  { model: 'google/gemini-2.0-flash-lite-preview-02-05:free', alias: 'Gemini Flash Lite 2.0 (Free)', icon: '/images/openrouter.svg' },
+  { model: 'anthropic/claude-3.5-sonnet:beta', alias: 'Claude 3.5 Sonnet', icon: '/images/openrouter.svg', tag: 'Beta' },
+  { model: 'google/gemini-2.0-flash-lite-preview-02-05:free', alias: 'Gemini Flash Lite 2.0', icon: '/images/openrouter.svg', tag: 'Free' },
   { model: 'mistralai/mistral-nemo', alias: 'Mistral Nemo', icon: '/images/openrouter.svg' },
 ]
 

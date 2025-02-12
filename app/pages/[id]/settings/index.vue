@@ -79,7 +79,13 @@ const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = stor
                   OpenRouter
                 </SelectLabel>
                 <SelectItem v-for="m in OPENROUTER_MODELS" :key="m.model" :value="m.model">
-                  {{ m.alias }}
+                  <div class="flex items-center gap-2">
+                    {{ m.alias }}
+
+                    <Badge v-if="m.tag" class="h-4 px-2 text-[0.5rem] uppercase">
+                      {{ m.tag }}
+                    </Badge>
+                  </div>
                 </SelectItem>
               </SelectGroup>
             </SelectContent>
