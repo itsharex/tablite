@@ -1,3 +1,4 @@
+import type OpenAI from 'openai'
 import { createFetch } from '@vueuse/core'
 
 const _GOOGLE_AI_MODELS = GOOGLE_AI_MODELS.map(({ model }) => model)
@@ -7,35 +8,6 @@ const _MODELS = [
   ..._GOOGLE_AI_MODELS,
   ..._DEEPSEEK_MODELS,
 ]
-
-interface ChatCompletionsResponse {
-  choices: {
-    finish_reason: string
-    index: 0
-    message: {
-      content: string
-      role: 'assistant'
-
-      tool_calls: {
-        function: {
-          arguments: string
-          name: string
-        }
-        id: string
-        type: string
-      }[]
-    }
-  }[]
-
-  model: string
-  object: string
-
-  usage: {
-    completion_tokens: number
-    prompt_tokens: number
-    total_tokens: number
-  }
-}
 
 export function useLlm(model: MaybeRef<string>) {
   let _apiKey = ''
@@ -66,12 +38,18 @@ export function useLlm(model: MaybeRef<string>) {
       baseUrl: _baseURL,
 
       options: {
-        async beforeFetch({ options }: any) {
+        beforeFetch({ options }: any) {
           if (!options.headers)
             options.headers = {}
           options.headers.Authorization = `Bearer ${_apiKey}`
 
           return { options }
+        },
+
+        onFetchError(ctx) {
+          if (ctx.data)
+            ctx.error = ctx.data
+          return ctx
         },
       },
     })
@@ -83,7 +61,9 @@ export function useLlm(model: MaybeRef<string>) {
         async create(body: Record<string, any> = {}) {
           if (!openai.value)
             return
-          const { data } = await openai.value<ChatCompletionsResponse>('/chat/completions').post({ model: _model.value, ...body }).json()
+          const { data, error } = await openai.value<OpenAI.Chat.ChatCompletion>('/chat/completions').post({ model: _model.value, ...body }).json()
+          if (error.value)
+            throw error.value
           return data.value
         },
       },

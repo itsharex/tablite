@@ -103,6 +103,11 @@ The tables are:
 Remember to include ALL POTENTIALLY RELEVANT tables, even if you\'re not sure that they\'re needed.
 `
 
+export const SQL_VALIDATE_PROMPT = `You are going to receive a text that contains a SQL query. Extract that query.
+    Make sure that it is a valid SQL command that can be passed directly to the Database.
+    Avoid using Markdown for this task.
+    Text: {not_formatted_query}`
+
 export const GOOGLE_AI_MODELS = [
   { model: 'gemini-2.0-flash', alias: 'Gemini 2.0 Flash', icon: '/images/gemini.svg' },
   { model: 'gemini-1.5-pro', alias: 'Gemini 1.5 Pro', icon: '/images/gemini.svg' },
