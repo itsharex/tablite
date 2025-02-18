@@ -18,10 +18,6 @@ Supported databases:
 - SQLite
 - MySQL
 
-<h1 align="center">
-  <img src="./docs/Screenshot.png">
-</h1>
-
 ![Screenshot](./docs/Screenshot.png)
 
 ## Development
