@@ -22,6 +22,8 @@ Supported databases:
   <img src="./docs/Screenshot.png">
 </h1>
 
+![Screenshot](./docs/Screenshot.png)
+
 ## Development
 
 ```
