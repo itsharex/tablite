@@ -1,75 +1,33 @@
-# Nuxt Minimal Starter
+<h1 align="center">
+  <img src="./docs/AppIcon.png">
+  <div>Tablite</div>
+</h1>
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+`Tablite` is a lightweight database GUI build on tauri.
 
-## Setup
+## Features
 
-Make sure to install dependencies:
+- Lightweight and cross platform build
+- Natural language querying
+- Muli-LLM support
+- Modern and easy to use interface
+- Privacy with all your data locally
 
-```bash
-# npm
-npm install
+Supported databases:
 
-# pnpm
-pnpm install
+- SQLite
+- MySQL
 
-# yarn
-yarn install
+<h1 align="center">
+  <img src="./docs/Screenshot.png">
+</h1>
 
-# bun
-bun install
+## Development
+
+```
+pnpm install && pnpm tauri dev
 ```
 
-## Development Server
+## License
 
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+[MIT](./LICENSE) License © 2024-PRESENT [Tamago](https://github.com/tmg0)
