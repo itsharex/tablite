@@ -137,12 +137,28 @@ function onOpenUpdatesPreview(visible: boolean) {
   updates.value = sqls.map(sql => ({ enable: true, sql }))
 }
 
+function _execute(value: string) {
+  const { code, execute } = useQuery(cursor, { content: '' })
+  code.value = value
+  return execute()
+}
+
+async function applyUpdates() {
+  const tasks = updates.value.filter(({ enable }) => enable).map(({ sql }) => _execute(sql))
+  return Promise.all(tasks)
+}
+
 async function onSave() {
   if (!updates.value.length)
     onOpenUpdatesPreview(true)
-  changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
   toast.dismiss()
+  await applyUpdates()
   await execute()
+  changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
+  updates.value = []
+  inserts.value = []
+  deletes.value = []
+  selectedRowKeys.value = []
 }
 
 function onDeleteRecords() {

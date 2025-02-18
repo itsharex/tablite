@@ -45,7 +45,7 @@ const { includes, sql, steps, isLoading: isThinking, execute: runText2Sql } = us
 const store = useSettingsStore()
 const { model } = storeToRefs(store)
 
-const filtered = computed(() => queries.value.filter(({ title }) => title.includes(search.value)))
+const filtered = computed(() => queries.value.filter(({ title }) => title?.includes(search.value)))
 const upperKey = computed(() => PLATFORM === 'macos' ? meta?.value : shift?.value)
 const isSaving = computed(() => upperKey.value && s?.value)
 

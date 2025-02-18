@@ -15,7 +15,12 @@ export class Database {
     return new Database(_path)
   }
 
-  execute() {}
+  async execute(query: string) {
+    await invoke('plugin:sql-extra|execute', {
+      db: this.path,
+      query,
+    })
+  }
 
   async select<T>(query: string, values: any[] = []) {
     const result = await invoke<T>('plugin:sql-extra|select', {
