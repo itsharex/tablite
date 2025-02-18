@@ -116,22 +116,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
 
 [[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "log",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-decorum",
- "tauri-plugin-log",
- "tauri-plugin-os",
- "tauri-plugin-sql-extra",
- "tauri-plugin-store",
-]
-
-[[package]]
 name = "arrayvec"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4347,6 +4331,22 @@ dependencies = [
  "pkg-config",
  "toml 0.8.20",
  "version-compare",
+]
+
+[[package]]
+name = "tablite"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-decorum",
+ "tauri-plugin-log",
+ "tauri-plugin-os",
+ "tauri-plugin-sql-extra",
+ "tauri-plugin-store",
 ]
 
 [[package]]
