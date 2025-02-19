@@ -3,13 +3,12 @@
   <div>Tablite</div>
 </h1>
 
-`Tablite` is a lightweight database GUI build on tauri.
+🪶 An ai driven lightweight database GUI for a better development experience built on `Tauri`.
 
 ## Features
 
 - Lightweight and cross-platform build
-- Natural language querying
-- Muli-LLM support
+- Natural language querying with multi-LLMs support
 - Modern and easy-to-use interface
 - Local data storage for secure (except for sending schema to your LLM provider)
 
