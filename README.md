@@ -3,7 +3,7 @@
   <div>Tablite</div>
 </h1>
 
-🪶 An ai driven lightweight database GUI for a better development experience built on `Tauri`.
+🪶 An ai driven lightweight database GUI built on `Tauri`.
 
 ## Features
 
