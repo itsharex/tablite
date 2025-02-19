@@ -1,7 +1,9 @@
 import { hash } from 'ohash'
 
-interface Connection {
+export interface Connection {
   url: string
+  alias?: string
+  tags?: string[]
 }
 
 interface Cursor {

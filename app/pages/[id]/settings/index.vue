@@ -2,7 +2,7 @@
 import { Input } from '~/components/ui/input'
 
 const store = useSettingsStore()
-const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = storeToRefs(store)
+const { language, alias, tags, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = storeToRefs(store)
 </script>
 
 <template>
@@ -17,7 +17,7 @@ const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = stor
         </div>
       </div>
 
-      <div class="p-8 flex flex-col gap-8">
+      <div class="p-8 flex flex-1 max-w-xl flex-col gap-8">
         <div>
           <div class="text-sm font-semibold mb-4">
             Language
@@ -39,7 +39,7 @@ const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = stor
 
         <div>
           <div class="text-sm font-semibold mb-2">
-            Model
+            Assistant
           </div>
 
           <div class="text-xs text-zinc-600/50 mb-4 cursor-default">
@@ -91,6 +91,37 @@ const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = stor
             </SelectContent>
           </Select>
         </div>
+
+        <div>
+          <div class="text-sm font-semibold mb-2">
+            Label
+          </div>
+
+          <div class="text-xs text-zinc-600/50 mb-4 cursor-default">
+            Renders an accessible label associated with controls
+          </div>
+
+          <Input v-model="alias" class="text-sm h-8" />
+        </div>
+
+        <div>
+          <div class="text-sm font-semibold mb-2">
+            Tags
+          </div>
+
+          <div class="text-xs text-zinc-600/50 mb-4 cursor-default">
+            Tag inputs render tags inside an input, followed by an actual text input
+          </div>
+
+          <TagsInput v-model="tags" class="h-8 py-0 px-2">
+            <TagsInputItem v-for="item in tags" :key="item" :value="item" class="flex items-center h-5">
+              <TagsInputItemText class="text-xs" />
+              <TagsInputItemDelete class="w-3" />
+            </TagsInputItem>
+
+            <TagsInputInput class="text-sm" />
+          </TagsInput>
+        </div>
       </div>
     </div>
 
@@ -106,7 +137,7 @@ const { language, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = stor
         </div>
       </div>
 
-      <div class="p-8 flex flex-col gap-8">
+      <div class="p-8 flex flex-1 max-w-xl flex-col gap-8">
         <div>
           <div class="text-sm font-semibold mb-2">
             Google AI
