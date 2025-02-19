@@ -10,19 +10,6 @@ const store = useConnectionStore()
 const { connections, isLoading } = storeToRefs(store)
 const isCnxLoading = ref<Record<string, boolean>>({})
 
-const normalizations = computed(() => {
-  return connections.value.map(({ url: origin }) => {
-    const [backend, path] = origin.split('://')
-
-    if (backend === 'mysql')
-      return { origin, backend, url: parseConnectionURL(origin) }
-    if (backend === 'sqlite')
-      return { origin, backend, url: { host: path } }
-
-    return { origin, backend, url: {} }
-  })
-})
-
 async function onConnectByURL() {
   const hash = await connect()
   router.replace({ name: 'id-tables', params: { id: hash } })
@@ -99,29 +86,32 @@ async function onConnectByHash(url: string) {
         </div>
       </div>
 
-      <Separator v-if="normalizations.length" class="my-8" />
+      <Separator v-if="connections.length" class="my-8" />
 
       <div class="grid gap-7 grid-cols-2">
-        <Card v-for="c in normalizations" :key="c.origin" class="cursor-pointer p-4 transition-all duration-150 hover:bg-zinc-100" @click="onConnectByHash(c.origin)">
+        <Card v-for="c in connections" :key="c.url" class="cursor-pointer p-4 transition-all duration-150 hover:bg-zinc-100" @click="onConnectByHash(c.url)">
           <div class="fade flex animate-fade items-center gap-2.5">
             <div class="flex size-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-800 text-white">
-              <DbLogo :value="c.backend" class="size-6" />
+              <DbLogo :value="c.url.split('://')[0]" class="size-6" />
             </div>
-            <div class="w-0 flex-1">
-              <CardTitle class="text-sm text-zinc-600">
+            <div class="w-0 justify-between flex-1">
+              <CardTitle class="text-sm mb-1 text-zinc-600">
                 <div class=" truncate">
-                  {{ c.url.host }}
+                  {{ c.alias ?? c.url.split('://')[1] }}
                 </div>
               </CardTitle>
               <CardDescription class="mt-px">
-                <div class="origin-top-left uppercase">
+                <div class="origin-top-left uppercase flex items-center gap-1">
                   <Badge variant="outline" class="h-4 px-2 text-[0.5rem]">
-                    {{ c.backend }}
+                    {{ c.url.split('://')[0] }}
+                  </Badge>
+                  <Badge v-for="t in c.tags" :key="[c.url, t].join(':')" variant="outline" class="h-4 px-2 text-[0.5rem]">
+                    {{ t }}
                   </Badge>
                 </div>
               </CardDescription>
             </div>
-            <Spin v-if="isCnxLoading[c.origin]" class="size-4" />
+            <Spin v-if="isCnxLoading[c.url]" class="size-4" />
           </div>
         </Card>
       </div>
