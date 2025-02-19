@@ -73,7 +73,7 @@ pnpm install && pnpm tauri dev
 
 Ranking here very subjective and based on personal pain points.
 
-### Milestone 1 - `table structure` && `connection management`
+### Milestone 1 - `table structure` & `connection management`
 
 - View or edit columns and table index
 - Create or delete table
