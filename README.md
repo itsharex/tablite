@@ -58,6 +58,11 @@ Or use the `x64` version in release page to bypass this issue.
 - `⌘` + `s` or click the `Save` button for saving
 - Run the query and display the time costs
 
+### Settings
+
+- Select ai assistant based model
+- Enter api keys for different providers
+
 ## Developing
 
 ```
