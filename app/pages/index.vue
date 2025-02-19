@@ -95,8 +95,8 @@ async function onConnectByHash(url: string) {
               <DbLogo :value="c.url.split('://')[0]" class="size-6" />
             </div>
             <div class="w-0 justify-between flex-1">
-              <CardTitle class="text-sm mb-1 text-zinc-600">
-                <div class=" truncate">
+              <CardTitle class="text-sm mb-1">
+                <div class="truncate">
                   {{ c.alias ?? c.url.split('://')[1] }}
                 </div>
               </CardTitle>

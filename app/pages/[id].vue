@@ -63,24 +63,20 @@ preloadRouteComponents({ name: 'id-queries' })
 </script>
 
 <template>
-  <div class="h-screen flex flex-col" :class="[IS_MACOS ? '-mt-12' : '-mt-8']">
-    <div class="w-full p-2 flex justify-between items-center flex-shrink-0 bg-zinc-50" :class="[IS_MACOS ? 'h-12' : 'h-8']">
+  <div class="h-screen flex flex-col" :class="[IS_MACOS ? '-mt-12' : '-mt-20']">
+    <Separator v-if="!IS_MACOS" class="mt-8 z-[101]" />
+    <div class="w-full p-2 flex justify-between items-center flex-shrink-0 h-12">
       <div class="flex items-center h-full box-border" :class="{ 'pl-[72px]': IS_MACOS && !isFullscreen }">
-        <Button v-if="IS_MACOS" variant="ghost" size="sm" class="z-[101] font-semibold px-4 uppercase align-middle hover:bg-zinc-200/50" @click="router.replace({ name: 'index' })">
+        <Button variant="ghost" size="sm" class="z-[101] font-semibold px-4 uppercase align-middle hover:bg-zinc-200/50" @click="router.replace({ name: 'index' })">
           <span>TABLITE</span>
           <span class="-translate-y-px">/</span>
           <span class="text-zinc-600/50">{{ db }}</span>
         </Button>
-
-        <div v-else class="z-[101] cursor-pointer flex items-center text-xs gap-1.5" @click="router.replace({ name: 'index' })">
-          <img src="/images/tablite.png" class="w-5 select-none">
-          <span>Tablite</span>
-        </div>
       </div>
 
       <Button v-if="llm" variant="ghost" size="sm" class="z-[101] h-8 hover:bg-zinc-200/50" @click="router.replace({ name: 'id-settings' })">
         <img :src="llm.icon" class="size-4">
-        <HyperText :text="llm.alias ?? llm.model" :duration="300" class="p-0 cursor-pointer text-[0.65rem]" />
+        <HyperText :text="llm.alias ?? llm.model" :duration="300" class="p-0 cursor-pointer" :class="[IS_MACOS ? 'text-[0.65rem]' : 'text-xs font-semibold']" />
         <ChevronUpDown class="size-4" />
       </Button>
 
