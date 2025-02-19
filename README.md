@@ -46,6 +46,27 @@ Or use the `x64` version in release page to bypass this issue.
 pnpm install && pnpm tauri dev
 ```
 
+## Roadmap
+
+Ranking here very subjective and based on personal pain points.
+
+### Milestone 1 - `table structure`
+
+- View or edit columns and table index
+- Create or delete table
+
+### Milestone 2 - `form create connection`
+
+Support create connection by a form instead of a connection string
+
+- MySQL
+- SQLite
+- Postgres
+
+### Milestone 3 - `chat with tables`
+
+- Ai assistant
+
 ## License
 
 [MIT](./LICENSE) License © 2024-PRESENT [Tamago](https://github.com/tmg0)
