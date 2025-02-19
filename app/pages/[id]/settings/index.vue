@@ -37,7 +37,7 @@ const { language, alias, tags, googleAPIKey, deepseekApiKey, openrouterApiKey, m
           </Select>
         </div>
 
-        <div>
+        <div v-if="[googleAPIKey, deepseekApiKey, openrouterApiKey].filter(Boolean).length">
           <div class="text-sm font-semibold mb-2">
             Assistant
           </div>
