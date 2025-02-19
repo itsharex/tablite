@@ -131,18 +131,6 @@ async function onConnectByHash(url: string) {
           >
             <div class="flex items-center gap-3">
               <div class="size-6">
-                <Postgres />
-              </div>
-              <span class="font-semibold">Postgres</span>
-            </div>
-          </CardSpotlight>
-
-          <CardSpotlight
-            class="cursor-pointer p-6 box-border items-center"
-            gradient-color="#C9C9C9"
-          >
-            <div class="flex items-center gap-3">
-              <div class="size-6">
                 <MySQL />
               </div>
               <span class="font-semibold">MySQL</span>
