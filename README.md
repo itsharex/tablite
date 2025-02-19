@@ -29,6 +29,18 @@ Supported LLMs:
 
 ![Screenshot](./docs/Screenshot.png)
 
+## Installation
+
+You can download [Windows and Mac desktop app here](https://github.com/tmg0/tablite/releases)
+
+For MacOS user with M1 or later, you need to execute the following command in terminal to allow the application downloaded form the internet:
+
+```
+sudo xattr -r -d com.apple.quarantine /Applications/Tablite.app
+```
+
+Or use the `x64` version in release page to bypass this issue.
+
 ## Development
 
 ```
