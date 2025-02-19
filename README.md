@@ -40,7 +40,25 @@ sudo xattr -r -d com.apple.quarantine /Applications/Tablite.app
 
 Or use the `x64` version in release page to bypass this issue.
 
-## Development
+## Usage
+
+### Tables
+
+- Fuzzy search for table names
+- Dynamically filter tables with popover selectors
+- Double-click a cell to enter edit mode
+- Select rows for deletion
+- Disvard changes or preview the actual SQL before saving
+- Support re-editing SQL before saving
+
+### Queries
+
+- Fuzzy search for table names
+- Automatically generate an SQL query from the title as a prompt
+- `⌘` + `s` or click the `Save` button for saving
+- Run the query and display the time costs
+
+## Developing
 
 ```
 pnpm install && pnpm tauri dev
@@ -63,9 +81,10 @@ Support create connection by a form instead of a connection string
 - SQLite
 - Postgres
 
-### Milestone 3 - `chat with tables`
+### Milestone 3 - `chat with tables` & `export select results`
 
 - Ai assistant
+- Export select results
 
 ## License
 
