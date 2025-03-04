@@ -11,8 +11,13 @@ const { connections, isLoading } = storeToRefs(store)
 const isCnxLoading = ref<Record<string, boolean>>({})
 
 async function onConnectByURL() {
-  const hash = await connect()
-  router.replace({ name: 'id-tables', params: { id: hash } })
+  try {
+    const hash = await connect()
+    router.replace({ name: 'id-tables', params: { id: hash } })
+  }
+  catch (error) {
+    toast('SQLX', { description: String(error) })
+  }
 }
 
 async function onConnectByHash(url: string) {
