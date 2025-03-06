@@ -37,7 +37,7 @@ export const useConnectionStore = defineStore('connection', () => {
     const exists = connections.value.find(e => e.url === url)
     if (exists?.url)
       return hash(url)
-    connections.value.push({ url })
+    connections.value.unshift({ url })
     return id
   }
 
