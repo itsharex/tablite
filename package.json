@@ -6,6 +6,7 @@
   "scripts": {
     "build": "nuxt generate",
     "dev": "nuxt dev",
+    "prepare": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "tauri": "tauri"

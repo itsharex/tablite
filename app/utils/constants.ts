@@ -6,6 +6,12 @@ function defineQuery(mysql: string = '', postgres: string = '', sqlite: string =
   }
 }
 
+export const OpenaiEndpoint = {
+  GOOGLE: 'https://generativelanguage.googleapis.com/v1beta/openai',
+  DEEPSEEK: 'https://api.deepseek.com/v1',
+  OPENROUTER: 'https://openrouter.ai/api/v1',
+}
+
 export const Sql = {
   PLACEHOLDER: () => defineQuery('?', '$1', '$1'),
   SHOW_TABLES: () => defineQuery('SHOW TABLES;', 'SHOW TABLES;', 'SELECT * FROM sqlite_master WHERE type = \'table\';'),

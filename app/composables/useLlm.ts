@@ -25,17 +25,17 @@ export function useLlm(model: MaybeRef<string>) {
 
     if (_GOOGLE_AI_MODELS.includes(_model.value) && googleAPIKey.value && googleAPIKey.value.startsWith('AIzaSy')) {
       _apiKey = googleAPIKey.value
-      _baseURL = 'https://generativelanguage.googleapis.com/v1beta/openai'
+      _baseURL = OpenaiEndpoint.GOOGLE
     }
 
     if (_DEEPSEEK_MODELS.includes(_model.value) && deepseekApiKey.value && deepseekApiKey.value.startsWith('sk-')) {
       _apiKey = deepseekApiKey.value
-      _baseURL = 'https://api.deepseek.com/v1'
+      _baseURL = OpenaiEndpoint.DEEPSEEK
     }
 
     if (_OPENROUTER_MODELS.includes(_model.value) && openrouterApiKey.value && openrouterApiKey.value.startsWith('sk-')) {
       _apiKey = openrouterApiKey.value
-      _baseURL = 'https://openrouter.ai/api/v1'
+      _baseURL = OpenaiEndpoint.OPENROUTER
     }
 
     if (!_apiKey)
