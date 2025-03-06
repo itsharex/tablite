@@ -67,7 +67,7 @@ async function onConnectByHash(url: string) {
           </DrawerTrigger>
         </div>
 
-        <div class="grid gap-7 grid-cols-2">
+        <div class="grid gap-4 grid-cols-2">
           <GlowBorder class="p-0" :color="['#A07CFE', '#FE8FB5', '#FFBE7B']">
             <Card>
               <CardHeader>
@@ -93,12 +93,9 @@ async function onConnectByHash(url: string) {
 
       <Separator v-if="connections.length" class="my-8" />
 
-      <div class="grid gap-7 grid-cols-2">
-        <Card v-for="c in connections" :key="c.url" class="cursor-pointer p-4 transition-all duration-150 hover:bg-zinc-100" @click="onConnectByHash(c.url)">
+      <div class="grid gap-4 grid-cols-2">
+        <Card v-for="c in connections.slice().reverse()" :key="c.url" class="cursor-pointer p-4 transition-all duration-150 hover:bg-zinc-100 relative overflow-hidden" @click="onConnectByHash(c.url)">
           <div class="fade flex animate-fade items-center gap-2.5">
-            <div class="flex size-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-800 text-white">
-              <DbLogo :value="c.url.split('://')[0]" class="size-6" />
-            </div>
             <div class="w-0 justify-between flex-1">
               <CardTitle class="text-sm mb-1">
                 <div class="truncate">
@@ -106,11 +103,12 @@ async function onConnectByHash(url: string) {
                 </div>
               </CardTitle>
               <CardDescription class="mt-px">
-                <div class="origin-top-left uppercase flex items-center gap-1">
-                  <Badge variant="outline" class="h-4 px-2 text-[0.5rem]">
-                    {{ c.url.split('://')[0] }}
-                  </Badge>
-                  <Badge v-for="t in c.tags" :key="[c.url, t].join(':')" variant="outline" class="h-4 px-2 text-[0.5rem]">
+                <div class="origin-top-left uppercase flex items-center gap-1.5">
+                  <Badge
+                    v-for="t in [c.url.split('://')[0], ...(c.tags ?? [])]"
+                    :key="[c.url, t].join(':')"
+                    class="h-4 px-2 text-[0.5rem]"
+                  >
                     {{ t }}
                   </Badge>
                 </div>
@@ -118,6 +116,8 @@ async function onConnectByHash(url: string) {
             </div>
             <Spin v-if="isCnxLoading[c.url]" class="size-4" />
           </div>
+
+          <DbLogo :value="c.url.split('://')[0]" class="size-[128px] absolute right-2 -top-6 text-primary/5" />
         </Card>
       </div>
     </div>

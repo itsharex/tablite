@@ -14,7 +14,7 @@ const props = defineProps({
     default: 0.8,
   },
   class: {
-    type: String,
+    type: [String, Array],
     default: '',
   },
   animateOnLoad: {

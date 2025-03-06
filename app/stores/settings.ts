@@ -3,7 +3,7 @@ import { hash } from 'ohash'
 export const useSettingsStore = defineStore('settings', () => {
   const language = ref('en-US')
   const id = useRouteParams<string>('id')
-  const connections = useTauriStorage<Connection[]>('connections', [], 'data.json')
+  const { connections } = storeToRefs(useConnectionStore())
 
   const model = useTauriStorage<string>('default_model', '', 'data.json')
   const googleAPIKey = useTauriStorage<string>('google_api_key', '', 'data.json')
