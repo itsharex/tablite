@@ -34,11 +34,11 @@ const llm = computed(() => {
   return _MODELS.find(m => m.model === model.value)
 })
 
-const tabs = [
-  { key: 'id-tables', icon: CircleStack },
-  { key: 'id-queries', icon: CodeBracket },
+const tabs = computed(() => [
+  cursor.value ? { key: 'id-tables', icon: CircleStack } : undefined,
+  cursor.value ? { key: 'id-queries', icon: CodeBracket } : undefined,
   { key: 'id-settings', icon: Cog6Tooth },
-]
+].filter(Boolean) as any[])
 
 async function findCursorOrCreate() {
   if (cursor.value?.instance)
@@ -69,8 +69,8 @@ preloadRouteComponents({ name: 'id-queries' })
       <div class="flex items-center h-full box-border" :class="{ 'pl-[72px]': IS_MACOS && !isFullscreen }">
         <Button variant="ghost" size="sm" class="z-[101] font-semibold px-4 uppercase align-middle hover:bg-zinc-200/50" @click="router.replace({ name: 'index' })">
           <span>TABLITE</span>
-          <span class="-translate-y-px">/</span>
-          <span class="text-zinc-600/50">{{ db }}</span>
+          <span v-if="db" class="-translate-y-px">/</span>
+          <span v-if="db" class="text-zinc-600/50">{{ db }}</span>
         </Button>
       </div>
 
