@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { hash } from 'ohash'
 import { toast } from 'vue-sonner'
+import Link from '~icons/heroicons/link'
 import PencilSquare from '~icons/heroicons/pencil-square'
 import Trash from '~icons/heroicons/trash'
 
@@ -63,11 +64,18 @@ async function onConnect() {
           <Spin v-if="isLoading" class="size-4" />
         </div>
 
-        <DbLogo :value="url.split('://')[0]" class="size-[128px] absolute right-2 -top-6 text-primary/5" />
+        <ProtocolLogo :value="url" class="size-[128px] absolute right-2 -top-6 text-primary/5" />
       </Card>
     </ContextMenuTrigger>
 
     <ContextMenuContent>
+      <ContextMenuItem @select="onConnect">
+        <div class="flex items-center text-xs gap-2">
+          <Link class="size-4" />
+          <span>Connect</span>
+        </div>
+      </ContextMenuItem>
+
       <ContextMenuItem @select="router.replace({ name: 'id-settings', params: { id } })">
         <div class="flex items-center text-xs gap-2">
           <PencilSquare class="size-4" />
