@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { Input } from '~/components/ui/input'
+import { hash } from 'ohash'
 
 const store = useSettingsStore()
 const { language, alias, tags, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = storeToRefs(store)
+const { connections } = storeToRefs(useConnectionStore())
+
+const id = useRouteParams<string>('id')
+const cnx = computed<Partial<Connection>>(() => connections.value.find(({ url }) => hash(url) === id.value) ?? {})
 </script>
 
 <template>
@@ -199,6 +203,45 @@ const { language, alias, tags, googleAPIKey, deepseekApiKey, openrouterApiKey, m
           </div>
 
           <Input type="password" class="h-8" placeholder="sk-..." />
+        </div>
+      </div>
+    </div>
+
+    <Separator />
+
+    <div class="flex">
+      <div class="p-8 w-96 flex-shrink-0">
+        <div class="text-lg font-bold mb-1">
+          Danger Zone
+        </div>
+        <div class="text-xs text-zinc-600/50">
+          Proceed with caution and ensure full understanding of consequences
+        </div>
+      </div>
+
+      <div class="p-8 flex flex-1 max-w-xl flex-col gap-8">
+        <div>
+          <div class="text-sm font-semibold mb-4">
+            URL string
+          </div>
+
+          <div class="flex items-center gap-2">
+            <Input :model-value="cnx?.url" class="text-sm h-8" disabled />
+          </div>
+        </div>
+
+        <div>
+          <div class="text-sm font-semibold mb-2">
+            Delete this connection
+          </div>
+
+          <div class="text-xs text-zinc-600/50 mb-4 cursor-default">
+            Once you delete a connection, there is no going back. Please be certain.
+          </div>
+
+          <Button variant="destructive">
+            Delete this connection
+          </Button>
         </div>
       </div>
     </div>
