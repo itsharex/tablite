@@ -32,7 +32,7 @@ const isLoading = ref(false)
 const model = computed(() => _MODELS.find(m => m.model === _model.value))
 const llm = useLlm(_model)
 const { md } = useMdit()
-const payload = computed(() => ({ messages: [{ role: 'user', content: content.value }], stream: true }))
+const payload = computed(() => ({ messages: messages.value, stream: true }))
 const { response, execute, statusCode, isFetching } = llm.chat.completions.create(payload, { immediate: false })
 
 watch(statusCode, (value) => {
