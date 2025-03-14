@@ -36,8 +36,6 @@ const payload = computed(() => ({ messages: [{ role: 'user', content: content.va
 const { response, execute, statusCode, isFetching } = llm.chat.completions.create(payload, { immediate: false })
 
 watch(statusCode, (value) => {
-  isLoading.value = false
-
   if (value !== 200)
     return
 
@@ -49,10 +47,11 @@ watch(statusCode, (value) => {
         return
       const text = new TextDecoder().decode(value)
       for (const i of text.split('\n').filter(Boolean)) {
-        if (i.startsWith('data: ')) {
+        if (i.startsWith('data:')) {
           if (i.replace('data:', '').trim() === '[DONE]')
             break
-          data = defu(data, destr<any>(i.replace('data:', '').trim()))
+          const json = destr<any>(i.replace('data:', '').trim())
+          data = defu(data, json)
         }
       }
 
@@ -63,6 +62,8 @@ watch(statusCode, (value) => {
       reader.read().then(processText)
     })
   }
+
+  isLoading.value = false
 })
 
 watch(enter!, (v) => {
