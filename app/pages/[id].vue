@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { platform } from '@tauri-apps/plugin-os'
 import { hash } from 'ohash'
-import ChevronUpDown from '~icons/heroicons/chevron-up-down'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
 import Cog6Tooth from '~icons/heroicons/cog-6-tooth'
-import Sparkles from '~icons/heroicons/sparkles-solid'
 
 definePageMeta({
   keepalive: true,
@@ -21,18 +19,7 @@ const { cursors, connections } = storeToRefs(store)
 const cursor = computed(() => cursors.value[id.value])
 const instance = ref<Database | undefined>(undefined)
 const db = computed(() => parseConnectionURL(instance.value?.path).database)
-const { model } = storeToRefs(useSettingsStore())
 const { isFullscreen } = useTauriWindow()
-
-const llm = computed(() => {
-  const _MODELS = [
-    ...GOOGLE_AI_MODELS,
-    ...DEEPSEEK_MODELS,
-    ...OPENROUTER_MODELS,
-  ]
-
-  return _MODELS.find(m => m.model === model.value)
-})
 
 const tabs = computed(() => [
   cursor.value ? { key: 'id-tables', icon: CircleStack } : undefined,
@@ -74,15 +61,7 @@ preloadRouteComponents({ name: 'id-queries' })
         </Button>
       </div>
 
-      <Button v-if="llm" variant="ghost" size="sm" class="z-[101] h-8 hover:bg-zinc-200/50" @click="router.replace({ name: 'id-settings' })">
-        <img :src="llm.icon" class="size-4">
-        <HyperText :text="llm.alias ?? llm.model" :duration="300" class="p-0 cursor-pointer" :class="[IS_MACOS ? 'text-[0.65rem]' : 'text-xs font-semibold']" />
-        <ChevronUpDown class="size-4" />
-      </Button>
-
-      <Button v-else variant="ghost" size="sm" class="z-[101] h-8 w-8 p-0 hover:bg-zinc-200/50" @click="router.replace({ name: 'id-settings' })">
-        <Sparkles />
-      </Button>
+      <AsssistantPopover />
     </div>
 
     <Separator />

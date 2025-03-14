@@ -1,5 +1,5 @@
 import type OpenAI from 'openai'
-import { createFetch } from '@vueuse/core'
+import { createFetch, type UseFetchOptions } from '@vueuse/core'
 
 const _GOOGLE_AI_MODELS = GOOGLE_AI_MODELS.map(({ model }) => model)
 const _DEEPSEEK_MODELS = DEEPSEEK_MODELS.map(({ model }) => model)
@@ -20,9 +20,6 @@ export function useLlm(model: MaybeRef<string>) {
   const { googleAPIKey, deepseekApiKey, openrouterApiKey } = storeToRefs(store)
 
   const openai = computed(() => {
-    if (!_MODELS.includes(_model.value))
-      return
-
     if (_GOOGLE_AI_MODELS.includes(_model.value) && googleAPIKey.value && googleAPIKey.value.startsWith('AIzaSy')) {
       _apiKey = googleAPIKey.value
       _baseURL = OpenaiEndpoint.GOOGLE
@@ -38,9 +35,6 @@ export function useLlm(model: MaybeRef<string>) {
       _baseURL = OpenaiEndpoint.OPENROUTER
     }
 
-    if (!_apiKey)
-      return
-
     return createFetch({
       baseUrl: _baseURL,
 
@@ -48,7 +42,8 @@ export function useLlm(model: MaybeRef<string>) {
         beforeFetch({ options }: any) {
           if (!options.headers)
             options.headers = {}
-          options.headers.Authorization = `Bearer ${_apiKey}`
+          if (_apiKey)
+            options.headers.Authorization = `Bearer ${_apiKey}`
 
           return { options }
         },
@@ -65,13 +60,12 @@ export function useLlm(model: MaybeRef<string>) {
   return {
     chat: {
       completions: {
-        async create(body: Record<string, any> = {}) {
-          if (!openai.value)
-            return
-          const { data, error } = await openai.value<OpenAI.Chat.ChatCompletion>('/chat/completions').post({ model: _model.value, ...body }).json()
-          if (error.value)
-            throw error.value
-          return data.value
+        create(body: MaybeRef<Record<string, any> & { stream?: boolean }> = {}, options: UseFetchOptions = {}) {
+          const payload = computed(() => ({ model: _model.value, ...unref(body) }))
+          const response = openai.value<OpenAI.Chat.ChatCompletion>('/chat/completions', options).post(payload)
+          if (!payload.value.stream)
+            return response.json()
+          return response
         },
       },
     },

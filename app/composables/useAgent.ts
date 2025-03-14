@@ -78,7 +78,7 @@ export function useSqlAgent(cursorInstance: MaybeRef<Database | undefined> | und
       if (!isLoading.value)
         return
 
-      const { choices } = await llm.chat.completions.create({
+      const { data } = await llm.chat.completions.create({
         messages: [
           { role: 'user', content: prompt.value },
           { role: 'user', content: question.value },
@@ -87,7 +87,7 @@ export function useSqlAgent(cursorInstance: MaybeRef<Database | undefined> | und
         tool_choice: 'required',
       })
 
-      const [call] = choices[0].message.tool_calls
+      const [call] = data.value?.choices[0].message.tool_calls
 
       if (!call)
         continue
@@ -147,8 +147,8 @@ export function useSqlAgent(cursorInstance: MaybeRef<Database | undefined> | und
       if (!isLoading.value)
         return
 
-      const { choices } = (await llm.chat.completions.create({ messages: [{ role: 'user', content: prompt.value }] })) ?? {}
-      output.value = choices?.[0]?.message.content ?? ''
+      const { data } = await llm.chat.completions.create({ messages: [{ role: 'user', content: prompt.value }] })
+      output.value = data.value?.choices?.[0]?.message.content ?? ''
       if (output.value)
         break
     }
