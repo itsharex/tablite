@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { hash } from 'ohash'
 
+defineAssistantContext({
+  system: '',
+})
+
 const store = useSettingsStore()
 const { language, alias, tags, googleAPIKey, deepseekApiKey, openrouterApiKey, model } = storeToRefs(store)
 const { connections } = storeToRefs(useConnectionStore())

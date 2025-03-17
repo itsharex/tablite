@@ -1,6 +1,7 @@
 import { type CoreMessage, streamText } from 'ai'
 
 export interface UseStreamTextOptions {
+  system?: MaybeRef<string>
   onFinish?: () => void
 }
 
@@ -43,7 +44,6 @@ export function useAiProvider() {
 
 export function useStreamText(options: UseStreamTextOptions = {}) {
   const data = ref('')
-  const system = ref('')
   const prompt = ref('')
   const messages = ref<CoreMessage[]>([])
   const { model } = useAiProvider()
@@ -62,7 +62,7 @@ export function useStreamText(options: UseStreamTextOptions = {}) {
     const result = streamText({
       model: model.value,
       messages: [
-        system.value ? { role: 'system', content: system.value } : undefined,
+        unref(options.system) ? { role: 'system', content: unref(options.system) } : undefined,
         ...messages.value,
       ].filter(Boolean) as CoreMessage[],
       onFinish,
@@ -77,7 +77,6 @@ export function useStreamText(options: UseStreamTextOptions = {}) {
 
   return {
     data,
-    system,
     prompt,
     messages,
     execute,

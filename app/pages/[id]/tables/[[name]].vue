@@ -18,8 +18,8 @@ definePageMeta({
 })
 
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
-const selectedTable = useRouteParams('name', '')
-const { data, limit, offset, count, structure, primaryKeys, isLoading, backend, where, setup, execute } = useTable(selectedTable, cursor)
+const table = useRouteParams('name', '')
+const { data, limit, offset, count, structure, primaryKeys, isLoading, backend, where, execute } = useTable(table, cursor)
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 const changes = ref<Record<string, any>>({})
@@ -27,6 +27,20 @@ const updates = ref<Update[]>([])
 const inserts = ref<Record<string, any>[]>([])
 const deletes = ref<string[]>([])
 const selectedRowKeys = ref([])
+const isReady = computed(() => !!cursor.value)
+
+watchImmediate(() => [isReady.value, table.value], async ([v, t]) => {
+  if (v) {
+    defineAssistantContext({
+      async system() {
+        const prompt = await generateTableSchemaPromptWithIndexRows([t], cursor.value!)
+        return usePromptTemplate(TABLE_ASSISTANT_SYSTEM_PROMPT, {
+          tableInfo: prompt,
+        })
+      },
+    })
+  }
+})
 
 const page = computed({
   get() {
@@ -69,7 +83,7 @@ const hasChanged = computed(() => {
 async function onSelectTable() {
   toast.dismiss()
   where.value = ''
-  changes.value = { [selectedTable.value]: {} }
+  changes.value = { [table.value]: {} }
   page.value = 1
   inserts.value = []
   deletes.value = []
@@ -88,7 +102,7 @@ async function onApplyFliters(value: string) {
 }
 
 async function onDisvardChanges() {
-  changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
+  changes.value = table.value ? { [table.value]: {} } : {}
   inserts.value = []
   deletes.value = []
   toast.dismiss()
@@ -120,14 +134,14 @@ function onOpenUpdatesPreview(visible: boolean) {
 
   for (const _n of inserts.value) {
     const keys = Object.keys(_n)
-    sqls.push(`INSERT INTO \`${selectedTable.value}\` (${keys.join(', ')}) VALUES (${keys.map(k => normalizeQueryValue(_n[k], dataTypeMap.value[k])).join(', ')})`)
+    sqls.push(`INSERT INTO \`${table.value}\` (${keys.join(', ')}) VALUES (${keys.map(k => normalizeQueryValue(_n[k], dataTypeMap.value[k])).join(', ')})`)
   }
 
   for (const _d of deletes.value) {
     try {
       const json = JSON.parse(_d)
       const where = Object.entries(json).map(([k, v]) => `${k} = ${normalizeQueryValue(v, dataTypeMap.value[k])}`).join(' AND ')
-      sqls.push(`DELETE FROM \`${selectedTable.value}\` WHERE ${where}`)
+      sqls.push(`DELETE FROM \`${table.value}\` WHERE ${where}`)
     }
     catch {
       continue
@@ -154,7 +168,7 @@ async function onSave() {
   toast.dismiss()
   await applyUpdates()
   await execute()
-  changes.value = selectedTable.value ? { [selectedTable.value]: {} } : {}
+  changes.value = table.value ? { [table.value]: {} } : {}
   updates.value = []
   inserts.value = []
   deletes.value = []
@@ -177,21 +191,21 @@ function onDeleteRecords() {
   <div class="flex-1 h-full w-full flex flex-col">
     <ResizablePanelGroup direction="horizontal" class="h-0 flex-1 w-full">
       <ResizablePanel :default-size="22" :min-size="10" :max-size="50">
-        <TableSelector v-model:value="selectedTable" :cursor="cursor" :loading="isLoading" @after-select="onSelectTable" />
+        <TableSelector v-model:value="table" :cursor="cursor" :loading="isLoading" @after-select="onSelectTable" />
       </ResizablePanel>
 
       <ResizableHandle />
 
       <ResizablePanel class="h-full bg-white">
-        <div v-if="!selectedTable" class="w-full h-full flex items-center justify-center flex-col cursor-default">
+        <div v-if="!table" class="w-full h-full flex items-center justify-center flex-col cursor-default">
           <TextHoverEffect class="w-1/2 px-1" :stroke-width="1" text="TABLITE" />
         </div>
 
-        <div v-show="selectedTable" class="flex flex-col h-full">
+        <div v-show="table" class="flex flex-col h-full">
           <div class="p-4 flex justify-between items-center">
             <div class="ml-2 flex-1">
               <div class="font-semibold uppercase cursor-default">
-                {{ selectedTable }}
+                {{ table }}
               </div>
             </div>
 
@@ -229,7 +243,7 @@ function onDeleteRecords() {
 
           <div class="w-full h-0 flex-1 flex flex-col bg-zinc-50 -m-px">
             <VisTable
-              v-model:changes="changes[selectedTable]"
+              v-model:changes="changes[table]"
               v-model:inserts="inserts"
               v-model:selected-row-keys="selectedRowKeys"
               editable

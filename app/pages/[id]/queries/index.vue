@@ -19,6 +19,10 @@ definePageMeta({
   keepalive: true,
 })
 
+defineAssistantContext({
+  system: '',
+})
+
 let editor: monaco.editor.IStandaloneCodeEditor
 
 const PLATFORM = platform()

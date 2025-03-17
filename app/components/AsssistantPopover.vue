@@ -3,14 +3,8 @@ import { platform } from '@tauri-apps/plugin-os'
 import ChevronUpDown from '~icons/heroicons/chevron-up-down'
 import Sparkles from '~icons/heroicons/sparkles-solid'
 
-const props = defineProps<{
-  table?: string
-  cursor?: Database
-}>()
-
 const IS_MACOS = platform() === 'macos'
 
-const { cursor, table } = toRefs(props)
 const router = useRouter()
 const domRef = ref()
 const msgRefs = useTemplateRef('msgRef')
@@ -18,12 +12,13 @@ const { focused } = useFocus(domRef)
 const { enter } = useMagicKeys()
 const isLoading = ref(false)
 const { md } = useMdit()
-const isReady = computed(() => !!cursor.value)
 
 const { model: modelKey } = storeToRefs(useSettingsStore())
+const { system } = storeToRefs(useAssistantStore())
 const model = computed(() => MODULES.find(m => m.model === modelKey.value) ?? {})
 
-const { data, prompt, messages, execute, system } = useStreamText({
+const { data, prompt, messages, execute } = useStreamText({
+  system,
   onFinish() {
     messages.value.push({
       role: 'assistant',
@@ -34,15 +29,6 @@ const { data, prompt, messages, execute, system } = useStreamText({
     prompt.value = ''
     isLoading.value = false
   },
-})
-
-watchImmediate(() => [isReady.value, table.value], async ([v, t]) => {
-  if (v) {
-    const prompt = await generateTableSchemaPromptWithIndexRows([t], cursor.value!)
-    system.value = usePromptTemplate(TABLE_ASSISTANT_SYSTEM_PROMPT, {
-      tableInfo: prompt,
-    }).value
-  }
 })
 
 const conversation = computed(() => {
