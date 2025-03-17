@@ -104,5 +104,6 @@ async function onSend() {
   padding: 12px 16px;
   border-radius: 6px;
   overflow: auto;
+  margin: 8px 0;
 }
 </style>
