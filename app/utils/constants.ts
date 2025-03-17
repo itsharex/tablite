@@ -1,3 +1,7 @@
+import { createDeepSeek } from '@ai-sdk/deepseek'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+
 function defineQuery(mysql: string = '', postgres: string = '', sqlite: string = ''): Record<string, string> {
   return {
     mysql,
@@ -115,21 +119,33 @@ export const SQL_VALIDATE_PROMPT = `You are going to receive a text that contain
     Text: {not_formatted_query}`
 
 export const GOOGLE_AI_MODELS = [
-  { model: 'gemini-2.0-flash', alias: 'Gemini 2.0 Flash', icon: '/images/gemini.svg' },
-  { model: 'gemini-1.5-pro', alias: 'Gemini 1.5 Pro', icon: '/images/gemini.svg' },
-  { model: 'gemini-1.5-flash', alias: 'Gemini 1.5 Flash', icon: '/images/gemini.svg' },
+  { model: 'gemini-2.0-flash', alias: 'Gemini 2.0 Flash', icon: '/images/gemini.svg', provider: 'google' },
+  { model: 'gemini-1.5-pro', alias: 'Gemini 1.5 Pro', icon: '/images/gemini.svg', provider: 'google' },
+  { model: 'gemini-1.5-flash', alias: 'Gemini 1.5 Flash', icon: '/images/gemini.svg', provider: 'google' },
 ]
 
 export const DEEPSEEK_MODELS = [
-  { model: 'deepseek-chat', alias: 'DeepSeek V3', icon: '/images/deepseek.svg' },
-  { model: 'deepseek-reasoner', alias: 'DeepSeek R1', icon: '/images/deepseek.svg' },
+  { model: 'deepseek-chat', alias: 'DeepSeek V3', icon: '/images/deepseek.svg', provider: 'deepseek' },
+  { model: 'deepseek-reasoner', alias: 'DeepSeek R1', icon: '/images/deepseek.svg', provider: 'deepseek' },
 ]
 
 export const OPENROUTER_MODELS = [
-  { model: 'openai/gpt-4o-mini', alias: 'GPT 4o Mini', icon: '/images/openrouter.svg' },
-  { model: 'anthropic/claude-3.5-sonnet:beta', alias: 'Claude 3.5 Sonnet', icon: '/images/openrouter.svg', tag: 'Beta' },
-  { model: 'google/gemini-2.0-flash-lite-preview-02-05:free', alias: 'Gemini Flash Lite 2.0', icon: '/images/openrouter.svg', tag: 'Free' },
-  { model: 'mistralai/mistral-nemo', alias: 'Mistral Nemo', icon: '/images/openrouter.svg' },
+  { model: 'openai/gpt-4o-mini', alias: 'GPT 4o Mini', icon: '/images/openrouter.svg', provider: 'openrouter' },
+  { model: 'anthropic/claude-3.5-sonnet:beta', alias: 'Claude 3.5 Sonnet', icon: '/images/openrouter.svg', tag: 'Beta', provider: 'openrouter' },
+  { model: 'google/gemini-2.0-flash-lite-preview-02-05:free', alias: 'Gemini Flash Lite 2.0', icon: '/images/openrouter.svg', tag: 'Free', provider: 'openrouter' },
+  { model: 'mistralai/mistral-nemo', alias: 'Mistral Nemo', icon: '/images/openrouter.svg', provider: 'openrouter' },
+]
+
+export const AI_PROVIDER_CREATOR: Record<string, any> = {
+  google: createGoogleGenerativeAI,
+  deepseek: createDeepSeek,
+  openrouter: createOpenRouter,
+}
+
+export const MODULES = [
+  ...GOOGLE_AI_MODELS,
+  ...DEEPSEEK_MODELS,
+  ...OPENROUTER_MODELS,
 ]
 
 export const SQL_KEYWORDS = [
