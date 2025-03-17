@@ -7,6 +7,7 @@ const IS_MACOS = platform() === 'macos'
 
 const router = useRouter()
 const domRef = ref()
+const msgRefs = useTemplateRef('msgRef')
 const { focused } = useFocus(domRef)
 const { enter } = useMagicKeys()
 const isLoading = ref(false)
@@ -32,6 +33,10 @@ const conversation = computed(() => {
   return {
     messages: data.value ? [...messages.value, { role: 'assistant', content: data.value }] : messages.value,
   }
+})
+
+watch(conversation, () => {
+  msgRefs.value?.at(-1)?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 })
 
 watch(enter!, (v) => {
@@ -70,13 +75,23 @@ async function onSend() {
     </PopoverTrigger>
 
     <PopoverContent class="w-96 mr-2 p-0 text-xs">
-      <div :class="messages.length ? 'p-4' : 'pb-4'" class="max-h-96 overflow-y-auto flex flex-col gap-4">
-        <div v-for="(item, index) in conversation.messages" :key="index" :class="item.role === 'user' ? 'rounded-md bg-muted py-1 px-2 ml-auto' : 'w-full'" class="flex">
-          <img v-if="item.role === 'assistant'" :src="model.icon" class="size-4 mr-2 shrink-0">
-          <div :class="item.role === 'assistant' ? 'mdit -my-3 w-0 flex-1' : ''" v-html="md.render(item.content)" />
+      <div v-if="messages.length" class="px-4 pt-4 max-h-96 overflow-y-auto overflow-x-hidden flex flex-col">
+        <div v-for="(item, index) in conversation.messages" ref="msgRef" :key="index" :class="item.role === 'user' ? 'ml-auto' : 'w-full'" class="pb-4">
+          <div :class="item.role === 'user' ? 'rounded-md bg-muted py-1 px-2' : 'w-full'" class="flex">
+            <img v-if="item.role === 'assistant'" :src="model.icon" class="size-4 mr-2 shrink-0">
+            <div :class="item.role === 'assistant' ? 'mdit -my-3 w-0 flex-1' : ''" v-html="md.render(item.content)" />
+          </div>
         </div>
 
-        <Spin v-if="isLoading" class="size-4" />
+        <Spin v-if="isLoading" class="size-4 mb-4" />
+      </div>
+
+      <div v-if="!messages.length" class="px-4 my-4 flex">
+        <img :src="model.icon" class="size-4 mr-2 shrink-0">
+
+        <div class="font-semibold">
+          How can I assist you today?
+        </div>
       </div>
 
       <div class="relative mx-4 mb-4">
