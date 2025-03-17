@@ -44,7 +44,7 @@ export function useLlm(model: MaybeRef<string>) {
           const payload = computed(() => ({ model: _model.value, ...unref(body) }))
           const url = computed(() => `${openai.value.endpoint}/chat/completions`)
 
-          const response = useFetch<OpenAI.Chat.ChatCompletion>(url, {
+          return useFetch<OpenAI.Chat.ChatCompletion>(url, {
             beforeFetch({ options }: any) {
               if (!options.headers)
                 options.headers = {}
@@ -53,11 +53,7 @@ export function useLlm(model: MaybeRef<string>) {
               return { options }
             },
             ...options,
-          }).post(payload)
-
-          if (!payload.value.stream)
-            return response.json()
-          return response
+          }).post(payload).json()
         },
       },
     },

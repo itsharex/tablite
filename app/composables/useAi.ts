@@ -43,6 +43,7 @@ export function useAiProvider() {
 
 export function useStreamText(options: UseStreamTextOptions = {}) {
   const data = ref('')
+  const system = ref('')
   const prompt = ref('')
   const messages = ref<CoreMessage[]>([])
   const { model } = useAiProvider()
@@ -60,7 +61,10 @@ export function useStreamText(options: UseStreamTextOptions = {}) {
     isFetching.value = true
     const result = streamText({
       model: model.value,
-      messages: messages.value,
+      messages: [
+        system.value ? { role: 'system', content: system.value } : undefined,
+        ...messages.value,
+      ].filter(Boolean) as CoreMessage[],
       onFinish,
     })
 
@@ -73,6 +77,7 @@ export function useStreamText(options: UseStreamTextOptions = {}) {
 
   return {
     data,
+    system,
     prompt,
     messages,
     execute,

@@ -20,9 +20,10 @@ const cursor = computed(() => cursors.value[id.value])
 const instance = ref<Database | undefined>(undefined)
 const db = computed(() => parseConnectionURL(instance.value?.path).database)
 const { isFullscreen } = useTauriWindow()
+const table = useRouteParams<string>('name', '')
 
 const tabs = computed(() => [
-  cursor.value ? { key: 'id-tables', icon: CircleStack } : undefined,
+  cursor.value ? { key: 'id-tables-name', icon: CircleStack } : undefined,
   cursor.value ? { key: 'id-queries', icon: CodeBracket } : undefined,
   { key: 'id-settings', icon: Cog6Tooth },
 ].filter(Boolean) as any[])
@@ -61,7 +62,7 @@ preloadRouteComponents({ name: 'id-queries' })
         </Button>
       </div>
 
-      <AsssistantPopover />
+      <AsssistantPopover :table="table" :cursor="instance" />
     </div>
 
     <Separator />

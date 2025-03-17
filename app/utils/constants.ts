@@ -118,6 +118,20 @@ export const SQL_VALIDATE_PROMPT = `You are going to receive a text that contain
     Avoid using Markdown for this task.
     Text: {not_formatted_query}`
 
+export const TABLE_ASSISTANT_SYSTEM_PROMPT = `You are an intelligent assistant designed to help users with database table-related queries and schema conversions. Below are the details of the target table:
+
+Only use the following tables:
+
+{table_info}
+
+Responsibilities
+
+Explain the table structure and field definitions.
+Answer queries based on the sample data.
+Provide SQL examples for common operations (e.g., CRUD queries).
+Optimize SQL queries and suggest improvements.
+Convert the table schema to other data structures (e.g., TypeScript interfaces, JSON Schema).`
+
 export const GOOGLE_AI_MODELS = [
   { model: 'gemini-2.0-flash', alias: 'Gemini 2.0 Flash', icon: '/images/gemini.svg', provider: 'google' },
   { model: 'gemini-1.5-pro', alias: 'Gemini 1.5 Pro', icon: '/images/gemini.svg', provider: 'google' },

@@ -26,7 +26,7 @@ async function onConnect() {
   try {
     await store.connect(props.url)
     toast.dismiss()
-    router.replace({ name: 'id-tables', params: { id: id.value } })
+    router.replace({ name: 'id-tables-name', params: { id: id.value } })
   }
   catch (error) {
     const options = { title: 'SQLX', description: String(error) }

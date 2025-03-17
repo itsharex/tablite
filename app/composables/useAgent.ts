@@ -44,7 +44,7 @@ export function useSqlAgent(cursorInstance: MaybeRef<Database | undefined> | und
   const question = ref('')
 
   async function queryRelevantTables() {
-    if (usableTableNames.value.length < 25) {
+    if (usableTableNames.value.length < 5) {
       includes.value = usableTableNames.value
       return
     }
@@ -125,7 +125,7 @@ export function useSqlAgent(cursorInstance: MaybeRef<Database | undefined> | und
         return [
           v0,
           '\n/*',
-          '3 rows from t_inf_app_application table:',
+          `3 rows from ${t} table:`,
           rows.join('\n'),
           '*/',
         ].join('\n')
@@ -163,8 +163,8 @@ export function useSqlAgent(cursorInstance: MaybeRef<Database | undefined> | und
       if (!isLoading.value)
         return
 
-      const { choices } = (await llm.chat.completions.create({ messages: [{ role: 'user', content: prompt.value }] })) ?? {}
-      const sql = choices?.[0]?.message.content ?? ''
+      const { data } = (await llm.chat.completions.create({ messages: [{ role: 'user', content: prompt.value }] })) ?? {}
+      const sql = data.value.choices?.[0]?.message.content ?? ''
 
       if (!sql)
         continue

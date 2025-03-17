@@ -11,7 +11,7 @@ const { connections, isLoading } = storeToRefs(store)
 async function onConnectByURL() {
   try {
     const hash = await connect()
-    router.replace({ name: 'id-tables', params: { id: hash } })
+    router.replace({ name: 'id-tables-name', params: { id: hash } })
   }
   catch (error) {
     toast('SQLX', { description: String(error) })

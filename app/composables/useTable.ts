@@ -59,6 +59,12 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const backend = useCursorBackend(cursor)
   const where = ref('')
   const { sql } = useSelect([], table, { where, limit, offset })
+  const isReady = computed(() => !!cursor.value)
+
+  watchImmediate(() => [isReady.value, table.value], ([v]) => {
+    if (v)
+      Promise.allSettled([setup(), execute()])
+  })
 
   async function setup() {
     try {

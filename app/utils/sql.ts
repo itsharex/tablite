@@ -28,3 +28,18 @@ export function parseConnectionURL(url?: string): { database: string } & Record<
 
   return { database: url }
 }
+
+export async function queryCreateTableSQL(value: string, cursor?: Database): Promise<string> {
+  if (value && cursor) {
+    const backend = cursor?.path.split(':')[0] ?? 'mysql'
+    const sql = Sql.SHOW_CREATE_TABLE(value)[backend]
+    if (!sql)
+      return ''
+    const [row] = await cursor?.select<any[]>(sql) ?? []
+    if (backend === 'sqlite')
+      return row.sql
+    return row['Create Table']
+  }
+
+  return ''
+}
