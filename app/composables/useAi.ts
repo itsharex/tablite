@@ -1,4 +1,4 @@
-import { streamText } from 'ai'
+import { type CoreMessage, streamText } from 'ai'
 
 export interface UseStreamTextOptions {
   onFinish?: () => void
@@ -44,6 +44,7 @@ export function useAiProvider() {
 export function useStreamText(options: UseStreamTextOptions = {}) {
   const data = ref('')
   const prompt = ref('')
+  const messages = ref<CoreMessage[]>([])
   const { model } = useAiProvider()
   const isFetching = ref(false)
 
@@ -59,7 +60,7 @@ export function useStreamText(options: UseStreamTextOptions = {}) {
     isFetching.value = true
     const result = streamText({
       model: model.value,
-      prompt: prompt.value,
+      messages: messages.value,
       onFinish,
     })
 
@@ -73,6 +74,7 @@ export function useStreamText(options: UseStreamTextOptions = {}) {
   return {
     data,
     prompt,
+    messages,
     execute,
   }
 }

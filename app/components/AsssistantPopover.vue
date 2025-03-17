@@ -6,7 +6,6 @@ import Sparkles from '~icons/heroicons/sparkles-solid'
 const IS_MACOS = platform() === 'macos'
 
 const router = useRouter()
-const messages = ref<OpenaiMessage[]>([])
 const domRef = ref()
 const { focused } = useFocus(domRef)
 const { enter } = useMagicKeys()
@@ -16,7 +15,7 @@ const { md } = useMdit()
 const { model: modelKey } = storeToRefs(useSettingsStore())
 const model = computed(() => MODULES.find(m => m.model === modelKey.value) ?? {})
 
-const { data, prompt, execute } = useStreamText({
+const { data, prompt, messages, execute } = useStreamText({
   onFinish() {
     messages.value.push({
       role: 'assistant',
