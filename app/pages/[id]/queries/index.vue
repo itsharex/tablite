@@ -14,6 +14,7 @@ import Plus from '~icons/heroicons/plus'
 import Sparkles from '~icons/heroicons/sparkles-solid'
 import Tag from '~icons/heroicons/tag'
 import Trash from '~icons/heroicons/trash'
+import XMark from '~icons/heroicons/x-mark'
 
 definePageMeta({
   keepalive: true,
@@ -40,12 +41,12 @@ const selectedQuery = computed<Query>(() => {
   return defaults
 })
 
-const { title, code, data, error, timeToExecute, isSelect, isLoading, limit, execute, abort } = useQuery(cursor, selectedQuery)
+const { title, code, data, error, timeToExecute, isSelect, isLoading, execute, abort } = useQuery(cursor, selectedQuery)
 const transitionTimeToExecute = useTransition(timeToExecute)
 const { tables } = useTables(cursor)
 const search = ref('')
 const { meta, shift, s } = useMagicKeys()
-const { includes, sql, steps, isLoading: isThinking, execute: runText2Sql } = useText2Sql(cursor, { limit })
+const { steps, step: stepIndex, data: sql, prompt, isLoading: isGenerating, execute: generate } = useText2SqlV2({ cursor, tables })
 const store = useSettingsStore()
 const { model } = storeToRefs(store)
 
@@ -178,13 +179,16 @@ function onRemove(index: number) {
 }
 
 async function onGenerateSqlByLlm() {
-  includes.value = tables.value
-  await runText2Sql(title.value)
-  if (sql.value) {
-    code.value = sql.value
+  prompt.value = title.value
+  generate()
+}
+
+watch(sql, (v) => {
+  if (v) {
+    code.value = v
     editor.setValue(code.value)
   }
-}
+})
 </script>
 
 <template>
@@ -262,14 +266,14 @@ async function onGenerateSqlByLlm() {
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel :default-size="50" :min-size="25" class="w-full flex flex-col bg-white">
           <div class="flex justify-between items-center p-4">
-            <Popover v-if="model" :open="isThinking">
+            <Popover v-if="model" :open="isGenerating">
               <PopoverTrigger>
                 <Button variant="ghost" size="icon" class="w-8 h-8" :disabled="!title" @click="onGenerateSqlByLlm">
                   <Sparkles />
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="start" class="text-xs">
-                <Stepper :model-value="steps.length - 1" orientation="vertical" class="mx-auto flex max-w-96 flex-col justify-start gap-4">
+                <Stepper :model-value="stepIndex" orientation="vertical" class="mx-auto flex max-w-96 flex-col justify-start gap-4">
                   <StepperItem
                     v-for="(step, index) in steps"
                     :key="index"
@@ -288,9 +292,10 @@ async function onGenerateSqlByLlm() {
                         size="icon"
                         class="z-10 rounded-full shrink-0 size-6"
                       >
-                        <Check v-if="step.status === GenerationStatus.SUCCEEDED" class="scale-75" />
-                        <Spin v-if="step.status === GenerationStatus.RUNNING" class="size-4" />
-                        <div v-if="step.status === GenerationStatus.PENDING" class="bg-zinc-600/50 w-2 h-2 flex-shrink-0 rounded-full" />
+                        <Check v-if="step.status === 'succeeded'" class="scale-75" />
+                        <Spin v-if="step.status === 'running'" class="size-4" />
+                        <XMark v-if="step.status === 'failed'" class="scale-75" />
+                        <div v-if="step.status === 'pending'" class="bg-zinc-600/50 w-2 h-2 flex-shrink-0 rounded-full" />
                       </Button>
                     </StepperTrigger>
 
@@ -310,7 +315,7 @@ async function onGenerateSqlByLlm() {
               </PopoverContent>
             </Popover>
 
-            <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" :readonly="isThinking" placeholder="Untitled Query">
+            <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" :readonly="isGenerating" placeholder="Untitled Query">
 
             <div class="flex-shrink-0 flex justify-end gap-2">
               <Button variant="secondary" size="sm" :disabled="!title || isSaving" @click="onSave">

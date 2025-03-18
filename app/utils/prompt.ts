@@ -1,6 +1,6 @@
 export async function generateTableSchemaPromptWithIndexRows(tables: string[], cursor?: Database) {
   if (!cursor)
-    return ''
+    return []
   return await Promise.all(tables.map(t => (async () => {
     if (t && cursor) {
       const [v0, v1] = await Promise.all([

@@ -1,4 +1,4 @@
-import { type CoreMessage, streamText } from 'ai'
+import { type CoreMessage, type LanguageModelV1, streamText } from 'ai'
 
 export interface UseStreamTextOptions {
   system?: MaybeRef<string>
@@ -33,7 +33,7 @@ export function useAiProvider() {
   const model = computed(() => {
     if (!provider.value)
       return
-    return provider.value(modelKey.value)
+    return provider.value(modelKey.value) as LanguageModelV1
   })
 
   return {

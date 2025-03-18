@@ -27,8 +27,8 @@ function normalizeStructure(value: QueryStructureResults): Structure[] {
   }))
 }
 
-export function useCursorBackend(cursor: ComputedRef<Database | undefined>) {
-  return computed(() => cursor.value?.path.split(':')[0] ?? 'mysql')
+export function useCursorBackend(cursor: MaybeRef<Database | undefined>) {
+  return computed(() => unref(cursor)?.path.split(':')[0] ?? 'mysql')
 }
 
 function parseConnectionURL(value: string) {
