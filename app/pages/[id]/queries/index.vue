@@ -46,7 +46,7 @@ const transitionTimeToExecute = useTransition(timeToExecute)
 const { tables } = useTables(cursor)
 const search = ref('')
 const { meta, shift, s } = useMagicKeys()
-const { steps, step: stepIndex, data: sql, prompt, isLoading: isGenerating, execute: generate } = useText2SqlV2({ cursor, tables })
+const { steps, step: stepIndex, data: sql, prompt, isLoading: isGenerating, execute: generate } = useText2Sql({ cursor, tables })
 const store = useSettingsStore()
 const { model } = storeToRefs(store)
 

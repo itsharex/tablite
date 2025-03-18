@@ -102,7 +102,7 @@ export function useSqlFormatter() {
   }
 }
 
-export function useText2SqlV2(options: UseText2SqlOptions) {
+export function useText2Sql(options: UseText2SqlOptions) {
   const prompt = ref('')
   const { model } = useAiProvider()
   const data = ref('')
