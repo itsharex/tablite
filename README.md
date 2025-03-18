@@ -26,7 +26,7 @@ Supported LLMs:
 - DeepSeek R1
 - OpenRouter (Tools supported)
 
-![Screenshot](./docs/Screenshot.png)
+![Screenshot](./docs/Screenshot.jpg)
 
 ## Installation
 
