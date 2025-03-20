@@ -114,7 +114,6 @@ export function useText2Sql(options: UseText2SqlOptions) {
     { title: 'Semantic Table Indexing', description: 'Analyzing relevent tables' },
     { title: 'Metadata Topology Parsing', description: 'Quering schemas' },
     { title: 'Context Aware', description: 'Generate code from model output' },
-    { title: 'Code Formatter', description: 'Validate SQL query' },
   ])
 
   async function execute() {
@@ -124,7 +123,7 @@ export function useText2Sql(options: UseText2SqlOptions) {
     const { messages } = await createAgent(model.value!)
       .next(useRelativeTables(options.tables).execute, { after: next })
       .next(useSchemasPrompt(options.cursor).execute, { after: next })
-      .next(useGenerateSqlStatement().execute, { after: next })
+      .next(useGenerateSqlStatement().execute)
       .next(useSqlFormatter().execute)
       .execute([{ role: 'user', content: prompt.value }])
 

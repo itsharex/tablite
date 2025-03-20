@@ -18,7 +18,7 @@ definePageMeta({
 })
 
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
-const table = useRouteParams('name', '')
+const table = useRouteParams<string>('name', '')
 const { data, limit, offset, count, structure, primaryKeys, isLoading, backend, where, execute } = useTable(table, cursor)
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
@@ -27,13 +27,13 @@ const updates = ref<Update[]>([])
 const inserts = ref<Record<string, any>[]>([])
 const deletes = ref<string[]>([])
 const selectedRowKeys = ref([])
-const isReady = computed(() => !!cursor.value)
+const isReady = computed(() => !!unref(cursor))
 
 watchImmediate(() => [isReady.value, table.value], async ([v, t]) => {
-  if (v) {
+  if (v && t) {
     defineAssistantContext({
       async system() {
-        const prompt = await generateTableSchemaPromptWithIndexRows([t], cursor.value!)
+        const prompt = await generateTableSchemaPromptWithIndexRows([t as string], cursor!.value!)
         return usePromptTemplate(TABLE_ASSISTANT_SYSTEM_PROMPT, {
           tableInfo: prompt,
         })
