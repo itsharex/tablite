@@ -1,5 +1,7 @@
 export type DatabaseConnectionState = 'active' | 'inactive'
 
+export type MaybePromise<T = unknown> = T | Promise<T>
+
 export interface DatabaseConnection {
   id: string
   state: DatabaseConnectionState
