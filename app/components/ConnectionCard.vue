@@ -64,7 +64,7 @@ async function onConnect() {
           <Spin v-if="isLoading" class="size-4" />
         </div>
 
-        <ProtocolAvatar :value="url" class="size-[128px] absolute right-2 -top-6 text-primary/5" />
+        <OuterbaseDatabaseIcon :value="url" class="size-[128px] absolute right-2 -top-6 text-primary/5" />
       </Card>
     </ContextMenuTrigger>
 
