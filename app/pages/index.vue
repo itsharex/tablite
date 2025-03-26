@@ -78,38 +78,10 @@ async function onConnectByURL() {
     <DrawerContent class="px-10">
       <DrawerHeader class="cursor-default">
         <DrawerTitle>Create a base</DrawerTitle>
-        <DrawerDescription>Connect to a database</DrawerDescription>
+        <DrawerDescription>Connect to a database with a string</DrawerDescription>
       </DrawerHeader>
 
       <div class="px-4">
-        <div class="grid grid-cols-5 gap-4">
-          <CardSpotlight
-            class="cursor-pointer p-6 box-border items-center"
-            gradient-color="#C9C9C9"
-          >
-            <div class="flex items-center gap-3">
-              <div class="size-6">
-                <MySQL />
-              </div>
-              <span class="font-semibold">MySQL</span>
-            </div>
-          </CardSpotlight>
-
-          <CardSpotlight
-            class="cursor-pointer p-6 box-border items-center"
-            gradient-color="#C9C9C9"
-          >
-            <div class="flex items-center gap-3">
-              <div class="size-6">
-                <Sqlite />
-              </div>
-              <span class="font-semibold">Sqlite</span>
-            </div>
-          </CardSpotlight>
-        </div>
-
-        <Separator label="Or use a connection string" class="my-7" />
-
         <div class="flex w-full max-w-xl items-center gap-2">
           <Input v-model="url" placeholder="e.g. mysql://username:password@hostnmae:port/database" class="h-9" />
           <Button size="icon" :disabled="isInvalidate || isLoading" @click="onConnectByURL">
