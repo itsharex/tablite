@@ -1,6 +1,7 @@
 <script setup lang="tsx">
 import * as VTable from '@visactor/vtable'
 import { InputEditor } from '@visactor/vtable-editors'
+import { klona } from 'klona'
 import { toast } from 'vue-sonner'
 
 interface Props {
@@ -81,7 +82,19 @@ VTable.register.icon('frozenCurrent', {
 let selectedRowRecord: Record<string, string | number> = {}
 
 const domRef = ref()
+
+/**
+ * Tracks changes made to table cell contents, where:
+ * - The outer key is a stringified row identifier (e.g., JSON string of row ID)
+ * - The inner key is the column/property name that was modified
+ * - The value is an array containing the new content(s)
+ *
+ * @example
+ * // Changes for row with ID "93uisjxquq", updating the "content" column from "hi" to "hi tablite"
+ * { "{\"id\":\"93uisjxquq\"}": { "content": ["hi", "hi tablite"] } }
+ */
 const changes = useVModel(props, 'changes', emit)
+
 const inserts = useVModel(props, 'inserts', emit)
 const selectedRowKeys = useVModel(props, 'selectedRowKeys', emit)
 const originRecordKeys = ref<string[]>([])
@@ -203,18 +216,25 @@ onMounted(() => {
     const key = instance.records[row - 1].__TABLITE_ROW_KEY
     if (!key)
       return
-    if (!changes.value[key])
-      changes.value[key] = {}
-    if (!changes.value[key][column.field])
-      changes.value[key][column.field] = [currentValue]
-    const origin = changes.value[key][column.field]?.[0]
+    const _changes = klona(changes.value)
+    // Initial row changes if not exists
+    if (!_changes[key])
+      _changes[key] = {}
+    // Cached current cell value for toast rollback
+    if (!_changes[key][column.field])
+      _changes[key][column.field] = [currentValue]
+    const origin = _changes[key][column.field]?.[0]
+    // Clear new value if has same content
     if (origin === changedValue) {
-      changes.value[key][column.field]?.splice(1, 1)
+      _changes[key][column.field]?.splice(1, 1)
     }
+    // Set changed value as the second one and trigger undo toast
     else {
-      changes.value[key][column.field] = [origin, changedValue]
+      _changes[key][column.field] = [origin, changedValue]
       triggerUndoToast(key, column.field, origin, row, col)
     }
+
+    changes.value = _changes
   })
 
   instance.on('checkbox_state_change', ({ row, checked }): any => {

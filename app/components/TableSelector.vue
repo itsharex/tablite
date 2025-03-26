@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import ArrowPath from '~icons/heroicons/arrow-path'
+import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import TableCells from '~icons/heroicons/table-cells'
+import Trash from '~icons/heroicons/trash'
 
 const props = defineProps<{
   value: string
@@ -57,6 +59,19 @@ async function onRefresh() {
           </div>
 
           <Spin v-if="value === table && loading" class="size-4" />
+
+          <DropdownMenu v-if="value === table && !loading">
+            <DropdownMenuTrigger @click.stop>
+              <EllipsisHorizontal />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem class="text-xs">
+                <Trash />
+                <span>Delete</span>
+                <DropdownMenuShortcut>⌫</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
