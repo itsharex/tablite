@@ -6,11 +6,7 @@ import ChevronRight from '~icons/heroicons/chevron-right'
 import EllipsisHorizontal from '~icons/heroicons/ellipsis-horizontal'
 import InformationCircle from '~icons/heroicons/information-circle'
 import Plus from '~icons/heroicons/plus'
-
-interface Update {
-  enable: boolean
-  sql: string
-}
+import { useTableChanges } from '~/composables/useTableChanges'
 
 definePageMeta({
   keepalive: true,
@@ -22,12 +18,17 @@ const table = useRouteParams<string>('name', '')
 const { data, limit, offset, count, structure, primaryKeys, isLoading, backend, where, execute } = useTable(table, cursor)
 const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
-const changes = ref<Record<string, any>>({})
-const updates = ref<Update[]>([])
-const inserts = ref<Record<string, any>[]>([])
-const deletes = ref<string[]>([])
 const selectedRowKeys = ref([])
 const isReady = computed(() => !!unref(cursor))
+
+const { changes, updates, inserts, deletes, disvard, clear } = useTableChanges(table, {
+  structure,
+
+  async afterDisvard() {
+    toast.dismiss()
+    await execute()
+  },
+})
 
 watchImmediate(() => [isReady.value, table.value], async ([v, t]) => {
   if (v && t) {
@@ -51,42 +52,13 @@ const page = computed({
   },
 })
 
-const dataTypeMap = computed(() => {
-  const map: Record<string, string> = {}
-
-  structure.value.forEach(({ columnName, dataType }) => {
-    map[columnName] = dataType
-  })
-
-  return map
-})
-
 const pageTotal = computed(() => Math.floor(count.value / limit.value) + 1)
-
-const hasChanged = computed(() => {
-  if (inserts.value.length > 0)
-    return true
-  if (deletes.value.length > 0)
-    return true
-
-  for (const _t in changes.value) {
-    const tc = changes.value[_t]
-    for (const _k in tc) {
-      if (Object.values(tc[_k] as Record<string, any[]>).some(e => e.length > 1))
-        return true
-    }
-  }
-
-  return false
-})
 
 async function onSelectTable() {
   toast.dismiss()
-  where.value = ''
-  changes.value = { [table.value]: {} }
   page.value = 1
-  inserts.value = []
-  deletes.value = []
+  clear()
+  where.value = ''
 }
 
 async function onPaginationChange(value: number) {
@@ -101,56 +73,6 @@ async function onApplyFliters(value: string) {
   await onPaginationChange(1)
 }
 
-async function onDisvardChanges() {
-  changes.value = table.value ? { [table.value]: {} } : {}
-  inserts.value = []
-  deletes.value = []
-  toast.dismiss()
-  await execute()
-}
-
-function onOpenUpdatesPreview(visible: boolean) {
-  if (!visible)
-    return
-
-  toast.dismiss()
-
-  const sqls: string[] = []
-
-  for (const _t in changes.value) {
-    const tc = changes.value[_t]
-    for (const _k in tc) {
-      try {
-        const json = JSON.parse(_k)
-        const where = Object.entries(json).map(([k, v]) => `${k} = ${normalizeQueryValue(v, dataTypeMap.value[k])}`).join(' AND ')
-        const setter = Object.entries((tc[_k] ?? {}) as Record<string, any[]>).map(([k, [_, v]]) => `${k} = ${normalizeQueryValue(v, dataTypeMap.value[k])}`).join(', ')
-        sqls.push(`UPDATE \`${_t}\` SET ${setter} WHERE ${where}`)
-      }
-      catch {
-        continue
-      }
-    }
-  }
-
-  for (const _n of inserts.value) {
-    const keys = Object.keys(_n)
-    sqls.push(`INSERT INTO \`${table.value}\` (${keys.join(', ')}) VALUES (${keys.map(k => normalizeQueryValue(_n[k], dataTypeMap.value[k])).join(', ')})`)
-  }
-
-  for (const _d of deletes.value) {
-    try {
-      const json = JSON.parse(_d)
-      const where = Object.entries(json).map(([k, v]) => `${k} = ${normalizeQueryValue(v, dataTypeMap.value[k])}`).join(' AND ')
-      sqls.push(`DELETE FROM \`${table.value}\` WHERE ${where}`)
-    }
-    catch {
-      continue
-    }
-  }
-
-  updates.value = sqls.map(sql => ({ enable: true, sql }))
-}
-
 function _execute(value: string) {
   const { code, execute } = useQuery(cursor, { content: '' })
   code.value = value
@@ -163,15 +85,10 @@ async function applyUpdates() {
 }
 
 async function onSave() {
-  if (!updates.value.length)
-    onOpenUpdatesPreview(true)
   toast.dismiss()
   await applyUpdates()
   await execute()
-  changes.value = table.value ? { [table.value]: {} } : {}
-  updates.value = []
-  inserts.value = []
-  deletes.value = []
+  clear()
   selectedRowKeys.value = []
 }
 
@@ -287,7 +204,7 @@ function onDeleteRecords() {
       </ResizablePanel>
     </ResizablePanelGroup>
 
-    <div v-if="hasChanged" class="w-full bg-white">
+    <div v-if="updates.length" class="w-full bg-white">
       <Separator />
 
       <div class="px-3 py-2 flex items-center justify-between">
@@ -298,7 +215,7 @@ function onDeleteRecords() {
 
         <div>
           <div class="flex gap-2.5">
-            <Button size="sm" variant="ghost" @click="onDisvardChanges">
+            <Button size="sm" variant="ghost" @click="disvard()">
               Disvard Changes
             </Button>
 
@@ -306,7 +223,7 @@ function onDeleteRecords() {
               <Button size="sm" class="rounded-r-none" @click="onSave">
                 Save
               </Button>
-              <Popover @update:open="onOpenUpdatesPreview">
+              <Popover @update:open="toast.dismiss()">
                 <PopoverTrigger>
                   <Button size="icon" class="rounded-l-none h-8 w-8">
                     <EllipsisHorizontal />
