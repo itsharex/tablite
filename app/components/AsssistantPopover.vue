@@ -80,7 +80,7 @@ async function onSend() {
         <div v-for="(item, index) in conversation.messages" ref="msgRef" :key="index" :class="item.role === 'user' ? 'ml-auto' : 'w-full'" class="pb-4">
           <div :class="item.role === 'user' ? 'rounded-md bg-muted py-1 px-2' : 'w-full'" class="flex">
             <img v-if="item.role === 'assistant'" :src="model.icon" class="size-4 mr-2 shrink-0">
-            <div :class="item.role === 'assistant' ? 'mdit -my-3 w-0 flex-1' : ''" v-html="md.render(item.content as string)" />
+            <div class="select-text" :class="item.role === 'assistant' ? 'mdit -my-3 w-0 flex-1' : ''" v-html="md.render(item.content as string)" />
           </div>
         </div>
 
