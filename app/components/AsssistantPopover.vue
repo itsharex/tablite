@@ -8,8 +8,6 @@ const IS_MACOS = platform() === 'macos'
 const router = useRouter()
 const domRef = ref()
 const msgRefs = useTemplateRef('msgRef')
-const { focused } = useFocus(domRef)
-const { enter } = useMagicKeys()
 const isLoading = ref(false)
 const { md } = useMdit()
 
@@ -41,19 +39,14 @@ watch(conversation, () => {
   msgRefs.value?.at(-1)?.scrollIntoView({ behavior: 'smooth', block: 'end' })
 })
 
-watch(enter!, (v) => {
-  if (v && focused.value && prompt.value)
-    onSend()
-})
-
 watch(data, (cur, pre) => {
   if (cur && !pre)
     isLoading.value = false
 })
 
 function onKeydown(event: any) {
-  if (event.key === 'Enter')
-    event.preventDefault()
+  if (event.key === 'Enter' && event.keyCode !== 229 && prompt.value)
+    onSend()
 }
 
 async function onSend() {

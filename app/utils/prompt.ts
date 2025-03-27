@@ -1,11 +1,17 @@
-export async function generateTableSchemaPromptWithIndexRows(tables: string[], cursor?: Database) {
+interface GenerateTableSchemaPromptWithIndexRowsOptions {
+  limit?: number
+}
+
+export async function generateTableSchemaPromptWithIndexRows(tables: string[], cursor?: Database, options: GenerateTableSchemaPromptWithIndexRowsOptions = {}) {
   if (!cursor)
     return []
+
   return await Promise.all(tables.map(t => (async () => {
     if (t && cursor) {
+      const limit = options.limit ?? 3
       const [v0, v1] = await Promise.all([
         queryCreateTableSQL(t, cursor),
-        cursor?.select<Record<string, any>[]>(`SELECT * FROM \`${t}\` LIMIT 3;`) ?? [],
+        cursor?.select<Record<string, any>[]>(`SELECT * FROM \`${t}\` LIMIT ${limit};`) ?? [],
       ])
 
       const cols = Object.keys(v1[0] ?? {})
@@ -18,7 +24,7 @@ export async function generateTableSchemaPromptWithIndexRows(tables: string[], c
       return [
         v0,
         '\n/*',
-        `3 rows from ${t} table:`,
+        `${limit} rows from ${t} table:`,
         rows.join('\n'),
         '*/',
       ].join('\n')

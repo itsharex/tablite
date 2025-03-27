@@ -34,7 +34,7 @@ watchImmediate(() => [isReady.value, table.value], async ([v, t]) => {
   if (v && t) {
     defineAssistantContext({
       async system() {
-        const prompt = await generateTableSchemaPromptWithIndexRows([t as string], cursor!.value!)
+        const prompt = await generateTableSchemaPromptWithIndexRows([t as string], cursor!.value, { limit: 10 })
         return usePromptTemplate(TABLE_ASSISTANT_SYSTEM_PROMPT, {
           tableInfo: prompt,
         })
