@@ -4,5 +4,6 @@ export default antfu({
   ignores: [
     'src-tauri',
     'app/components/ui',
+    'app/lib',
   ],
 })

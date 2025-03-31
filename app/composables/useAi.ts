@@ -1,4 +1,5 @@
-import { type CoreMessage, type LanguageModelV1, streamText } from 'ai'
+import type { CoreMessage, LanguageModelV1 } from 'ai'
+import { streamText } from 'ai'
 
 export interface UseStreamTextOptions {
   system?: MaybeRef<string>
