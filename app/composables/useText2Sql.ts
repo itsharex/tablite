@@ -14,7 +14,7 @@ export function useRelativeTables(tables: MaybeRef<string[]> = []) {
   const execute: AgentNode = async ({ model, messages }) => {
     let data: string[] = []
     const question = messages[0]!.content
-    if (!question)
+    if (!unref(tables).length || !question)
       return []
     await generateText({
       model,
