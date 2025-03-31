@@ -78,6 +78,7 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
     }
     catch (e) {
       error.value = e
+      throw e
     }
     finally {
       isLoading.value = false

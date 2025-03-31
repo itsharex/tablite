@@ -80,8 +80,13 @@ function _execute(value: string) {
 }
 
 async function applyUpdates() {
-  const tasks = updates.value.filter(({ enable }) => enable).map(({ sql }) => _execute(sql))
-  return Promise.all(tasks)
+  try {
+    const tasks = updates.value.filter(({ enable }) => enable).map(({ sql }) => _execute(sql))
+    await Promise.all(tasks)
+  }
+  catch (error) {
+    toast('SQLX', { description: String(error) })
+  }
 }
 
 async function onSave() {
