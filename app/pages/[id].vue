@@ -51,6 +51,10 @@ function onNavi(key: string) {
 provide('__TABLITE:CURSOR', instance)
 
 preloadRouteComponents({ name: 'id-queries' })
+
+function isActive(key: string) {
+  return (route.name as string)?.includes(key)
+}
 </script>
 
 <template>
@@ -72,9 +76,9 @@ preloadRouteComponents({ name: 'id-queries' })
 
     <div class="flex flex-1 h-0">
       <div class="flex flex-col items-center flex-shrink-0 border-r border-r-zinc-200 bg-zinc-100">
-        <div v-for="tab in tabs" :key="tab.key" class="flex items-center cursor-pointer justify-center relative" :class="[route.name === tab.key ? 'bg-zinc-200 text-zinc-600' : 'text-zinc-600/50 hover:text-zinc-600']" @click="onNavi(tab.key)">
+        <div v-for="tab in tabs" :key="tab.key" class="flex items-center cursor-pointer justify-center relative" :class="[isActive(tab.key) ? 'bg-zinc-200 text-zinc-600' : 'text-zinc-600/50 hover:text-zinc-600']" @click="onNavi(tab.key)">
           <component :is="tab.icon" class="flex-shrink-0 size-[18px] m-4" />
-          <div v-if="route.name === tab.key" class="absolute top-0 bottom-0 left-0 w-0.5 bg-zinc-800" />
+          <div v-if="isActive(tab.key)" class="absolute top-0 bottom-0 left-0 w-0.5 bg-zinc-800" />
         </div>
       </div>
 

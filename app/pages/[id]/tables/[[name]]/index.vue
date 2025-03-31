@@ -16,7 +16,6 @@ definePageMeta({
 const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
 const table = useRouteParams<string>('name', '')
 const { data, limit, offset, count, structure, primaryKeys, isLoading, backend, where, execute } = useTable(table, cursor)
-const mode = ref('data')
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 const selectedRowKeys = ref([])
 const isReady = computed(() => !!unref(cursor))
@@ -179,12 +178,12 @@ function onDeleteRecords() {
           <Separator />
 
           <div class="flex-shrink-0 px-3 py-2 flex justify-between items-center relative z-10">
-            <Tabs v-model="mode">
+            <Tabs default-value="id-tables-name-index">
               <TabsList>
-                <TabsTrigger value="data" class="px-3 py-1 text-xs font-normal">
+                <TabsTrigger value="id-tables-name-index" class="px-3 py-1 text-xs font-normal">
                   Data
                 </TabsTrigger>
-                <TabsTrigger value="structure" class="px-3 py-1 text-xs font-normal">
+                <TabsTrigger value="id-tables-name-structure" class="px-3 py-1 text-xs font-normal">
                   Structure
                 </TabsTrigger>
               </TabsList>
