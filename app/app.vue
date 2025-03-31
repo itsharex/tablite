@@ -1,6 +1,6 @@
 <template>
   <div class="relative overflow-hidden overscroll-none bg-zinc-50">
-    <TitleBar />
+    <TauriDragRegion />
 
     <main vaul-drawer-wrapper>
       <NuxtPage />
