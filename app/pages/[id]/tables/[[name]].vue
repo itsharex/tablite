@@ -220,12 +220,12 @@ function onDeleteRecords() {
 
         <div>
           <div class="flex gap-2.5">
-            <Button size="sm" variant="ghost" @click="disvard()">
+            <Button size="sm" variant="ghost" class="text-xs h-8" @click="disvard()">
               Disvard Changes
             </Button>
 
             <div class="flex items-center">
-              <Button size="sm" class="rounded-r-none" @click="onSave">
+              <Button size="sm" class="rounded-r-none text-xs h-8" @click="onSave">
                 Save
               </Button>
               <Popover @update:open="toast.dismiss()">

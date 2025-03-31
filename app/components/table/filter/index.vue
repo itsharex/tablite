@@ -98,7 +98,7 @@ function pluralFormatter() {
   <Popover @update:open="onUpdateOpen">
     <PopoverTrigger>
       <div class="flex items-center">
-        <Button size="sm" class="rounded-r-none">
+        <Button size="sm" class="rounded-r-none text-xs h-8">
           <AdjustmentsHorizontal />
           {{ enabledFilters.length ? [enabledFilters.length, pluralFormatter()].join(' ') : 'Add filters' }}
         </Button>
@@ -146,17 +146,17 @@ function pluralFormatter() {
         </div>
 
         <div class="flex justify-between">
-          <Button size="sm" variant="secondary" @click="onAdd">
+          <Button size="sm" variant="secondary" class="text-xs h-8" @click="onAdd">
             <Plus />
             Add filter
           </Button>
 
           <div class="flex gap-2.5">
-            <Button size="sm" variant="ghost" @click="onClear">
+            <Button size="sm" variant="ghost" class="text-xs h-8" @click="onClear">
               Clear
             </Button>
 
-            <Button size="sm" @click="onApply">
+            <Button size="sm" class="text-xs h-8" @click="onApply">
               Apply
             </Button>
           </div>

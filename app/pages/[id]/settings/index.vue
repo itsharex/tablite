@@ -243,7 +243,7 @@ const cnx = computed<Partial<Connection>>(() => connections.value.find(({ url })
             Once you delete a connection, there is no going back. Please be certain.
           </div>
 
-          <Button variant="destructive" size="sm">
+          <Button variant="destructive" size="sm" class="text-xs h-8">
             Delete this connection
           </Button>
         </div>

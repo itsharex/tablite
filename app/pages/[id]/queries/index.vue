@@ -228,7 +228,7 @@ watch(sql, (v) => {
             </div>
           </div>
 
-          <Button class="mx-auto" variant="secondary">
+          <Button class="mx-auto text-xs h-8" size="sm" variant="secondary">
             Create
           </Button>
         </div>
@@ -318,11 +318,11 @@ watch(sql, (v) => {
             <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" :readonly="isGenerating" placeholder="Untitled Query">
 
             <div class="flex-shrink-0 flex justify-end gap-2">
-              <Button variant="secondary" size="sm" :disabled="!title || isSaving" @click="onSave">
+              <Button variant="secondary" size="sm" class="text-xs h-8" :disabled="!title || isSaving" @click="onSave">
                 Save
               </Button>
 
-              <Button size="sm" @click="isLoading ? abort() : onRun()">
+              <Button size="sm" class="text-xs h-8" @click="isLoading ? abort() : onRun()">
                 <component :is="isLoading ? PauseSolid : PlaySolid" />
                 <span>{{ isLoading ? 'Pause' : 'Run' }}</span>
               </Button>

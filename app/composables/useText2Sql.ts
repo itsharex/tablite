@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 interface UseText2SqlOptions {
   tables: MaybeRef<string[]>
-  cursor: MaybeRef<Database>
+  cursor: MaybeRef<Database> | undefined
 }
 
 export function useRelativeTables(tables: MaybeRef<string[]> = []) {
@@ -45,7 +45,7 @@ export function useRelativeTables(tables: MaybeRef<string[]> = []) {
   }
 }
 
-export function useSchemasPrompt(cursor: MaybeRef<Database>) {
+export function useSchemasPrompt(cursor: MaybeRef<Database> | undefined) {
   const backend = useCursorBackend(cursor)
 
   const execute: AgentNode = async ({ messages }: { messages: any[] }) => {
