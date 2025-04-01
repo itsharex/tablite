@@ -112,7 +112,7 @@ function onDeleteRecords() {
   <div class="flex-1 h-full w-full flex flex-col">
     <ResizablePanelGroup direction="horizontal" class="h-0 flex-1 w-full">
       <ResizablePanel :default-size="22" :min-size="10" :max-size="50">
-        <TableSelector v-model:value="table" :cursor="cursor" :loading="isLoading" @after-select="onSelectTable" />
+        <TableSelector v-model:value="table" :cursor="cursor" :loading="isLoading" @after-select="onSelectTable" @after-delete="onSelectTable" />
       </ResizablePanel>
 
       <ResizableHandle />

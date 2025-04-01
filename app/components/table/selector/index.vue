@@ -10,14 +10,15 @@ const props = defineProps<{
   loading: boolean
 }>()
 
-const emit = defineEmits(['update:value', 'afterSelect', 'beforeRefresh'])
+const emit = defineEmits(['update:value', 'afterSelect', 'beforeRefresh', 'afterDelete'])
 
 const value = useVModel(props, 'value', emit)
 
 const { cursor } = toRefs(props)
 const domRef = ref()
-const { tables, isLoading, execute: reconnect } = useTables(cursor)
+const { tables, isLoading, backend, execute: reconnect } = useTables(cursor)
 const search = ref('')
+const isOpen = ref([false])
 
 const { y } = useScroll(domRef)
 
@@ -30,6 +31,14 @@ function onSelect(table: string) {
 
 async function onRefresh() {
   emit('beforeRefresh')
+  await reconnect()
+}
+
+async function onDelete() {
+  const sql = Sql.DROP_TABLE_IF_EXISTS(value.value)
+  await useQuery(cursor).execute(sql[backend.value])
+  value.value = ''
+  emit('afterDelete')
   await reconnect()
 }
 </script>
@@ -65,7 +74,7 @@ async function onRefresh() {
               <EllipsisHorizontal />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem class="text-xs">
+              <DropdownMenuItem class="text-xs" @click="isOpen[0] = true">
                 <Trash />
                 <span>Delete</span>
                 <DropdownMenuShortcut>⌫</DropdownMenuShortcut>
@@ -75,5 +84,24 @@ async function onRefresh() {
         </div>
       </div>
     </div>
+
+    <AlertDialog v-model:open="isOpen[0]">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete <Button variant="link" class="p-0 h-0 text-zinc-600">
+              {{ value }}
+            </Button> and all its data from the database.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction @click="onDelete()">
+            Continue
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>

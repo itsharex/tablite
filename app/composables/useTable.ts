@@ -148,6 +148,7 @@ export function useTables(cursorInstance: MaybeRef<Database | undefined> | undef
 
   return {
     tables,
+    backend,
     isLoading,
     execute,
   }

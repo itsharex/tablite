@@ -1,6 +1,6 @@
 export interface Query {
   title?: string
-  content: string
+  content?: string
   createdAt?: number
   updatedAt?: number
 }
@@ -32,7 +32,7 @@ function parseQueryContent(value?: string) {
   }
 }
 
-export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefined, initialValue: MaybeRef<Query>) {
+export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefined, initialValue: MaybeRef<Query> = {}) {
   let _ac: AbortController | undefined
 
   const title = ref(unref(initialValue)?.title ?? '')
@@ -102,9 +102,12 @@ export function useQuery(cursorInstance: MaybeRef<Database | undefined> | undefi
     isLoading,
     abort,
 
-    execute(): Promise<void> {
+    execute(value?: string): Promise<void> {
       _ac = new AbortController()
       const signal = _ac.signal
+
+      if (value)
+        code.value = value
 
       return new Promise((resolve, reject) => {
         _execute().then(resolve).catch(reject)

@@ -2,11 +2,11 @@ import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 
-function defineQuery(mysql: string = '', postgres: string = '', sqlite: string = ''): Record<string, string> {
+function defineQuery(mysql: string = '', postgres?: string, sqlite?: string): Record<string, string> {
   return {
     mysql,
-    postgres,
-    sqlite,
+    postgres: postgres ?? mysql,
+    sqlite: sqlite ?? mysql,
   }
 }
 
@@ -22,6 +22,7 @@ export const Sql = {
   SHOW_CREATE_TABLE: (value: string) => defineQuery(`SHOW CREATE TABLE \`${value}\``, 'SHOW TABLES;', `SELECT sql FROM sqlite_master WHERE type='table' AND name='${value}';`),
   DESCRIBE_TABLE: (value: string) => defineQuery(`DESCRIBE ${value};`, 'SHOW TABLES;', `PRAGMA table_info(${value});`),
   QUERY_UNIQUE_COLUMNS: (database: string, table: string) => defineQuery(`SELECT CASE non_unique WHEN 0 THEN'TRUE'ELSE'FALSE'END AS is_unique,column_name as column_name FROM information_schema.statistics WHERE table_schema = '${database}' AND table_name = '${table}' ORDER BY seq_in_index ASC;`, 'SHOW TABLES;', `SELECT CASE il."unique" WHEN 1 THEN 'TRUE' ELSE 'FALSE' END AS is_unique, ii.name AS 'column_name' FROM sqlite_master AS m, pragma_index_list (m.name) AS il, pragma_index_info (il.name) AS ii WHERE m.name = "${table}";`),
+  DROP_TABLE_IF_EXISTS: (table: string) => defineQuery(`DROP TABLE IF EXISTS ${table};`),
 
   EQUALS: (value: string) => defineQuery(`= \'${value}\'`, `= \'${value}\'`, `= \'${value}\'`),
   NOT_EQUALS: (value: string) => defineQuery(`!= \'${value}\'`, `!= \'${value}\'`, `!= \'${value}\'`),
