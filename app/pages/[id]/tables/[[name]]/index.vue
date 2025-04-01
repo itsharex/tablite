@@ -9,7 +9,6 @@ import Plus from '~icons/heroicons/plus'
 import { useTableChanges } from '~/composables/useTableChanges'
 
 definePageMeta({
-  keepalive: true,
   key: route => route.name! as string,
 })
 
