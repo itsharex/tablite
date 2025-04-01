@@ -130,7 +130,7 @@ function onDeleteRecords() {
             </div>
 
             <div class="flex gap-2.5">
-              <Button v-if="selectedRowKeys.length" variant="ghost" size="sm" @click="onDeleteRecords">
+              <Button v-if="selectedRowKeys.length" variant="ghost" size="sm" class="text-xs h-8" @click="onDeleteRecords">
                 Delete {{ selectedRowKeys.length }} {{ selectedRowKeys.length > 1 ? 'Records' : 'Record' }}
               </Button>
 
