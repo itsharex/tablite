@@ -9,7 +9,7 @@ exclude = ["/examples", "/webview-dist", "/webview-src", "/node_modules"]
 links = "tauri-plugin-sql-extra"
 
 [dependencies]
-tauri = { version = "2.1.0" }
+tauri = { version = "2.4.1" }
 serde = "1.0"
 thiserror = "2"
 sqlx = { version = "0.7", features = ["json", "mysql", "postgres", "runtime-tokio", "sqlite", "time"] }
@@ -18,4 +18,4 @@ serde_json = "1.0.135"
 time = "0.3.37"
 
 [build-dependencies]
-tauri-plugin = { version = "2.0.2", features = ["build"] }
+tauri-plugin = { version = "2.1.1", features = ["build"] }
