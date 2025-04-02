@@ -29,7 +29,8 @@ let editor: monaco.editor.IStandaloneCodeEditor
 const PLATFORM = platform()
 
 const domRef = ref()
-const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
+const { cursor, useTablesReturn } = useContext()
+const { tables } = useTablesReturn
 const id = useRouteParams<string>('id')
 const queries = useTauriStorage<Query[]>('queries', [], `${unref(id)}/data.json`)
 const selectedQueryIndex = ref(-1)
@@ -43,7 +44,6 @@ const selectedQuery = computed<Query>(() => {
 
 const { title, code, data, error, timeToExecute, isSelect, isLoading, execute, abort } = useQuery(cursor, selectedQuery)
 const transitionTimeToExecute = useTransition(timeToExecute)
-const { tables } = useTables(cursor)
 const search = ref('')
 const { meta, shift, s } = useMagicKeys()
 const { steps, step: stepIndex, data: sql, prompt, isLoading: isGenerating, execute: generate } = useText2Sql({ cursor, tables })

@@ -46,7 +46,7 @@ export function useRelativeTables(tables: MaybeRef<string[]> = []) {
 }
 
 export function useSchemasPrompt(cursor: MaybeRef<Database> | undefined) {
-  const backend = useCursorBackend(cursor)
+  const driver = useCursorDriver(cursor)
 
   const execute: AgentNode = async ({ messages }: { messages: any[] }) => {
     const question = messages[0]!.content
@@ -54,13 +54,13 @@ export function useSchemasPrompt(cursor: MaybeRef<Database> | undefined) {
     if (!question)
       return ''
     const schemas = await generateTableSchemaPromptWithIndexRows(tables, unref(cursor))
-    const template = SQL_PROMPT?.[backend.value] ?? SQL_PROMPT.default as string
+    const template = SQL_PROMPT?.[driver.value] ?? SQL_PROMPT.default as string
 
     return usePromptTemplate(template, {
       tableInfo: schemas.filter(Boolean).join('\n\n'),
       input: question,
       topK: 5,
-      dialect: backend.value,
+      dialect: driver.value,
     }).value
   }
 
@@ -107,7 +107,7 @@ export function useText2Sql(options: UseText2SqlOptions) {
   const { model } = useAiProvider()
   const data = ref('')
   const isLoading = ref(false)
-  const { step, steps, register, next } = useSteps()
+  const { step, steps, register, next, reset } = useSteps()
 
   register([
     { title: 'Engine Priming', description: 'Initialze model' },
@@ -118,6 +118,7 @@ export function useText2Sql(options: UseText2SqlOptions) {
 
   async function execute() {
     isLoading.value = true
+    reset()
     next()
 
     const { messages } = await createAgent(model.value!)

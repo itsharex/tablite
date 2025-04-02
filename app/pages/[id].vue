@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { platform } from '@tauri-apps/plugin-os'
-import { hash } from 'ohash'
 import CircleStack from '~icons/heroicons/circle-stack'
 import CodeBracket from '~icons/heroicons/code-bracket'
 import Cog6Tooth from '~icons/heroicons/cog-6-tooth'
@@ -14,11 +13,8 @@ const IS_MACOS = platform() === 'macos'
 const route = useRoute()
 const router = useRouter()
 const id = useRouteParams<string>('id')
-const store = useConnectionStore()
-const { cursors, connections } = storeToRefs(store)
-const cursor = computed(() => cursors.value[id.value])
-const instance = ref<Database | undefined>(undefined)
-const db = computed(() => parseConnectionURL(instance.value?.path).database)
+const { cursor } = useProvideContext(id)
+const db = computed(() => parseConnectionURL(cursor.value?.path).database)
 const { isFullscreen } = useTauriWindow()
 
 const tabs = computed(() => [
@@ -27,28 +23,9 @@ const tabs = computed(() => [
   { key: 'id-settings', icon: Cog6Tooth },
 ].filter(Boolean) as any[])
 
-async function findCursorOrCreate() {
-  if (cursor.value?.instance)
-    return cursor.value.instance
-  const cnx = connections.value.find(e => hash(e.url) === id.value)
-  if (!cnx?.url)
-    return
-  await store.connect(cnx.url)
-  return cursor.value?.instance
-}
-
-const abort = watchImmediate(connections, async (cnxs) => {
-  if (cnxs.length) {
-    instance.value = await findCursorOrCreate()
-    abort()
-  }
-})
-
 function onNavi(tab: { key: string }) {
   router.replace({ name: tab.key })
 }
-
-provide('__TABLITE:CURSOR', instance)
 
 preloadRouteComponents({ name: 'id-queries' })
 

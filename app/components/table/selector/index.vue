@@ -15,8 +15,9 @@ const emit = defineEmits(['update:value', 'afterSelect', 'beforeRefresh', 'after
 const value = useVModel(props, 'value', emit)
 
 const { cursor } = toRefs(props)
+const { useTablesReturn, driver } = useContext()
+const { tables, isLoading, execute } = useTablesReturn
 const domRef = ref()
-const { tables, isLoading, backend, execute: reconnect } = useTables(cursor)
 const search = ref('')
 const isOpen = ref([false])
 
@@ -31,15 +32,15 @@ function onSelect(table: string) {
 
 async function onRefresh() {
   emit('beforeRefresh')
-  await reconnect()
+  await execute()
 }
 
 async function onDelete() {
   const sql = Sql.DROP_TABLE_IF_EXISTS(value.value)
-  await useQuery(cursor).execute(sql[backend.value])
+  await useQuery(cursor).execute(sql[driver.value])
   value.value = ''
   emit('afterDelete')
-  await reconnect()
+  await execute()
 }
 </script>
 

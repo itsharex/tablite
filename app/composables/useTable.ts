@@ -27,7 +27,7 @@ function normalizeStructure(value: QueryStructureResults): Structure[] {
   }))
 }
 
-export function useCursorBackend(cursor: MaybeRef<Database | undefined>) {
+export function useCursorDriver(cursor: MaybeRef<Database | undefined>) {
   return computed(() => unref(cursor)?.path.split(':')[0] ?? 'mysql')
 }
 
@@ -56,7 +56,7 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   const structure = ref<Structure[]>([])
   const isLoading = ref([false, false])
   const primaryKeys = ref<string[]>([])
-  const backend = useCursorBackend(cursor)
+  const driver = useCursorDriver(cursor)
   const where = ref('')
   const { sql } = useSelect([], table, { where, limit, offset })
   const isReady = computed(() => !!cursor.value)
@@ -72,9 +72,9 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
         isLoading.value[0] = true
         const { database } = parseConnectionURL(cursor.value.path)
         const results = await Promise.all([
-          cursor.value?.select<QueryStructureResults>(Sql.DESCRIBE_TABLE(table.value)[backend.value]!),
+          cursor.value?.select<QueryStructureResults>(Sql.DESCRIBE_TABLE(table.value)[driver.value]!),
           cursor.value?.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),
-          cursor.value?.select<QueryStatisticsResults>(Sql.QUERY_UNIQUE_COLUMNS(database, table.value)[backend.value]!),
+          cursor.value?.select<QueryStatisticsResults>(Sql.QUERY_UNIQUE_COLUMNS(database, table.value)[driver.value]!),
         ])
         structure.value = normalizeStructure(results[0] ?? [])
         count.value = results[1]?.[0]?.count ?? 0
@@ -108,7 +108,6 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
     offset,
     count,
     primaryKeys,
-    backend,
     where,
     isLoading: computed(() => isLoading.value.some(Boolean)),
     setup,
@@ -116,22 +115,22 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
   }
 }
 
-export function useTables(cursorInstance: MaybeRef<Database | undefined> | undefined, options: { immediate?: boolean } = { immediate: true }) {
+export function useTables(cursorInstance: MaybeRef<Database | undefined> | undefined) {
   const cursor = computed(() => unref(cursorInstance))
   const tables = ref<string[]>([])
   const isLoading = ref(false)
   const isReady = computed(() => !!cursor.value)
-  const backend = useCursorBackend(cursor)
+  const driver = useCursorDriver(cursor)
 
   async function execute() {
     try {
       isLoading.value = true
-      const sql = Sql.SHOW_TABLES()[backend.value]!
+      const sql = Sql.SHOW_TABLES()[driver.value]!
       const data: Record<string, string>[] = await cursor.value?.select(sql) ?? []
 
-      if (backend.value === 'mysql')
+      if (driver.value === 'mysql')
         tables.value = data.map(item => Object.values(item)[0] as string)
-      if (backend.value === 'sqlite')
+      if (driver.value === 'sqlite')
         tables.value = data.map(({ tbl_name }) => tbl_name as string)
     }
     finally {
@@ -139,16 +138,13 @@ export function useTables(cursorInstance: MaybeRef<Database | undefined> | undef
     }
   }
 
-  if (options.immediate) {
-    watchImmediate(isReady, (value) => {
-      if (value)
-        execute()
-    })
-  }
+  watchImmediate(isReady, (value) => {
+    if (value)
+      execute()
+  })
 
   return {
     tables,
-    backend,
     isLoading,
     execute,
   }

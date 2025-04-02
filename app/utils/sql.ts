@@ -31,12 +31,12 @@ export function parseConnectionURL(url?: string): { database: string } & Record<
 
 export async function queryCreateTableSQL(value: string, cursor?: Database): Promise<string> {
   if (value && cursor) {
-    const backend = cursor?.path.split(':')[0] ?? 'mysql'
-    const sql = Sql.SHOW_CREATE_TABLE(value)[backend]
+    const driver = useCursorDriver(cursor)
+    const sql = Sql.SHOW_CREATE_TABLE(value)[driver.value]
     if (!sql)
       return ''
     const [row] = await cursor?.select<any[]>(sql) ?? []
-    if (backend === 'sqlite')
+    if (driver.value === 'sqlite')
       return row.sql
     return row['Create Table']
   }

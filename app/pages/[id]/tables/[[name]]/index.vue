@@ -12,9 +12,9 @@ definePageMeta({
   key: route => route.name! as string,
 })
 
-const cursor = inject<Ref<Database> | undefined>('__TABLITE:CURSOR', undefined)
+const { cursor } = useContext()
 const table = useRouteParams<string>('name', '')
-const { data, limit, offset, count, structure, primaryKeys, isLoading, backend, where, execute } = useTable(table, cursor)
+const { data, limit, offset, count, structure, primaryKeys, isLoading, where, execute } = useTable(table, cursor)
 const columns = computed(() => structure.value.map(({ columnName }) => columnName))
 const selectedRowKeys = ref([])
 const isReady = computed(() => !!unref(cursor))
@@ -135,7 +135,7 @@ function onDeleteRecords() {
               </Button>
 
               <div class="flex">
-                <TableFilter :columns="columns" :backend="backend" @apply="onApplyFliters" />
+                <TableFilter :columns="columns" @apply="onApplyFliters" />
 
                 <DropdownMenu>
                   <DropdownMenuTrigger @click.stop>

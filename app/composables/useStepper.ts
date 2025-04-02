@@ -23,10 +23,16 @@ export function useSteps() {
     }
   }
 
+  function reset() {
+    step.value = 0
+    steps.value = steps.value.map(step => ({ ...step, status: 'pending' }))
+  }
+
   return {
     step,
     steps,
     register,
     next,
+    reset,
   }
 }

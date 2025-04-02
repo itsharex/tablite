@@ -13,7 +13,6 @@ interface Filter {
 
 const props = defineProps<{
   columns: string[]
-  backend: string
 }>()
 
 const emit = defineEmits(['apply'])
@@ -46,6 +45,7 @@ const OPERATION_SQL: Record<string, any> = {
 
 const filters = ref<Filter[]>([])
 const enabledFilters = ref<string[]>([])
+const { driver } = useContext()
 
 watch(() => props.columns, () => {
   filters.value = []
@@ -80,7 +80,7 @@ function onClear() {
 function onApply() {
   const sqls = filters.value.filter(item => item.column && item.operation && item.value && item.enable).map(item => [
     item.column,
-    OPERATION_SQL[item.operation!]?.(item.value)[props.backend ?? 'mysql'],
+    OPERATION_SQL[item.operation!]?.(item.value)[driver.value ?? 'mysql'],
   ].join(' '))
 
   enabledFilters.value = sqls
