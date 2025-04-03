@@ -16,7 +16,7 @@ const cnx = computed<Partial<Connection>>(() => connections.value.find(({ url })
 <template>
   <div class="px-4 w-full overflow-y-auto">
     <div class="flex">
-      <div class="p-8 w-96 flex-shrink-0">
+      <div class="p-8 w-96 shrink-0">
         <div class="text-lg font-bold mb-1">
           Gereral
         </div>
@@ -32,7 +32,7 @@ const cnx = computed<Partial<Connection>>(() => connections.value.find(({ url })
           </div>
 
           <Select v-model="language" class="focus-visible:ring-0">
-            <SelectTrigger class="h-8 w-64 flex-shrink-0">
+            <SelectTrigger class="h-8 w-64 shrink-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -55,7 +55,7 @@ const cnx = computed<Partial<Connection>>(() => connections.value.find(({ url })
           </div>
 
           <Select v-model="model" class="focus-visible:ring-0">
-            <SelectTrigger class="h-8 w-64 flex-shrink-0">
+            <SelectTrigger class="h-8 w-64 shrink-0">
               <SelectValue placeholder="Select a model..." />
             </SelectTrigger>
 
@@ -134,7 +134,7 @@ const cnx = computed<Partial<Connection>>(() => connections.value.find(({ url })
     <Separator />
 
     <div class="flex">
-      <div class="p-8 w-96 flex-shrink-0">
+      <div class="p-8 w-96 shrink-0">
         <div class="text-lg font-bold mb-1">
           Assistant
         </div>
@@ -212,7 +212,7 @@ const cnx = computed<Partial<Connection>>(() => connections.value.find(({ url })
     <Separator />
 
     <div class="flex">
-      <div class="p-8 w-96 flex-shrink-0">
+      <div class="p-8 w-96 shrink-0">
         <div class="text-lg font-bold mb-1">
           Danger
         </div>

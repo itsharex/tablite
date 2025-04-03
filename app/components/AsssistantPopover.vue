@@ -68,7 +68,7 @@ async function onSend() {
 <template>
   <Popover v-if="model">
     <PopoverTrigger as-child>
-      <Button variant="ghost" size="sm" class="z-[101] h-8 hover:bg-zinc-200/50">
+      <Button variant="ghost" size="sm" class="z-101 h-8 hover:bg-zinc-200/50">
         <img :src="model.icon" class="size-4">
         <HyperText :text="model.alias || model.model || ''" :duration="300" class="p-0 cursor-pointer" :class="[IS_MACOS ? 'text-[0.65rem]' : 'text-xs font-semibold']" />
         <ChevronUpDown class="size-4" />
@@ -105,7 +105,7 @@ async function onSend() {
     </PopoverContent>
   </Popover>
 
-  <Button v-else variant="ghost" size="sm" class="z-[101] h-8 w-8 p-0 hover:bg-zinc-200/50" @click="router.replace({ name: 'id-settings' })">
+  <Button v-else variant="ghost" size="sm" class="z-101 h-8 w-8 p-0 hover:bg-zinc-200/50" @click="router.replace({ name: 'id-settings' })">
     <Sparkles />
   </Button>
 </template>
