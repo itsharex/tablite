@@ -46,7 +46,7 @@ function parseConnectionURL(value: string) {
   return { database: '' }
 }
 
-export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<Database | undefined> | undefined) {
+export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<Database>) {
   const table = computed(() => unref(tableName))
   const cursor = computed(() => unref(cursorInstance))
   const limit = ref(100)
@@ -74,11 +74,11 @@ export function useTable(tableName: MaybeRef<string>, cursorInstance: MaybeRef<D
         const results = await Promise.all([
           cursor.value?.select<QueryStructureResults>(Sql.DESCRIBE_TABLE(table.value)[driver.value]!),
           cursor.value?.select<{ count: number }[]>(`SELECT COUNT(*) as count FROM \`${table.value}\`;`),
-          cursor.value?.select<QueryStatisticsResults>(Sql.QUERY_UNIQUE_COLUMNS(database, table.value)[driver.value]!),
+          queryPrimaryKeys(database, table.value, cursor.value),
         ])
         structure.value = normalizeStructure(results[0] ?? [])
         count.value = results[1]?.[0]?.count ?? 0
-        primaryKeys.value = results[2].filter(({ is_unique }) => is_unique === 'TRUE').map(({ column_name }) => column_name) ?? []
+        primaryKeys.value = results[2]
       }
     }
     finally {

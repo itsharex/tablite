@@ -43,3 +43,18 @@ export async function queryCreateTableSQL(value: string, cursor?: Database): Pro
 
   return ''
 }
+
+export async function queryPrimaryKeys(database: string, table: string, cursor?: Database): Promise<string[]> {
+  if (!cursor)
+    return []
+
+  const driver = useCursorDriver(cursor).value
+
+  if (driver === 'sqlite') {
+    const cols = await cursor?.select<any[]>(`PRAGMA table_info(${table});`) ?? []
+    return cols.filter(({ pk }) => pk === 1).map(({ name }) => name)
+  }
+
+  const cols = await cursor?.select<any[]>(`SELECT CASE non_unique WHEN 0 THEN'TRUE'ELSE'FALSE'END AS is_unique,column_name as column_name FROM information_schema.statistics WHERE table_schema = '${database}' AND table_name = '${table}' ORDER BY seq_in_index ASC;`) ?? []
+  return cols.filter(({ is_unique }) => is_unique === 'TRUE').map(({ column_name }) => column_name)
+}
