@@ -15,11 +15,6 @@ export interface Structure {
 
 type QueryStructureResults = MysqlStructure[] | SqliteStructure[]
 
-type QueryStatisticsResults = {
-  is_unique: 'TRUE' | 'FALSE'
-  column_name: string
-}[]
-
 function normalizeStructure(value: QueryStructureResults): Structure[] {
   return value.map((item: any) => ({
     columnName: item.Field ?? item.name,
