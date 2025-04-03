@@ -60,42 +60,40 @@ const cnx = computed<Partial<Connection>>(() => connections.value.find(({ url })
             </SelectTrigger>
 
             <SelectContent>
-              <SelectGroup v-if="googleAPIKey">
-                <SelectLabel class="cursor-default">
-                  Google AI
-                </SelectLabel>
-                <SelectItem v-for="m in GOOGLE_AI_MODELS" :key="m.model" :value="m.model">
-                  {{ m.alias }}
-                </SelectItem>
-              </SelectGroup>
-
-              <SelectSeparator />
-
-              <SelectGroup v-if="deepseekApiKey">
-                <SelectLabel class="cursor-default">
-                  DeepSeek
-                </SelectLabel>
-                <SelectItem v-for="m in DEEPSEEK_MODELS" :key="m.model" :value="m.model">
-                  {{ m.alias }}
-                </SelectItem>
-              </SelectGroup>
-
-              <SelectSeparator />
-
-              <SelectGroup v-if="openrouterApiKey">
-                <SelectLabel class="cursor-default">
-                  OpenRouter
-                </SelectLabel>
-                <SelectItem v-for="m in OPENROUTER_MODELS" :key="m.model" :value="m.model">
-                  <div class="flex items-center gap-2">
+              <SelectGroupWithSeparator>
+                <SelectGroup v-if="googleAPIKey">
+                  <SelectLabel class="cursor-default">
+                    Google AI
+                  </SelectLabel>
+                  <SelectItem v-for="m in GOOGLE_AI_MODELS" :key="m.model" :value="m.model">
                     {{ m.alias }}
+                  </SelectItem>
+                </SelectGroup>
 
-                    <Badge v-if="m.tag" class="h-4 px-2 text-[0.5rem] uppercase">
-                      {{ m.tag }}
-                    </Badge>
-                  </div>
-                </SelectItem>
-              </SelectGroup>
+                <SelectGroup v-if="deepseekApiKey">
+                  <SelectLabel class="cursor-default">
+                    DeepSeek
+                  </SelectLabel>
+                  <SelectItem v-for="m in DEEPSEEK_MODELS" :key="m.model" :value="m.model">
+                    {{ m.alias }}
+                  </SelectItem>
+                </SelectGroup>
+
+                <SelectGroup v-if="openrouterApiKey">
+                  <SelectLabel class="cursor-default">
+                    OpenRouter
+                  </SelectLabel>
+                  <SelectItem v-for="m in OPENROUTER_MODELS" :key="m.model" :value="m.model">
+                    <div class="flex items-center gap-2">
+                      {{ m.alias }}
+
+                      <Badge v-if="m.tag" class="h-4 px-2 text-[0.5rem] uppercase">
+                        {{ m.tag }}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                </SelectGroup>
+              </SelectGroupWithSeparator>
             </SelectContent>
           </Select>
         </div>
