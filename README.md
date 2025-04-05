@@ -111,24 +111,21 @@ Generate executable sql query with natural language.
 
 Ranking here very subjective and based on personal pain points.
 
-### Milestone 1 - `table structure` & `connection management`
+### SQL Client
 
-- View or edit columns and table index
-- Create or delete table
-- Connection settings page
+- Support create table by GUI
+- Support create connection by a form instead of a connection string
+- Support edit or create columns / index by GUI
+- Support export table filter results to csv
+- Collect SQL execute histories
+- Better code auto completion
 
-### Milestone 2 - `form create connection`
+### AI Assistant
 
-Support create connection by a form instead of a connection string
-
-- MySQL
-- SQLite
-- Postgres
-
-### Milestone 3 - `chat with tables` & `export select results`
-
-- Ai assistant
-- Export select results
+- Support table visualization dashboard generation
+- Support custom table context
+- Support inline assistant in code editor
+- Support MCP service
 
 ## License
 
