@@ -69,6 +69,21 @@ Or use the `x64` version in release page to bypass this issue.
 pnpm install && pnpm tauri dev
 ```
 
+### Comparisons
+
+- Tauri: Small bundle size and low memory usage, dependence by user os, may have rendering differences across different systems/platforms due to WebKit version.
+
+- Electron: Large bundle size and large mem usage, has high consistency in cross-platform application rendering.
+
+|  | **Tauri** | **Electron** | **Gpui** | **Swift** |
+|--|--|--|--|--|
+| **Performance** | mid | low | high | high |
+| **Cross Platform** | yes | yes | yes | no |
+| **Community** | high | high | low | mid |
+| **Size** | small | large | mid | mid |
+| **Development** | mid | low | high | mid |
+| **App** | ChatWise | DingTalk | Zed | Pages |
+
 ### Code Design
 
 ![Design](./docs/CodeDesign.png)
