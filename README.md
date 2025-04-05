@@ -69,6 +69,44 @@ Or use the `x64` version in release page to bypass this issue.
 pnpm install && pnpm tauri dev
 ```
 
+### Code Design
+
+![Design](./docs/CodeDesign.png)
+
+#### `app`
+
+WebView client application with official nuxt design (future.compatibilityVersion: 4), read [Directory Structure](https://nuxt.com/docs/guide/directory-structure/app).
+
+#### `app.composables`
+
+Reacitve vue hooks
+
+#### `src-tauri`
+
+Tauri service root directory
+
+#### `src-tauri/lib.rs`
+
+App instance entry, plugin register center (includes: sql-extra / log / store)
+
+#### `src-tauri/crates/tauri-plugin-sql-extra`
+
+Custom tauri plugin sql implement.
+
+Heavily inspired by [tauri-plugin-sql](https://github.com/tauri-apps/tauri-plugin-sql) and extends its capabilities by adding support for multiple database types.
+
+### Agents
+
+#### `Text to SQL`
+
+Generate executable sql query with natural language.
+
+- Analysis relevant table names by model function calling
+- Provide table schema with row index
+- Generate prompt by preset templates
+- Generate SQL query
+- Format results and response with sse
+
 ## Roadmap
 
 Ranking here very subjective and based on personal pain points.
