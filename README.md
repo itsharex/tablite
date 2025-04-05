@@ -135,6 +135,10 @@ Reacitve vue hooks
 
 Text to SQL AI Agent
 
+#### [`app.composables.useAi`](./app/composables/useAi.ts)
+
+Reactive [Vercel AI SDK](https://sdk.vercel.ai/) in vue port
+
 #### [`app.utils.agent`](./app/utils/agent.ts)
 
 Global agent creator, example [here](./app/composables/useText2Sql.ts)
