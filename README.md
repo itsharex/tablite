@@ -73,23 +73,23 @@ pnpm install && pnpm tauri dev
 
 ![Design](./docs/CodeDesign.png)
 
-#### `app`
+#### [`app`](./app)
 
 WebView client application with official nuxt design (future.compatibilityVersion: 4), read [Directory Structure](https://nuxt.com/docs/guide/directory-structure/app).
 
-#### `app.composables`
+#### [`app.composables`](./app/composables)
 
 Reacitve vue hooks
 
-#### `src-tauri`
+#### [`src-tauri`](./src-tauri)
 
 Tauri service root directory
 
-#### `src-tauri/lib.rs`
+#### [`src-tauri/lib.rs`](./src-tauri/lib.rs)
 
 App instance entry, plugin register center (includes: sql-extra / log / store)
 
-#### `src-tauri/crates/tauri-plugin-sql-extra`
+#### [`src-tauri/crates/tauri-plugin-sql-extra`](./src-tauri/crates/tauri-plugin-sql-extra)
 
 Custom tauri plugin sql implement.
 
@@ -97,7 +97,7 @@ Heavily inspired by [tauri-plugin-sql](https://github.com/tauri-apps/tauri-plugi
 
 ### Agents
 
-#### `Text to SQL`
+#### [`Text to SQL`](./app/composables/useText2sql.ts)
 
 Generate executable sql query with natural language.
 
