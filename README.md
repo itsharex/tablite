@@ -92,9 +92,63 @@ pnpm install && pnpm tauri dev
 
 WebView client application with official nuxt design (future.compatibilityVersion: 4), read [Directory Structure](https://nuxt.com/docs/guide/directory-structure/app).
 
+#### [`app.components.VisTable`](./app/components/VisTable.vue)
+
+High performance canvas based table component, powered by [VisActor](https://visactor.io/)
+
+Support cell update and undo actions, and used update ref struct like:
+
+```ts
+/**
+ * Tracks changes made to table cell contents, where:
+ * - The outer key is a stringified row identifier (e.g., JSON string of row ID)
+ * - The inner key is the column/property name that was modified
+ * - The value is an array containing the new content(s)
+ *
+ * @example
+ * // Changes for row with ID "93uisjxquq", updating the "content" column from "hi" to "hi tablite"
+ * { "{\"id\":\"93uisjxquq\"}": { "content": ["hi", "hi tablite"] } }
+ */
+const changes = ref({})
+```
+
+Usage:
+
+```vue
+<VisTable
+  v-model:changes="changes"
+  v-model:inserts="inserts"
+  v-model:selected-row-keys="selectedRowKeys"
+  editable
+  :columns="columns"
+  :records="data"
+  :deletes="deletes"
+  :primary-keys="primaryKeys"
+/>
+```
+
 #### [`app.composables`](./app/composables)
 
 Reacitve vue hooks
+
+#### [`app.composables.useText2Sql`](./app/composables/useText2Sql.ts)
+
+Text to SQL AI Agent
+
+#### [`app.utils.agent`](./app/utils/agent.ts)
+
+Global agent creator, example [here](./app/composables/useText2Sql.ts)
+
+`createAgent` usage:
+
+```ts
+const prompt = ref('')
+const { model } = useAiProvider()
+
+const { messages } = await createAgent(model.value!)
+  .next(({ messages }: { messages: any[] }) => messages[0]!.content)
+  .execute([{ role: 'user', content: prompt.value }])
+```
 
 #### [`src-tauri`](./src-tauri)
 
