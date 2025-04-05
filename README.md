@@ -110,6 +110,25 @@ Custom tauri plugin sql implement.
 
 Heavily inspired by [tauri-plugin-sql](https://github.com/tauri-apps/tauri-plugin-sql) and extends its capabilities by adding support for multiple database types.
 
+`sql-extra` powered by `sqlx` and provide plugin commands below:
+
+- `plugin:sql-extra|load`: ({ db: string }) => Promise<string>
+- `plugin:sql-extra|execute`: ({ db: string, query: string }) => Promise<void>
+- `plugin:sql-extra|select`: <T extends any[]>({ db: string, query: string }) => Promise<T>
+- `plugin:sql-extra|close`: ({ db: string }) => Promise<void>
+
+For different type of database, `sql-extra` use `serde_json` for json decoder
+
+- [`mysql`](../src-tauri/crates/tauri-plugin-sql-extra/src/decode/mysql.rs)
+  - `"CHAR" | "VARCHAR" | "TINYTEXT" | "TEXT" | "MEDIUMTEXT" | "LONGTEXT" | "ENUM" | "DATE" | "TIME" | "DATETIME" | "TIMESTAMP"`: `string`
+  - `"Float" | "DOUBLE" | "TINYINT" | "SMALLINT" | "INT" | "MEDIUMINT" | "BIGINT" | "TINYINT UNSIGNED" | "SMALLINT UNSIGNED" | "INT UNSIGNED" | "MEDIUMINT UNSIGNED" | "BIGINT UNSIGNED" | "YEAR" | "TINIYBLOB" | "MEDIUMBLOB" | "BLOB" | "LONGBLOB"`: `number`
+  - `"BOOLEAN"`: `boolean`
+
+- [`sqlite`](../src-tauri/crates/tauri-plugin-sql-extra/src/decode/sqlite.rs)
+  - `"TEXT" | "DATE" | "TIME" | "DATETIME"`: `string`
+  - `"REAL" | "INTEGER" | "NUMERIC" | "BLOB"`: `number`
+  - `"BOOLEAN"`: `boolean`
+
 ### Agents
 
 #### [`Text to SQL`](./app/composables/useText2Sql.ts)
