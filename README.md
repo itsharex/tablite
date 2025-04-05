@@ -85,7 +85,7 @@ Reacitve vue hooks
 
 Tauri service root directory
 
-#### [`src-tauri/lib.rs`](./src-tauri/lib.rs)
+#### [`src-tauri/src/lib.rs`](./src-tauri/src/lib.rs)
 
 App instance entry, plugin register center (includes: sql-extra / log / store)
 
@@ -97,7 +97,7 @@ Heavily inspired by [tauri-plugin-sql](https://github.com/tauri-apps/tauri-plugi
 
 ### Agents
 
-#### [`Text to SQL`](./app/composables/useText2sql.ts)
+#### [`Text to SQL`](./app/composables/useText2Sql.ts)
 
 Generate executable sql query with natural language.
 
