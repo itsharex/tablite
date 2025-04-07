@@ -42,6 +42,7 @@
     "scule": "^1.3.0",
     "shadcn-nuxt": "^2.0.0",
     "sql-formatter": "^15.5.2",
+    "tw-animate-css": "^1.2.5",
     "vaul-vue": "^0.4.1",
     "vue": "latest",
     "vue-router": "latest",

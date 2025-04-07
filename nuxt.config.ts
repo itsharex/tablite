@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
-  css: ['./app/assets/css/tailwind.css'],
+  css: ['~/assets/css/tailwind.css'],
 
   modules: [
     '@vueuse/nuxt',
@@ -24,6 +24,7 @@ export default defineNuxtConfig({
   ],
 
   shadcn: {
+    prefix: '',
     componentDir: './app/components/ui',
   },
 
