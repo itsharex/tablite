@@ -72,7 +72,7 @@ async function onDelete() {
 
           <DropdownMenu v-if="value === table && !loading">
             <DropdownMenuTrigger @click.stop>
-              <EllipsisHorizontal />
+              <EllipsisHorizontal class="cursor-pointer" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem class="text-xs" @click="isOpen[0] = true">
