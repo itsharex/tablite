@@ -1,4 +1,5 @@
 import process from 'node:process'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -11,8 +12,9 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
+  css: ['~/assets/css/tailwind.css'],
+
   modules: [
-    '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
     'shadcn-nuxt',
     'unplugin-icons/nuxt',
@@ -22,6 +24,7 @@ export default defineNuxtConfig({
   ],
 
   shadcn: {
+    prefix: '',
     componentDir: './app/components/ui',
   },
 
@@ -36,6 +39,9 @@ export default defineNuxtConfig({
   vite: {
     clearScreen: false,
     envPrefix: ['VITE_', 'TAURI_'],
+    plugins: [
+      tailwindcss(),
+    ],
     server: {
       strictPort: true,
     },

@@ -3,7 +3,7 @@
     :style="parentStyles"
     :class="
       cn(
-        'relative grid min-h-[60px] w-fit min-w-[300px] place-items-center rounded-[--border-radius] bg-white p-3 text-black dark:bg-black dark:text-white glow-border',
+        'relative grid min-h-[60px] w-fit min-w-[300px] place-items-center rounded-(--border-radius) bg-white p-3 text-black dark:bg-black dark:text-white glow-border',
         $props.class,
       )
     "
@@ -12,8 +12,8 @@
       :style="childStyles"
       :class="
         cn(
-          `glow-border before:absolute before:inset-0 before:aspect-square before:size-full before:rounded-[--border-radius] before:bg-[length:300%_300%] before:p-[--border-width] before:opacity-50 before:will-change-[background-position] before:content-['']`,
-          'before:![-webkit-mask-composite:xor] before:![mask-composite:exclude] before:[mask:--mask-linear-gradient]',
+          `glow-border before:absolute before:inset-0 before:aspect-square before:size-full before:rounded-(--border-radius) before:bg-[length:300%_300%] before:p-(--border-width) before:opacity-50 before:will-change-[background-position] before:content-['']`,
+          'before:[-webkit-mask-composite:xor]! before:[mask-composite:exclude]! before:[mask:var(--mask-linear-gradient)]',
         )
       "
     ></div>

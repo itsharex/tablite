@@ -346,5 +346,5 @@ function calcCellBgColor(col: number, row: number) {
 </script>
 
 <template>
-  <div ref="domRef" class="w-full h-full flex-1 flex-shrink-0 text-xs" />
+  <div ref="domRef" class="w-full h-full flex-1 shrink-0 text-xs" />
 </template>

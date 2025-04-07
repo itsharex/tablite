@@ -176,7 +176,7 @@ function onDeleteRecords() {
 
           <Separator />
 
-          <div class="flex-shrink-0 px-3 py-2 flex justify-between items-center relative z-10">
+          <div class="shrink-0 px-3 py-2 flex justify-between items-center relative z-10">
             <Tabs default-value="id-tables-name-index">
               <TabsList>
                 <TabsTrigger value="id-tables-name-index" class="px-3 py-1 text-xs font-normal">
@@ -236,7 +236,7 @@ function onDeleteRecords() {
                 <PopoverContent align="end" :side-offset="8" class="w-[33.5rem] py-0 overflow-y-auto max-h-48">
                   <div class="w-full flex flex-col my-4 gap-2">
                     <div v-for="(update, index) in updates" :key="index" class="flex gap-2 items-center">
-                      <Checkbox v-model:checked="update.enable" class="flex-shrink-0" />
+                      <Checkbox v-model:checked="update.enable" class="shrink-0" />
                       <Input v-model="update.sql" placeholder="Enter query" :readonly="!update.enable" class="h-8 text-xs focus-visible:ring-0" :class="{ 'bg-zinc-50 text-zinc-600/50': !update.enable }" />
                     </div>
                   </div>

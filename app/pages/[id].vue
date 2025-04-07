@@ -36,10 +36,10 @@ function isActive(key: string) {
 
 <template>
   <div class="h-screen flex flex-col" :class="[IS_MACOS ? '-mt-12' : '-mt-20']">
-    <Separator v-if="!IS_MACOS" class="mt-8 z-[101]" />
-    <div class="w-full p-2 flex justify-between items-center flex-shrink-0 h-12">
+    <Separator v-if="!IS_MACOS" class="mt-8 z-101" />
+    <div class="w-full p-2 flex justify-between items-center shrink-0 h-12">
       <div class="flex items-center h-full box-border" :class="{ 'pl-[72px]': IS_MACOS && !isFullscreen }">
-        <Button variant="ghost" size="sm" class="z-[101] font-semibold px-4 uppercase align-middle hover:bg-zinc-200/50" @click="router.replace({ name: 'index' })">
+        <Button variant="ghost" size="sm" class="z-101 font-semibold px-4 uppercase align-middle hover:bg-zinc-200/50" @click="router.replace({ name: 'index' })">
           <span>TABLITE</span>
           <span v-if="db" class="-translate-y-px">/</span>
           <span v-if="db" class="text-zinc-600/50">{{ db }}</span>
@@ -52,9 +52,9 @@ function isActive(key: string) {
     <Separator />
 
     <div class="flex flex-1 h-0">
-      <div class="flex flex-col items-center flex-shrink-0 border-r border-r-zinc-200 bg-zinc-100">
+      <div class="flex flex-col items-center shrink-0 border-r border-r-zinc-200 bg-zinc-100">
         <div v-for="tab in tabs" :key="tab.key" class="flex items-center cursor-pointer justify-center relative" :class="[isActive(tab.key) ? 'bg-zinc-200 text-zinc-600' : 'text-zinc-600/50 hover:text-zinc-600']" @click="onNavi(tab)">
-          <component :is="tab.icon" class="flex-shrink-0 size-[18px] m-4" />
+          <component :is="tab.icon" class="shrink-0 size-[18px] m-4" />
           <div v-if="isActive(tab.key)" class="absolute top-0 bottom-0 left-0 w-0.5 bg-zinc-800" />
         </div>
       </div>

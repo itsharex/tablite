@@ -209,9 +209,9 @@ watch(sql, (v) => {
           <Input v-model="search" class="h-8 text-sm relative z-10" placeholder="Search queries" />
         </div>
 
-        <div v-if="!queries.length" class="p-6 flex flex-col gap-5 rounded-lg shadow mx-4 bg-white cursor-default">
+        <div v-if="!queries.length" class="p-6 flex flex-col gap-5 rounded-lg shadow-sm mx-4 bg-white cursor-default">
           <div class="relative h-20 w-16 mx-auto">
-            <span class="absolute left-0 top-0 z-10 flex h-20 w-16 items-center justify-center rounded-2xl bg-neutral-800 text-white/90 shadow transition-transform duration-300 ease-bounce group-hover:translate-x-2 group-hover:rotate-12 dark:bg-white dark:text-black/80">
+            <span class="absolute left-0 top-0 z-10 flex h-20 w-16 items-center justify-center rounded-2xl bg-neutral-800 text-white/90 shadow-sm transition-transform duration-300 ease-bounce group-hover:translate-x-2 group-hover:rotate-12 dark:bg-white dark:text-black/80">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 256 256">
                 <path d="M237.2,151.87v0a47.1,47.1,0,0,0-2.35-5.45L193.26,51.8a7.82,7.82,0,0,0-1.66-2.44,32,32,0,0,0-45.26,0A8,8,0,0,0,144,55V80H112V55a8,8,0,0,0-2.34-5.66,32,32,0,0,0-45.26,0,7.82,7.82,0,0,0-1.66,2.44L21.15,146.4a47.1,47.1,0,0,0-2.35,5.45v0A48,48,0,1,0,112,168V96h32v72a48,48,0,1,0,93.2-16.13ZM76.71,59.75a16,16,0,0,1,19.29-1v73.51a47.9,47.9,0,0,0-46.79-9.92ZM64,200a32,32,0,1,1,32-32A32,32,0,0,1,64,200ZM160,58.74a16,16,0,0,1,19.29,1l27.5,62.58A47.9,47.9,0,0,0,160,132.25ZM192,200a32,32,0,1,1,32-32A32,32,0,0,1,192,200Z" />
               </svg>
@@ -234,7 +234,7 @@ watch(sql, (v) => {
         </div>
 
         <div v-for="(query, index) in filtered" :key="query.title" class="flex items-center text-sm gap-1.5 min-h-8 px-4 cursor-default text-zinc-600" :class="[selectedQueryIndex === index ? 'text-zinc-800 bg-zinc-200' : 'hover:bg-zinc-200/50']" @click="onSelect(index)">
-          <Tag class="flex-shrink-0" />
+          <Tag class="shrink-0" />
           <div class="flex-1 truncate">
             {{ query.title }}
           </div>
@@ -295,7 +295,7 @@ watch(sql, (v) => {
                         <Check v-if="step.status === 'succeeded'" class="scale-75" />
                         <Spin v-if="step.status === 'running'" class="size-4" />
                         <XMark v-if="step.status === 'failed'" class="scale-75" />
-                        <div v-if="step.status === 'pending'" class="bg-zinc-600/50 w-2 h-2 flex-shrink-0 rounded-full" />
+                        <div v-if="step.status === 'pending'" class="bg-zinc-600/50 w-2 h-2 shrink-0 rounded-full" />
                       </Button>
                     </StepperTrigger>
 
@@ -315,9 +315,9 @@ watch(sql, (v) => {
               </PopoverContent>
             </Popover>
 
-            <input v-model="title" class="focus-visible:outline-none font-semibold mx-2 flex-1" :readonly="isGenerating" placeholder="Untitled Query">
+            <input v-model="title" class="focus-visible:outline-hidden font-semibold mx-2 flex-1" :readonly="isGenerating" placeholder="Untitled Query">
 
-            <div class="flex-shrink-0 flex justify-end gap-2">
+            <div class="shrink-0 flex justify-end gap-2">
               <Button variant="secondary" size="sm" class="text-xs h-8" :disabled="!title || isSaving" @click="onSave">
                 Save
               </Button>
@@ -347,7 +347,7 @@ watch(sql, (v) => {
 
             <Separator />
 
-            <span class="flex-shrink-0 px-3 py-2 text-xs flex items-center justify-between">
+            <span class="shrink-0 px-3 py-2 text-xs flex items-center justify-between">
               <span class="flex items-center gap-1">
                 <CheckCircle class="size-4" />
                 {{ transitionTimeToExecute.toFixed(0) }} ms

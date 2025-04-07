@@ -57,13 +57,13 @@ async function onDelete() {
         </div>
       </div>
 
-      <div class="px-4 mt-4 pb-4 transition-all duration-150" :class="{ shadow: y > 6 }">
+      <div class="px-4 mt-4 pb-4 transition-all duration-150" :class="{ 'shadow-sm': y > 6 }">
         <Input v-model="search" class="h-8 text-sm relative z-10" placeholder="Search tables" />
       </div>
 
       <div ref="domRef" class="h-full relative overflow-y-auto pb-4">
         <div v-for="table in filtered" :key="table" class="flex items-center text-sm gap-1.5 min-h-8 px-4 cursor-default text-zinc-600" :class="[value === table ? 'text-zinc-800 bg-zinc-200' : 'hover:bg-zinc-200/50']" @click="onSelect(table)">
-          <TableCells class="flex-shrink-0" />
+          <TableCells class="shrink-0" />
           <div class="flex-1 truncate">
             {{ table }}
           </div>
@@ -72,7 +72,7 @@ async function onDelete() {
 
           <DropdownMenu v-if="value === table && !loading">
             <DropdownMenuTrigger @click.stop>
-              <EllipsisHorizontal />
+              <EllipsisHorizontal class="cursor-pointer" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem class="text-xs" @click="isOpen[0] = true">
